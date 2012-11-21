@@ -16,10 +16,10 @@ Jeweler::Tasks.new do |gem|
   # gem is a Gem::Specification... see http://docs.rubygems.org/read/chapter/20 for more options
   gem.name = "ki-repo"
   gem.homepage = "http://github.com/mikko-apo/ki-repo"
-  gem.license = "MIT"
-  gem.summary = %Q{TODO: one-line summary of your gem}
-  gem.description = %Q{TODO: longer description of your gem}
-  gem.email = "mikko.apo@reaktor.fi"
+  gem.license = "Apache License, Version 2.0"
+  gem.summary = "Repository for storing packages and metadata."
+  gem.description = "A generic repository for storing packages and metadata related to the packages."
+#  gem.email = "mikko.apo@reaktor.fi"
   gem.authors = ["Mikko Apo"]
   # dependencies defined in Gemfile
 end
@@ -34,19 +34,6 @@ end
 RSpec::Core::RakeTask.new(:rcov) do |spec|
   spec.pattern = 'spec/**/*_spec.rb'
   spec.rcov = true
-end
-
-require 'reek/rake/task'
-Reek::Rake::Task.new do |t|
-  t.fail_on_error = true
-  t.verbose = false
-  t.source_files = 'lib/**/*.rb'
-end
-
-require 'roodi'
-require 'roodi_task'
-RoodiTask.new do |t|
-  t.verbose = false
 end
 
 task :default => :spec
