@@ -1,0 +1,26 @@
+# encoding: UTF-8
+require 'bundler/setup'
+
+require_relative 'util/attr_chain'
+require_relative 'util/exception_catcher'
+require_relative 'util/ruby_extensions'
+require_relative 'util/test'
+require_relative 'util/shell'
+require_relative 'util/service_registry'
+require_relative 'util/hash'
+require_relative 'util/hash_cache'
+
+require_relative 'data_storage/dir_base'
+require_relative 'data_storage/ki_json'
+require_relative 'data_storage/package_info'
+require_relative 'data_storage/version_metadata'
+require_relative 'data_storage/projects'
+
+require_relative 'data_access/package_access'
+require_relative 'data_access/package_finder'
+require_relative 'data_access/version_commands'
+require_relative 'data_access/version_operations'
+require_relative 'data_access/version_finders'
+
+require_relative 'cmd/cmd'
+require_relative 'cmd/packages_cmd'

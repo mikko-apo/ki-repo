@@ -28,6 +28,7 @@ pkg
 # idea
 .rakeTasks
 spec/coverage
+spec-slow/coverage
 
 # osx
 .DS_Store

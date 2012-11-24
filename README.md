@@ -1,16 +1,22 @@
 # ki-repo
 
-Repository for storing versions and metadata.
+Repository for storing packages and metadata.
 
-## Contributing to ki-repo
- 
-* Check out the latest master to make sure the feature hasn't been implemented or the bug hasn't been fixed yet.
-* Check out the issue tracker to make sure someone already hasn't requested it and/or contributed it.
-* Fork the project.
-* Start a feature/bugfix branch.
-* Commit and push until you are happy with your contribution.
-* Make sure to add tests for it.
-* Please make your commit tidy.
+note: Currently Ki is not ready for any kind of use.
+
+# Plan
+
+1. Local repository features: create package, import, export, list, test, dependencies
+2. Metadata support: statuses, file tagging
+3. Repository cleanup and removal
+4. Use script files in repository to add additional commands to ki
+
+Once these features are implemented Ki is ready for use on local server. In the future, the goal is to provide tools
+to manage distributed repositories: downloads and replication.
+
+# Setting up development environment
+
+Follow the instructions here: {file:docs/setup_development.md Setup Development}
 
 ## Copyright
 

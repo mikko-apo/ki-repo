@@ -11,4 +11,8 @@ group :development do
   gem "bundler"
   gem "jeweler"
   gem "simplecov"
+  gem "rdiscount"
+  gem "mocha"
 end
+
+gem "open4"

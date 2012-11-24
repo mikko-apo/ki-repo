@@ -1,0 +1,5 @@
+#!/usr/bin/env ruby
+require 'rubygems'
+require 'ki_repo_all'
+
+Ki::KiCommand.new.execute(ARGV)
