@@ -13,16 +13,16 @@ describe FileFinder do
     product_internal_metadata = @info_components.add_item("test/product-internal").mkdir.versions.add_version("2").mkdir
 
     @comp_binary = binaries.add_item("test/comp").mkdir.versions.add_version("13").mkdir
-    @tester.write_files(@comp_binary.path, "aa.txt" => "aa")
+    Tester.write_files(@comp_binary.path, "aa.txt" => "aa")
     comp_metadata.metadata.add_dependency("test/comp-internal/3,name=test,path=test,internal")
     comp_metadata.metadata.add_files(@comp_binary.path, "*").save
 
     comp_internal_binary = binaries.add_item("test/comp-internal").mkdir.versions.add_version("3").mkdir
-    @tester.write_files(comp_internal_binary.path, "comp-internal-not-included.txt" => "aa")
+    Tester.write_files(comp_internal_binary.path, "comp-internal-not-included.txt" => "aa")
     comp_internal_metadata.metadata.add_files(comp_internal_binary.path, "*").save
 
     @product_internal_binary = binaries.add_item("test/product-internal").mkdir.versions.add_version("2").mkdir
-    @tester.write_files(@product_internal_binary.path, "foo/product-internal.txt" => "aa")
+    Tester.write_files(@product_internal_binary.path, "foo/product-internal.txt" => "aa")
     product_internal_metadata.metadata.add_files(@product_internal_binary.path, "*").save
 
     product_metadata = product_metadata.metadata

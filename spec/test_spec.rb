@@ -21,7 +21,7 @@ describe Tester do
 
   it "tmpdir should copy visible files" do
     tmp = @tester.tmpdir
-    @tester.write_files(tmp, "foo.txt" => "aa", "bar/foo.txt" => "bb", ".config" => "cc", "bar/.config" => "dd")
+    Tester.write_files(tmp, "foo.txt" => "aa", "bar/foo.txt" => "bb", ".config" => "cc", "bar/.config" => "dd")
     FileUtils.mkdir(File.join(tmp, ".test"))
     FileUtils.mkdir(File.join(tmp, "bar/.test"))
     dest = @tester.tmpdir(tmp)
@@ -41,7 +41,7 @@ describe Tester do
   end
 
   it "tmpdir should delete target file if there is exception during setup" do
-    @tester.expects(:copy_visible_files).raises("test error")
+    Tester.expects(:copy_visible_files).raises("test error")
     FileUtils.expects(:remove_entry_secure)
     lambda {@tester.tmpdir("/non-existing-path-for-testing")}.should raise_error("test error")
   end
@@ -70,6 +70,27 @@ describe Tester do
     Dir.pwd.should == original
     @tester.chdir(parent)
     Dir.pwd.should == parent
+  end
+
+  it "should write files and check that files are correct" do
+    tmp = @tester.tmpdir
+    files = {"a" => "1", "b/c.txt" => "2"}
+    Tester.write_files(tmp, files)
+    IO.read(File.join(tmp, "a")).should == "1"
+    IO.read(File.join(tmp, "b/c.txt")).should == "2"
+    Tester.verify_files(tmp, files)
+    Tester.verify_files(tmp, "b/" => nil)
+    Tester.verify_files(tmp, "b" => nil)
+    Tester.verify_files(tmp, "a" => /1/)
+    Tester.verify_files(tmp, "a" => lambda { |s| s == "1"} )
+    lambda {Tester.verify_files(tmp, files.merge("a" => "bar"))}.should raise_error "File '#{tmp}/a' is broken! Expected 'bar' but was '1'"
+    lambda {Tester.verify_files(tmp, "a" => /2/)}.should raise_error "File '#{tmp}/a' does not match regexp /2/, file contents: '1'"
+    lambda {Tester.verify_files(tmp, "a" => lambda { |s| s == "2"} )}.should raise_error "File '#{tmp}/a' did not pass test!"
+    lambda {Tester.verify_files(tmp, files.merge("foo" => "bar"))}.should raise_error "File '#{tmp}/foo' is missing!"
+    lambda {Tester.verify_files(tmp, "c/" => nil)}.should raise_error "Directory '#{tmp}/c/' is missing!"
+    lambda {Tester.verify_files(tmp, "b" => "foo")}.should raise_error "Existing directory '#{tmp}/b' should be a file!"
+    lambda {Tester.verify_files(tmp, true, "b/c.txt" => "2")}.should raise_error "File '#{tmp}/a' exists, but it should not exist!"
+    lambda {Tester.verify_files(tmp, true, "a" => "1")}.should raise_error "Directory '#{tmp}/b' exists, but it should not exist!"
   end
 end
 

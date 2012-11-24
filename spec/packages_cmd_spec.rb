@@ -10,7 +10,7 @@ describe KiCommand do
 
   it "build-version" do
     @tester.chdir(source = @tester.tmpdir) do
-      @tester.write_files(source,
+      Tester.write_files(source,
                           "dir/test.txt" => "aa",
                           "foo.txt" => "f",
                           "zap.zip" => "ff",
@@ -73,7 +73,7 @@ describe KiCommand do
 
   it "build-version should support destination file and separate output dir" do
     source = @tester.tmpdir
-    @tester.write_files(source, "a/test.txt" => "aa")
+    Tester.write_files(source, "a/test.txt" => "aa")
     @tester.chdir(@tester.tmpdir) do
       KiCommand.new.execute(
           ["build-version",
@@ -110,7 +110,7 @@ describe "test-version" do
   before do
     @tester = Tester.new
     @source = @tester.tmpdir
-    @tester.write_files(@source,
+    Tester.write_files(@source,
                         "same.txt" => "aa",
                         "changed.txt" => "aa",
                         "changed_size.txt" => "aa",
@@ -150,7 +150,7 @@ describe "test-version" do
   end
 
   it "should warn about missing and changed files" do
-    @tester.write_files(@source, "changed.txt" => "bb", "changed_size.txt" => "aaa")
+    Tester.write_files(@source, "changed.txt" => "bb", "changed_size.txt" => "aaa")
     FileUtils.rm(File.join(@source, "missing.txt"))
     @tester.catch_stdio do
       KiCommand.new.execute(
@@ -183,7 +183,7 @@ describe "test-version" do
     test_comp_13_metadata_dir = home.package_infos.add_item("site").mkdir.components.add_item("test/comp").mkdir.versions.add_version("13").mkdir
     test_product_1_metadata = home.package_infos.add_item("site").mkdir.components.add_item("test/product").mkdir.versions.add_version("1").mkdir
     test_comp_13_binary = home.packages.add_item("packages/local").mkdir.components.add_item("test/comp").mkdir.versions.add_version("13").mkdir
-    @tester.write_files(test_comp_13_binary.path, "aa.txt" => "aa")
+    Tester.write_files(test_comp_13_binary.path, "aa.txt" => "aa")
     test_comp_13_metadata_dir.metadata.add_files(test_comp_13_binary.path, "*").save
     product_metadata = test_product_1_metadata.metadata
     product_metadata.add_dependency("test/comp/13,name=comp,path=comp")
@@ -191,7 +191,7 @@ describe "test-version" do
 #    @tester.catch_stdio do
 #      KiCommand.new.execute(["test-version", "-h", home.path, "-v", "test/product/1", "-r"])
 #    end.stdout.join.should == "All files ok.\n"
-    @tester.write_files(test_comp_13_binary.path, "aa.txt" => "bb")
+    Tester.write_files(test_comp_13_binary.path, "aa.txt" => "bb")
 #    @tester.catch_stdio do
 #      KiCommand.new.execute(["test-version", "-h", home.path, "-v", "test/product/1"])
 #    end.stdout.join.should == "All files ok.\n"
@@ -206,7 +206,7 @@ describe "import-version" do
   before do
     @tester = Tester.new
     @source = @tester.tmpdir
-    @tester.write_files(@source, "same.txt" => "aa", "foo/changed.txt" => "aa")
+    Tester.write_files(@source, "same.txt" => "aa", "foo/changed.txt" => "aa")
     @metadata_file = File.join(@source, "test.json")
     KiCommand.new.execute(
         ["build-version",
@@ -237,7 +237,7 @@ describe "import-version" do
   end
 
   it "should test version" do
-    @tester.write_files(@source, "foo/changed.txt" => "bb")
+    Tester.write_files(@source, "foo/changed.txt" => "bb")
     @tester.catch_stdio do
       lambda {
         KiCommand.new.execute(
@@ -280,7 +280,7 @@ describe "import-version" do
     File.readlink(File.join(out, "foo/changed.txt")).should == "#{@source}/packages/local/my/component/23/foo/changed.txt"
     IO.read(File.join(out, "foo/changed.txt")).should == "aa"
     # test before export should warn about broken files
-    @tester.write_files(@source, "packages/local/my/component/23/same.txt" => "bb")
+    Tester.write_files(@source, "packages/local/my/component/23/same.txt" => "bb")
     @tester.catch_stdio do
       lambda do
       KiCommand.new.execute(
