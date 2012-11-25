@@ -24,7 +24,17 @@ describe KiCommand do
     @tester.after
   end
 
-  it "should support pluggable commands" do
+  it "should display help if no parameters" do
+    @tester.catch_stdio do
+      KiCommand.new.execute([])
+    end.stdout.join.should =~ /ki-repo/
+  end
+
+  it "should warn about unknown command" do
+    lambda{KiCommand.new.execute(["unknown-command"])}.should raise_error("No commands match: unknown-command")
+  end
+
+    it "should support pluggable commands" do
     original_commands = KiCommand::CommandRegistry.dup
     @tester.cleaners << lambda do
       KiCommand::CommandRegistry.clear

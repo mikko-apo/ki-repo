@@ -30,7 +30,7 @@ module Ki
     attr_chain :user_pref, -> { UserPrefFile.new }
 
     def help
-      "#{opts}"
+      "Preferences #{opts(nil)}"
     end
 
     def summary

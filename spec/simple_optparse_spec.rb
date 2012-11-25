@@ -25,11 +25,41 @@ describe SimpleOptionParser do
     @tester.after
   end
 
+  it "should parse different option types" do
+    f = nil
+    p = SimpleOptionParser.new do |opt|
+      opt.on("-c", "--clear", "clear") do
+        f = true
+      end
+      opt.on("-f", "--file FILE", "read file") do |file|
+        f = file
+      end
+      opt.on("-p", "--parameters P1 P2", "parameters") do |p1, p2|
+        f = [p1, p2]
+      end
+    end
+    p.parse(["-c","a"]).should == ["a"]
+    f.should == true
+    lambda{p.parse(["-f"])}.should raise_error("requires 1 parameters for '-f', found only 0: ")
+    f.should == true
+    p.parse(["-f","a"]).should == []
+    f.should == "a"
+    p.parse(["-f=b"]).should == []
+    f.should == "b"
+    p.parse(["-p","a","b","c"]).should == ["c"]
+    f.should == ["a","b"]
+  end
+
   it "should provide to_s" do
     SimpleOptionParser.new do |opt|
       opt.on("-f", "--file FILE", "read file") do |file|
         f = file
       end
     end.to_s.should == "    -f, --file                       read file"
+  end
+
+  it "should warn about errors" do
+    lambda {SimpleOptionParser.new { |opt| opt.on("-f")}}.should raise_error("Option without parser block: -f")
+    lambda {SimpleOptionParser.new { |opt| opt.on("-f"){}}}.should raise_error("unsupported option configuration size: -f")
   end
 end

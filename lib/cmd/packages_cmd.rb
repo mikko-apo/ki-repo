@@ -22,6 +22,7 @@ module Ki
     attr_chain :source, -> { Hash.new }
     attr_chain :default_parameters, -> { {"hashes" => ["sha1"], "tags" => []} }
     attr_chain :previous_dep, :require => "Define a dependency before -o or --operation"
+    attr_chain :shell_command, :require
 
     def execute(ctx, args)
       files = opts.parse(args)
@@ -33,7 +34,7 @@ module Ki
     end
 
     def help
-      "Test #{opts}"
+      "#{shell_command} #{opts}"
     end
 
     def summary

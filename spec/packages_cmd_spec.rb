@@ -117,7 +117,7 @@ describe KiCommand do
   it "version-build help should output text" do
     @tester.catch_stdio do
       KiCommand.new.execute(["help", "version-build"])
-    end.stdout.join.should =~ /Test/
+    end.stdout.join.should =~ /FILE/
   end
 
 end
@@ -215,7 +215,6 @@ describe "version-test" do
       KiCommand.new.execute(["version-test", "-h", home.path, "-v", "test/product/1", "-r"])
     end.stdout.join.should == "#{home.path}/info/site/test/comp/13/ki-metadata.json: 'aa.txt' wrong hash '#{home.path}/packages/local/test/comp/13/aa.txt'\n"
   end
-
 end
 
 describe "version-import" do

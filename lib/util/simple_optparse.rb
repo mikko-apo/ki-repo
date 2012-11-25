@@ -80,7 +80,7 @@ module Ki
         end
       end
       if open
-        raise "requires #{collect_count} parameters for '#{open[:opt]}', found only #{collected_params.join(", ")}"
+        raise "requires #{collect_count} parameters for '#{open[:opt]}', found only #{collected_params.size}: #{collected_params.join(", ")}"
       end
       ret
     end

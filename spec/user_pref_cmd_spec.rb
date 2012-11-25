@@ -25,6 +25,16 @@ describe "User prefs" do
     @tester.after
   end
 
+  it "should warn about unknown command" do
+    lambda{KiCommand.new.execute(["pref", "foo"])}.should raise_error("not supported: foo")
+  end
+
+  it "should display help" do
+    @tester.catch_stdio do
+      KiCommand.new.execute(["help", "pref"])
+    end.stdout.join.should =~ /Preferences/
+  end
+
   it "prefix" do
     @tester.chdir(source = @tester.tmpdir)
     @tester.catch_stdio do
@@ -55,8 +65,27 @@ describe "User prefs" do
       KiCommand.new.execute(["f", "prefix", "+", "version"])
     end.stdout.join.should == "Prefixes: pre, version\n"
 
-    VersionStatus.any_instance.expects(:execute).with{|ctx, args| args.should == ["test"]}
+    VersionStatus.any_instance.expects(:execute).with { |ctx, args| args.should == ["test"] }
     KiCommand.new.execute(["status", "test"])
+  end
+
+  it "prefix might make multiple commands match" do
+    @tester.chdir(source = @tester.tmpdir)
+    @tester.catch_stdio do
+      KiCommand.new.execute(["pref", "prefix", "version", "test"])
+    end.stdout.join.should == "Prefixes: version, test\n"
+
+    original_commands = KiCommand::CommandRegistry.dup
+    @tester.cleaners << lambda do
+      KiCommand::CommandRegistry.clear
+      KiCommand::CommandRegistry.register(original_commands)
+    end
+    class TestCommand
+
+    end
+    KiCommand.register_cmd("test-test", TestCommand)
+
+    lambda { KiCommand.new.execute(["test"]) }.should raise_error("Multiple commands match: version-test, test-test")
   end
 
   it "use" do
