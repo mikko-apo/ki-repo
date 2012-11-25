@@ -235,10 +235,10 @@ module Ki
     end
   end
 
-  KiCommand.register_cmd("build-version", BuildVersionMetadataFile)
-  KiCommand.register_cmd("test-version", TestVersion)
-  KiCommand.register_cmd("import-version", ImportVersion)
-  KiCommand.register_cmd("export-version", ExportVersion)
+  KiCommand.register_cmd("version-build", BuildVersionMetadataFile)
+  KiCommand.register_cmd("version-test", TestVersion)
+  KiCommand.register_cmd("version-import", ImportVersion)
+  KiCommand.register_cmd("version-export", ExportVersion)
   KiCommand.register_cmd("version-status", VersionStatus)
   KiCommand.register("/hashing/sha1", SHA1)
   KiCommand.register("/hashing/sha2", SHA2)

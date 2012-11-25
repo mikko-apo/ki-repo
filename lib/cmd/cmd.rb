@@ -35,7 +35,18 @@ module Ki
     end
 
     def self.new_cmd(name)
-      initialize_cmd(CommandRegistry.find!(CommandPrefix + "#{name}"), name)
+      commands = {}
+      CommandRegistry.find("/commands").each {|(command, clazz)| commands[command[CommandPrefix.size..-1]]=clazz}
+      prefixed_commands = UserPrefFile.new.prefixes.map{|p| [p+name, p+"-"+name] }.flatten
+      prefixed_commands.unshift(name)
+      found_commands = prefixed_commands.select{|p| commands.key?(p)}
+      if found_commands.size > 1
+        raise "Multiple commands match: " + found_commands.join(", ")
+      elsif found_commands.empty?
+        raise "No commands match: " + prefixed_commands.join(", ")
+      end
+      found_command = found_commands.first
+      initialize_cmd(commands[found_command], found_command)
     end
 
     def self.initialize_cmd(cmd_class, name)

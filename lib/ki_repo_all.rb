@@ -39,3 +39,4 @@ require_relative 'data_access/version_finders'
 
 require_relative 'cmd/cmd'
 require_relative 'cmd/packages_cmd'
+require_relative 'cmd/user_pref_cmd'

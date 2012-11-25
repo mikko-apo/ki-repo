@@ -24,7 +24,7 @@ describe KiCommand do
     @tester.after
   end
 
-  it "build-version" do
+  it "version-build" do
     @tester.chdir(source = @tester.tmpdir) do
       Tester.write_files(source,
                           "dir/test.txt" => "aa",
@@ -34,7 +34,7 @@ describe KiCommand do
                           "not-included/bar.zip" => "f")
       system("chmod u+x script.sh")
       KiCommand.new.execute(
-          ["build-version",
+          ["version-build",
            "--version-id", "my/component/23",
            "--file-hashes", "sha1,md5,sha2",
            "*.sh",
@@ -47,7 +47,7 @@ describe KiCommand do
           ]
       )
       KiCommand.new.execute(
-          ["build-version",
+          ["version-build",
            "--source-url", "https://foo.fi/repo1",
            "--source-tag-url", "https://foo.fi/repo1",
            "--source-repotype", "git",
@@ -87,12 +87,12 @@ describe KiCommand do
     end
   end
 
-  it "build-version should support destination file and separate output dir" do
+  it "version-build should support destination file and separate output dir" do
     source = @tester.tmpdir
     Tester.write_files(source, "a/test.txt" => "aa")
     @tester.chdir(@tester.tmpdir) do
       KiCommand.new.execute(
-          ["build-version",
+          ["version-build",
            "--version-id", "my/component/23",
            "-f", "test.json",
            "-i", source,
@@ -110,19 +110,19 @@ describe KiCommand do
     end
   end
 
-  it "build-version should warn about config problems" do
-    lambda { KiCommand.new.execute(["build-version", "-o", "werwre"]) }.should raise_error("'previous_dep' has not been set: Define a dependency before -o or --operation")
+  it "version-build should warn about config problems" do
+    lambda { KiCommand.new.execute(["version-build", "-o", "werwre"]) }.should raise_error("'previous_dep' has not been set: Define a dependency before -o or --operation")
   end
 
-  it "build-version help should output text" do
+  it "version-build help should output text" do
     @tester.catch_stdio do
-      KiCommand.new.execute(["help", "build-version"])
+      KiCommand.new.execute(["help", "version-build"])
     end.stdout.join.should =~ /Test/
   end
 
 end
 
-describe "test-version" do
+describe "version-test" do
   before do
     @tester = Tester.new
     @source = @tester.tmpdir
@@ -133,7 +133,7 @@ describe "test-version" do
                         "missing.txt" => "aa")
     @metadata_file = File.join(@source, "test.json")
     KiCommand.new.execute(
-        ["build-version",
+        ["version-build",
          "--version-id", "my/component/23",
          "-f", @metadata_file,
          "-i", @source,
@@ -157,7 +157,7 @@ describe "test-version" do
     }
     @tester.catch_stdio do
       KiCommand.new.execute(
-          ["test-version",
+          ["version-test",
            "-f", @metadata_file,
            "-i", @source,
            "*"
@@ -170,7 +170,7 @@ describe "test-version" do
     FileUtils.rm(File.join(@source, "missing.txt"))
     @tester.catch_stdio do
       KiCommand.new.execute(
-          ["test-version",
+          ["version-test",
            "-f", @metadata_file,
            "-i", @source,
            "*"
@@ -182,14 +182,14 @@ describe "test-version" do
 
   it "help should output text" do
     @tester.catch_stdio do
-      KiCommand.new.execute(["help", "test-version"])
+      KiCommand.new.execute(["help", "version-test"])
     end.stdout.join.should =~ /Test/
   end
 
   it "should load file from current directory" do
     @tester.catch_stdio do
       @tester.chdir(@source) do
-        KiCommand.new.execute(["test-version", "-f", "test.json"])
+        KiCommand.new.execute(["version-test", "-f", "test.json"])
       end
     end.stdout.join.should == "All files ok.\n"
   end
@@ -205,27 +205,27 @@ describe "test-version" do
     product_metadata.add_dependency("test/comp/13,name=comp,path=comp")
     product_metadata.save
 #    @tester.catch_stdio do
-#      KiCommand.new.execute(["test-version", "-h", home.path, "-v", "test/product/1", "-r"])
+#      KiCommand.new.execute(["version-test", "-h", home.path, "-v", "test/product/1", "-r"])
 #    end.stdout.join.should == "All files ok.\n"
     Tester.write_files(test_comp_13_binary.path, "aa.txt" => "bb")
 #    @tester.catch_stdio do
-#      KiCommand.new.execute(["test-version", "-h", home.path, "-v", "test/product/1"])
+#      KiCommand.new.execute(["version-test", "-h", home.path, "-v", "test/product/1"])
 #    end.stdout.join.should == "All files ok.\n"
     @tester.catch_stdio do
-      KiCommand.new.execute(["test-version", "-h", home.path, "-v", "test/product/1", "-r"])
+      KiCommand.new.execute(["version-test", "-h", home.path, "-v", "test/product/1", "-r"])
     end.stdout.join.should == "#{home.path}/info/site/test/comp/13/ki-metadata.json: 'aa.txt' wrong hash '#{home.path}/packages/local/test/comp/13/aa.txt'\n"
   end
 
 end
 
-describe "import-version" do
+describe "version-import" do
   before do
     @tester = Tester.new
     @source = @tester.tmpdir
     Tester.write_files(@source, "same.txt" => "aa", "foo/changed.txt" => "aa")
     @metadata_file = File.join(@source, "test.json")
     KiCommand.new.execute(
-        ["build-version",
+        ["version-build",
          "--version-id", "my/component/23",
          "-f", @metadata_file,
          "*"
@@ -239,7 +239,7 @@ describe "import-version" do
   it "should import version" do
     home = KiHome.new(@source)
     KiCommand.new.execute(
-        ["import-version",
+        ["version-import",
          "-f", @metadata_file,
          "-i", @source,
          "-t",
@@ -248,7 +248,7 @@ describe "import-version" do
     ver = home.version("my/component")
     ver.version_id.should == "my/component/23"
     @tester.catch_stdio do
-      KiCommand.new.execute(["test-version", "-h", home.path, "-v", "my/component/23"])
+      KiCommand.new.execute(["version-test", "-h", home.path, "-v", "my/component/23"])
     end.stdout.join.should == "All files ok.\n"
   end
 
@@ -257,7 +257,7 @@ describe "import-version" do
     @tester.catch_stdio do
       lambda {
         KiCommand.new.execute(
-            ["import-version",
+            ["version-import",
              "-f", @metadata_file,
              "-i", @source,
              "-h", @source
@@ -268,25 +268,25 @@ describe "import-version" do
 
   it "help should output text" do
     @tester.catch_stdio do
-      KiCommand.new.execute(["help", "import-version"])
+      KiCommand.new.execute(["help", "version-import"])
     end.stdout.join.should =~ /Test/
   end
 
-  it "export-version should export files as links" do
+  it "version-export should export files as links" do
     @tester.catch_stdio do
-      KiCommand.new.execute(["help", "export-version"])
+      KiCommand.new.execute(["help", "version-export"])
     end.stdout.join.should =~ /Test/
 
     home = KiHome.new(@source)
     KiCommand.new.execute(
-        ["import-version",
+        ["version-import",
          "-f", @metadata_file,
          "-i", @source,
          "-h", home.path
         ])
     out = @tester.tmpdir
     KiCommand.new.execute(
-        ["export-version",
+        ["version-export",
          "my/component",
          "-o", out,
          "-h", home.path
@@ -300,7 +300,7 @@ describe "import-version" do
     @tester.catch_stdio do
       lambda do
       KiCommand.new.execute(
-          ["export-version",
+          ["version-export",
            "my/component",
            "-o", out,
            "-h", home.path,
