@@ -107,6 +107,7 @@ describe Tester do
     lambda {Tester.verify_files(tmp, "b" => "foo")}.should raise_error "Existing directory '#{tmp}/b' should be a file!"
     lambda {Tester.verify_files(tmp, true, "b/c.txt" => "2")}.should raise_error "File '#{tmp}/a' exists, but it should not exist!"
     lambda {Tester.verify_files(tmp, true, "a" => "1")}.should raise_error "Directory '#{tmp}/b' exists, but it should not exist!"
+    lambda {Tester.verify_files(tmp, true, "a" => 1)}.should raise_error "Unsupported checker! File '#{tmp}/a' object: 1"
   end
 end
 

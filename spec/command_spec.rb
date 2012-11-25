@@ -33,13 +33,13 @@ describe KiCommand do
     class TestCommand
 
     end
-    TestCommand.any_instance.expects(:execute).with(["123","456"])
+    TestCommand.any_instance.expects(:execute).with {|ki_command, params| params.should == ["123","456"]}
     TestCommand.any_instance.expects(:help).returns("Help")
     KiCommand.register_cmd("test-command", TestCommand)
     KiCommand.new.execute(["test-command","123","456"])
     @tester.catch_stdio do
       KiCommand.new.execute(["help","test-command"])
-    end.stdout.join.should == "Help\n"
+    end.stdout.join.should =~ /Help/
   end
 
   it "should list available commands" do

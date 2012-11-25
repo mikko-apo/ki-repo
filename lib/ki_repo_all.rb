@@ -24,6 +24,7 @@ require_relative 'util/shell'
 require_relative 'util/service_registry'
 require_relative 'util/hash'
 require_relative 'util/hash_cache'
+require_relative 'util/simple_optparse'
 
 require_relative 'data_storage/dir_base'
 require_relative 'data_storage/ki_json'

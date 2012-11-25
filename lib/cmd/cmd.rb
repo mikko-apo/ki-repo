@@ -25,6 +25,9 @@ module Ki
     CommandRegistry = ServiceRegistry.new
     CommandPrefix = "/commands/"
 
+    # Shared KiHome for commands
+    attr_chain :ki_home, :require => "Use -h to set package info location"
+
     # Command classes are registered using this method
     def self.register_cmd(name, clazz)
       register(CommandPrefix + name, clazz)
@@ -60,11 +63,20 @@ module Ki
     # bin/kaiju command line tool calls this method, which finds the correct class to manage the execution
     def execute(args)
       if args.empty?
-        KiCommandHelp.new.execute([])
+        KiCommandHelp.new.execute(self, [])
       else
-        my_args = args.dup
-        KiCommand.new_cmd(my_args.delete_at(0)).execute(my_args)
+        my_args = opts.parse(args.dup)
+        KiCommand.new_cmd(my_args.delete_at(0)).execute(self, my_args)
       end
+    end
+
+    def opts
+      o = SimpleOptionParser.new do |opts|
+        opts.on("-h", "--home HOME-PATH", "Path to Ki root directory") do |v|
+          ki_home(KiHome.new(v))
+        end
+      end
+      o
     end
   end
 
@@ -73,9 +85,10 @@ module Ki
     # Summary
     attr_chain :summary, -> { "Displays help for given Ki command" }
     # Finds matching command and displays its help
-    def execute(args)
+    def execute(ctx, args)
       if args.size == 1
         puts KiCommand.new_cmd(args.first).help
+        puts "Common ki options:\n#{ctx.opts}"
       else
         puts <<EOF
 ki-repo is a repository for storing packages and metadata.
@@ -85,7 +98,7 @@ Usage:
 
 Available commands:
 EOF
-        KiCommandList.new.execute(nil)
+        KiCommandList.new.execute(ctx, nil)
 
         puts "\nRun '#{$0} help COMMAND' for more information about that command."
       end
@@ -97,7 +110,7 @@ EOF
     # Summary
     attr_chain :summary, -> { "Lists available Ki commands" }
     # Finds all commands under /commands and outputs their id and summary
-    def execute(args)
+    def execute(ctx, args)
       commands = KiCommand::CommandRegistry.find(KiCommand::CommandPrefix[0..-2])
       commands.each do |id, service_class|
         puts "  #{id[KiCommand::CommandPrefix.size..-1]}: #{service_class.new.summary}"

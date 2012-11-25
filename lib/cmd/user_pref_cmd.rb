@@ -37,7 +37,7 @@ module Ki
       "Sets user preferences"
     end
 
-    def execute(args)
+    def execute(ctx, args)
       pref = args.delete_at(0)
       if pref == "prefix"
         arr = user_pref.prefixes

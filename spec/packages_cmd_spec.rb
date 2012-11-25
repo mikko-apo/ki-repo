@@ -309,7 +309,7 @@ describe "version-import" do
       end.should raise_error("Files are not ok!")
     end.stdout.join.should == "#{@source}/info/site/my/component/23/ki-metadata.json: 'same.txt' wrong hash '#{@source}/packages/local/my/component/23/same.txt'\n"
   end
-  it "add-status to my/component" do
+  it "version-status add status to my/component" do
     @tester.catch_stdio do
       KiCommand.new.execute(["help","version-status"])
     end.stdout.join.should =~ /Test/
@@ -317,5 +317,8 @@ describe "version-import" do
     home.package_infos.add_item("site").mkdir.components.add_item("my/component").mkdir.versions.add_version("1.2.3").mkdir
     KiCommand.new.execute(["version-status","add","my/component/1.2.3","Smoke","Green","action=path/123", "-h", @source])
     KiJSON.load_json(home.path("info/site/my/component/1.2.3/ki-statuses.json")).should == [{"key"=>"Smoke", "value"=>"Green", "action"=>"path/123"}]
+  end
+  it "version-status handles unknown" do
+    lambda{ KiCommand.new.execute(["version-status","del"]) }.should raise_error("Not supported 'del'")
   end
 end

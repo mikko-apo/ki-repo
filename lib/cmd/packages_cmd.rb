@@ -23,7 +23,7 @@ module Ki
     attr_chain :default_parameters, -> { {"hashes" => ["sha1"], "tags" => []} }
     attr_chain :previous_dep, :require => "Define a dependency before -o or --operation"
 
-    def execute(args)
+    def execute(ctx, args)
       files = opts.parse(args)
       if source.size > 0
         metadata.source(source)
@@ -82,9 +82,10 @@ module Ki
     attr_chain :input, -> { Dir.pwd }
     attr_chain :file, :require
 
-    def execute(args)
+    def execute(ctx, args)
       opts.parse(args)
       if @root_version
+        tester.ki_home(ctx.ki_home)
         tester_args = [@root_version]
       else
         tester_args = [file, input]
@@ -120,9 +121,6 @@ module Ki
         opts.on("-r", "--recursive", "Tests version's dependencies also.'") do |v|
           tester.recursive = true
         end
-        opts.on("-h", "--home HOME-PATH", "Path to Ki root directory") do |v|
-          tester.ki_home(KiHome.new(v))
-        end
       end
     end
   end
@@ -140,8 +138,9 @@ module Ki
       "Imports version to local package directories"
     end
 
-    def execute(args)
+    def execute(ctx, args)
       opts.parse(args)
+      importer.ki_home(ctx.ki_home)
       importer.import(file, input)
     end
 
@@ -155,9 +154,6 @@ module Ki
         end
         opts.on("-i", "--input-directory INPUT-DIR", "Input directory") do |v|
           input(v)
-        end
-        opts.on("-h", "--home HOME-PATH", "Path to Ki root directory") do |v|
-          importer.ki_home(KiHome.new(v))
         end
         opts.on("-t", "--test-recursive", "Tests version's dependencies before importing.'") do |v|
           importer.tester.recursive = true
@@ -178,8 +174,9 @@ module Ki
       "Export version to current directory or selected output directory"
     end
 
-    def execute(args)
+    def execute(ctx, args)
       version = opts.parse(args).size!(1).first
+      exporter.ki_home(ctx.ki_home)
       exporter.export(version, out)
     end
 
@@ -187,9 +184,6 @@ module Ki
       OptionParser.new do |opts|
         opts.on("-o", "--output-directory INPUT-DIR", "Input directory") do |v|
           out(v)
-        end
-        opts.on("-h", "--home HOME-PATH", "Path to Ki root directory") do |v|
-          exporter.ki_home(KiHome.new(v))
         end
         opts.on("-t", "--test", "Test version before export") do |v|
           exporter.test_dependencies=true
@@ -200,37 +194,25 @@ module Ki
 
   class VersionStatus
     attr_chain :package_info, -> { "site" }
-    attr_chain :ki_home, :require => "Use -h to set package info location"
 
     def help
-      "Test #{opts}"
+      "Test"
     end
 
     def summary
       "Add status to version to specified package info location"
     end
 
-    def execute(args)
+    def execute(ctx, args)
       command = args.delete_at(0)
       case command
         when "add"
-          version, key, value, *args = opts.parse(args)
+          version, key, value, *args = args
           flags = args.to_h("=")
-          pi = ki_home.package_info(package_info)
+          pi = ctx.ki_home.package_info(package_info)
           pi.version(version).statuses.add_status(key, value, flags)
         else
           raise "Not supported '#{command}'"
-      end
-    end
-
-    def opts
-      OptionParser.new do |opts|
-        opts.on("-h", "--home HOME-PATH", "Path to Ki root directory") do |v|
-          ki_home(KiHome.new(v))
-        end
-        opts.on("-i", "--package-info", "Info directory") do |v|
-          out(v)
-        end
       end
     end
   end

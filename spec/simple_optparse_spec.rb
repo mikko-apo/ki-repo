@@ -1,4 +1,3 @@
-#!/usr/bin/env ruby
 # encoding: UTF-8
 
 # Copyright 2012 Mikko Apo
@@ -15,7 +14,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require_relative '../lib/ki_repo_all'
+require 'spec_helper'
 
-Ki::KiCommand.new.execute(ARGV)
+describe SimpleOptionParser do
+  before do
+    @tester = Tester.new
+  end
 
+  after do
+    @tester.after
+  end
+
+  it "should provide to_s" do
+    SimpleOptionParser.new do |opt|
+      opt.on("-f", "--file FILE", "read file") do |file|
+        f = file
+      end
+    end.to_s.should == "    -f, --file                       read file"
+  end
+end
