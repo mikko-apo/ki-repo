@@ -128,18 +128,4 @@ METHODS
       object.cached_data.include?(name.to_s)
     end
   end
-
-  class HashAccessor
-    def get(object, name)
-      object[name.to_s]
-    end
-
-    def set(object, name, value)
-      object[name.to_s] = value
-    end
-
-    def defined?(object, name)
-      object.include?(name.to_s)
-    end
-  end
 end

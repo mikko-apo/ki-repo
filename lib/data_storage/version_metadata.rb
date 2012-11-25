@@ -118,7 +118,7 @@ module Ki
   end
 
   module Dependency
-    attr_chain :operations, -> { Array.new }, :accessor => HashAccessor.new
+    attr_chain :operations, -> { Array.new }, :accessor => AttrChain::HashAccess
 
     def add_operation(args)
       operations << args

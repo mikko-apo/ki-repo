@@ -64,7 +64,7 @@ class AttrChain
   # @see Module#attr_chain
   def initialize(clazz, variable_name, attr_configs)
     @variable_name = variable_name
-    @accessor = InstanceVariableAccessor.new
+    @accessor = InstanceVariableAccess
     set_parameters(variable_name, parse_short_syntax(variable_name, attr_configs))
     me = self
     attr_call = lambda { |*args| me.attr_chain(self, args) }
@@ -211,6 +211,24 @@ class AttrChain
       object.instance_variable_defined?(edit_name(name))
     end
   end
+
+  InstanceVariableAccess = InstanceVariableAccessor.new
+
+  class HashAccessor
+    def get(object, name)
+      object[name.to_s]
+    end
+
+    def set(object, name, value)
+      object[name.to_s] = value
+    end
+
+    def defined?(object, name)
+      object.include?(name.to_s)
+    end
+  end
+
+  HashAccess = HashAccessor.new
 end
 
 class Object
