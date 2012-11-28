@@ -15,7 +15,15 @@
 # limitations under the License.
 
 module Ki
-# List of all directories with information about this version
+  # Combines version's information from all different repositories
+  # @see Component
+  # @see PackageInfo::Version
+  # @see PackageInfo::Component
+  # @see VersionIterator
+  # @see PackageFinder
+  # @see FileFinder
+  # @see VersionMetadataFile
+  # @see VersionStatusFile
   class Version
     attr_chain :component, :require
     attr_chain :name, :require
@@ -26,6 +34,7 @@ module Ki
     attr_chain :versions, :require
     attr_chain :statuses, -> { collect_statuses }
 
+    # finds first PackageInfo::Version directory for this version that contains binaries
     def find_binaries
       component.components.first.root.packages.each do |package_root|
         binary_dir = package_root.go(version_id)
@@ -36,6 +45,7 @@ module Ki
       nil
     end
 
+    # finds first PackageInfo::Version directory that contains metadata
     def find_metadata
       versions.each do |v|
         m = v.metadata
@@ -46,6 +56,7 @@ module Ki
       nil
     end
 
+    # collects all statuses related to this version
     def collect_statuses
       ret = []
       versions.each do |v|
@@ -59,16 +70,20 @@ module Ki
       ret
     end
 
+    # finds all versions referenced by this version
     def version_iterator
       VersionIterator.new.version(self)
     end
 
+    # finds files from this version (recursive)
     def find_files(*file_patterns)
       FileFinder.new.version(self).files(file_patterns)
     end
   end
 
-# List of all directories with information about this component
+  # Combine's component's information from all different repositories
+  # @see PackageInfo::Component
+  # @see PackageFinder
   class Component
     attr_chain :component_id, :require
     attr_chain :package_collector, :require
@@ -76,6 +91,7 @@ module Ki
     attr_chain :status_info, -> { find_status_info }
     attr_chain :components, :require
 
+    # Returns version list from first component which has a version list
     def find_versions
       components.each do |c|
         version_list_file = c.versions
@@ -86,6 +102,8 @@ module Ki
       nil
     end
 
+    # Returns Version which references all existing version directories
+    # @see Version
     def version_by_id(version_str)
       version_id = File.join(component_id, version_str)
       package_collector.versions.cache(version_id) do

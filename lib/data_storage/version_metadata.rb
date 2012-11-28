@@ -19,7 +19,7 @@ module Ki
 # * version_id String
 # * build_info Hash. keys: source, tag, commiter. values=Strings
 # * filesets Hash. keys: Sorted array of tags. values: List of File info Hash.
-# ** File info Hash. keys: path, size, executable, sha-1
+#   * File info Hash. keys: path, size, executable, sha-1
 # * dependencies List. values: Dependency Hash. keys: dependency_id, path, internal, dependency_operations
 # * fileoperations
   class VersionMetadataFile < KiJSONHashFile
@@ -78,6 +78,7 @@ module Ki
       digesters
     end
 
+    # Processes all files from source that match patterns and for each file calculates hashes and stores tags based on default_parameters
     def add_files(source, patterns, default_parameters={})
       files_or_dirs = Array.wrap(patterns).map do |pattern|
         Dir.glob(File.join(source, pattern))

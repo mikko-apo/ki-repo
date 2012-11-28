@@ -15,7 +15,7 @@
 # limitations under the License.
 
 # Attaches configurable behaviour to accessor methods
-# @example
+#
 #   class Foo
 #      attr_chain :name, :require
 #      attr_chain :email, -> {""}

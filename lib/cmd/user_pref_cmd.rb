@@ -26,6 +26,8 @@ module Ki
     end
   end
 
+  # Sets user specific configurations
+  # @see UserPrefFile
   class UserPrefCommand
     attr_chain :user_pref, -> { UserPrefFile.new }
 

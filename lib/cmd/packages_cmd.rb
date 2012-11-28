@@ -16,21 +16,25 @@
 
 module Ki
 
+  # Builds and updates ki-metada.json file based on parameters and added files
+  # @see VersionMetadataFile
   class BuildVersionMetadataFile
-    attr_chain :input, -> { Dir.pwd }
-    attr_chain :metadata, -> { VersionMetadataFile.new("ki-metadata.json") }
-    attr_chain :source, -> { Hash.new }
+    attr_chain :input_dir, -> { Dir.pwd }
+    attr_chain :metadata_file, -> { VersionMetadataFile.new("ki-metadata.json") }
+    attr_chain :source_parameters, -> { Hash.new }
     attr_chain :default_parameters, -> { {"hashes" => ["sha1"], "tags" => []} }
     attr_chain :previous_dep, :require => "Define a dependency before -o or --operation"
     attr_chain :shell_command, :require
 
     def execute(ctx, args)
+      # opts.parse parses input parameters and fills in configuration parameters
       files = opts.parse(args)
-      if source.size > 0
-        metadata.source(source)
+      if source_parameters.size > 0
+        metadata_file.source(source_parameters)
       end
-      metadata.add_files(input, files, default_parameters)
-      metadata.save
+      # adds files to metadata and fills in parameters
+      metadata_file.add_files(input_dir, files, default_parameters)
+      metadata_file.save
     end
 
     def help
@@ -44,20 +48,20 @@ module Ki
     def opts
       OptionParser.new do |opts|
         opts.on("-f", "--file FILE", "Version file target") do |v|
-          if @input.nil?
-            input(File.dirname(v))
+          if @input_dir.nil?
+            input_dir(File.dirname(v))
           end
-          metadata.init_from_path(v)
+          metadata_file.init_from_path(v)
         end
         opts.on("-i", "--input-directory INPUT-DIR", "Input directory") do |v|
-          input(v)
+          input_dir(v)
         end
         opts.on("-v", "--version-id VERSION-ID", "Version's id") do |v|
-          metadata.version_id=v
+          metadata_file.version_id=v
         end
         ["url", "tag-url", "author", "repotype"].each do |source_param|
           opts.on("--source-#{source_param} #{source_param.upcase}", "Build source parameter #{source_param}") do |v|
-            source[source_param]=v
+            source_parameters[source_param]=v
           end
         end
         ["hashes", "tags"].each do |file_param|
@@ -66,21 +70,23 @@ module Ki
           end
         end
         opts.on("-d", "--dependency DEPENDENCY", "Dependency definition my/component/123[,name=AA][,path=aa][,internal]") do |v|
-          previous_dep(metadata.add_dependency(v))
+          previous_dep(metadata_file.add_dependency(v))
         end
         opts.on("-o", "--operation OP", "Add operation to previous dependency") do |v|
           previous_dep.add_operation(v.split(" "))
         end
         opts.on("-O", "--version-operation OP", "Add operation to version") do |v|
-          metadata.add_operation(v.split(" "))
+          metadata_file.add_operation(v.split(" "))
         end
       end
     end
   end
 
+  # Tests version from repository or metadata file
+  # @see VersionTester
   class TestVersion
     attr_chain :tester, -> { VersionTester.new.recursive(false).print(true) }
-    attr_chain :input, -> { Dir.pwd }
+    attr_chain :input_dir, -> { Dir.pwd }
     attr_chain :file, :require
 
     def execute(ctx, args)
@@ -89,7 +95,7 @@ module Ki
         tester.ki_home(ctx.ki_home)
         tester_args = [@root_version]
       else
-        tester_args = [file, input]
+        tester_args = [file, input_dir]
       end
       all_ok = tester.test_version(*tester_args)
       if all_ok
@@ -108,13 +114,13 @@ module Ki
     def opts
       OptionParser.new do |opts|
         opts.on("-f", "--file FILE", "Version source file. By default uses file's directory as source for binary files.'") do |v|
-          if @input.nil?
-            input(File.dirname(v))
+          if @input_dir.nil?
+            input_dir(File.dirname(v))
           end
           file(v)
         end
         opts.on("-i", "--input-directory INPUT-DIR", "Input directory") do |v|
-          input(v)
+          input_dir(v)
         end
         opts.on("-v", "--version-id VERSION-ID", "Version's id. Tests version from package directory.") do |v|
           @root_version = v
@@ -126,8 +132,10 @@ module Ki
     end
   end
 
+  # Imports version and its files to repository
+  # @see VersionImporter
   class ImportVersion
-    attr_chain :input, -> { Dir.pwd }
+    attr_chain :input_dir, -> { Dir.pwd }
     attr_chain :file, :require
     attr_chain :importer, -> { VersionImporter.new }
 
@@ -142,19 +150,19 @@ module Ki
     def execute(ctx, args)
       opts.parse(args)
       importer.ki_home(ctx.ki_home)
-      importer.import(file, input)
+      importer.import(file, input_dir)
     end
 
     def opts
       OptionParser.new do |opts|
         opts.on("-f", "--file FILE", "Version source file. By default uses file's directory as source for binary files.'") do |v|
-          if @input.nil?
-            input(File.dirname(v))
+          if @input_dir.nil?
+            input_dir(File.dirname(v))
           end
           file(v)
         end
         opts.on("-i", "--input-directory INPUT-DIR", "Input directory") do |v|
-          input(v)
+          input_dir(v)
         end
         opts.on("-t", "--test-recursive", "Tests version's dependencies before importing.'") do |v|
           importer.tester.recursive = true
@@ -163,6 +171,8 @@ module Ki
     end
   end
 
+  # Exports version from repository to target directory
+  # @see VersionExporter
   class ExportVersion
     attr_chain :out, -> { Dir.pwd }
     attr_chain :exporter, -> { VersionExporter.new }
@@ -193,6 +203,7 @@ module Ki
     end
   end
 
+  # Sets status for version
   class VersionStatus
     attr_chain :package_info, -> { "site" }
 

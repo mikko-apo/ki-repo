@@ -37,19 +37,21 @@ module Ki
       CommandRegistry.register(name, clazz)
     end
 
-    def self.new_cmd(name)
-      commands = {}
-      CommandRegistry.find("/commands").each {|(command, clazz)| commands[command[CommandPrefix.size..-1]]=clazz}
-      prefixed_commands = UserPrefFile.new.prefixes.map{|p| [p+name, p+"-"+name] }.flatten
-      prefixed_commands.unshift(name)
-      found_commands = prefixed_commands.select{|p| commands.key?(p)}
-      if found_commands.size > 1
-        raise "Multiple commands match: " + found_commands.join(", ")
-      elsif found_commands.empty?
-        raise "No commands match: " + prefixed_commands.join(", ")
+    def self.find_cmd(name)
+      # Finds all matching combinations of prefix+name -> there should be exactly one
+      all_commands = {}
+      CommandRegistry.find("/commands").each {|(command, clazz)| all_commands[command[CommandPrefix.size..-1]]=clazz}
+      prefixed_command_names = UserPrefFile.new.prefixes.map{|p| [p+name, p+"-"+name] }.flatten
+      prefixed_command_names.unshift(name)
+      found_command_names = prefixed_command_names.select{|p| all_commands.key?(p)}
+      # abort if found_command_names.size != 1
+      if found_command_names.size > 1
+        raise "Multiple commands match: " + found_command_names.join(", ")
+      elsif found_command_names.size == 0
+        raise "No commands match: " + prefixed_command_names.join(", ")
       end
-      found_command = found_commands.first
-      initialize_cmd(commands[found_command], found_command)
+      found_command_name = found_command_names.first
+      initialize_cmd(all_commands[found_command_name], found_command_name)
     end
 
     def self.initialize_cmd(cmd_class, name)
@@ -66,7 +68,7 @@ module Ki
         KiCommandHelp.new.execute(self, [])
       else
         my_args = opts.parse(args.dup)
-        KiCommand.new_cmd(my_args.delete_at(0)).execute(self, my_args)
+        KiCommand.find_cmd(my_args.delete_at(0)).execute(self, my_args)
       end
     end
 
@@ -87,7 +89,7 @@ module Ki
     # Finds matching command and displays its help
     def execute(ctx, args)
       if args.size == 1
-        puts KiCommand.new_cmd(args.first).help
+        puts KiCommand.find_cmd(args.first).help
         puts "Common ki options:\n#{ctx.opts}"
       else
         puts <<EOF

@@ -16,6 +16,10 @@
 
 module Ki
   module PackageInfo
+    # Contains information about a version for one repository
+    # @see VersionMetadataFile
+    # @see VersionStatusFile
+    # @see KiJSONListFile
     class Version < DirectoryBase
       attr_chain :version_id, :require
 
@@ -37,6 +41,7 @@ module Ki
       end
     end
 
+    # Contains information about a component for one repository
     class Component < DirectoryBase
       attr_chain :component_id, :require
       DirectoryWithChildrenInListFile.add_list_file(self, Version)
