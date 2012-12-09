@@ -16,7 +16,7 @@
 
 require 'spec_helper'
 
-describe PackageInfo do
+describe Repository do
   before do
     @tester = Tester.new
   end
@@ -26,7 +26,7 @@ describe PackageInfo do
   end
 
   it "should support json loading" do
-    package_info = PackageInfo::PackageInfo.new(@tester.tmpdir)
+    package_info = Repository::Repository.new(@tester.tmpdir)
     File.safe_write(package_info.components.path, JSON.pretty_generate(["my/component/in/sub/directory"]))
     component = package_info.components.size!(1).first
     component.component_id.should == "my/component/in/sub/directory"
@@ -40,7 +40,7 @@ describe PackageInfo do
   end
 
   it "should support helper methods to add components and versions" do
-    package_info = PackageInfo::PackageInfo.new(@tester.tmpdir)
+    package_info = Repository::Repository.new(@tester.tmpdir)
     package_info.components.add_item("my/component/in/sub/directory")
     component = package_info.component("my/component/in/sub/directory")
     component.component_id.should == "my/component/in/sub/directory"
@@ -57,10 +57,10 @@ describe PackageInfo do
   end
 end
 
-describe PackageInfo::Version do
+describe Repository::Version do
   before do
     @tester = Tester.new
-    @package_info = PackageInfo::PackageInfo.new(@tester.tmpdir)
+    @package_info = Repository::Repository.new(@tester.tmpdir)
     @component = @package_info.components.add_item("my/component/in/sub/directory").mkdir
     @version = @component.versions.add_version("124").mkdir
   end

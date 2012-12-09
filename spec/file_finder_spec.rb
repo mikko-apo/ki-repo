@@ -20,7 +20,7 @@ describe FileFinder do
   before do
     @tester = Tester.new
     @home = KiHome.new(@tester.tmpdir)
-    @info_components = @home.package_infos.add_item("info/site").mkdir.components
+    @info_components = @home.repositories.add_item("info/site").mkdir.components
     binaries = @home.packages.add_item("packages/local").mkdir.components
 
     comp_metadata = @info_components.add_item("test/comp").mkdir.versions.add_version("13").mkdir

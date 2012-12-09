@@ -52,21 +52,21 @@ module Ki
       KiJSONListFile.new("ki-permissions.json").parent(self)
     end
 
-    DirectoryWithChildrenInListFile.add_list_file(self, PackageInfo::PackageInfo)
+    DirectoryWithChildrenInListFile.add_list_file(self, Repository::Repository)
 
-    class PackageInfoListFile
+    class RepositoryListFile
       def create_list_item(item)
-        PackageInfo::PackageInfo.new("info/" + item).parent(parent).package_info_id(item)
+        Repository::Repository.new("info/" + item).parent(parent).repository_id(item)
       end
     end
 
-    def package_collector
-      PackageFinder.new(self)
+    def finder
+      RepositoryFinder.new(self)
     end
 
     def version(*args, &block)
       # find component definitions which define versions
-      package_collector.version(*args, &block)
+      finder.version(*args, &block)
     end
   end
 
@@ -84,7 +84,7 @@ module Ki
   class KiHome < DirectoryBase
     include ProjectMethods
     DirectoryWithChildrenInListFile.add_list_file(self, Project)
-    DirectoryWithChildrenInListFile.add_list_file(self, PackageInfo::PackageInfo, "package")
+    DirectoryWithChildrenInListFile.add_list_file(self, Repository::Repository, "package")
   end
 
   class ScheduledActions < KiJSONHashFile

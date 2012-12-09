@@ -15,29 +15,39 @@
 # limitations under the License.
 
 module Ki
+  # Tests that a version is intact. Version can be in repository or as file.
+  # Checks that all files have correct hashes. If recursive is set to true, goes through all dependencies
+  # @see test_version
   class VersionTester
     attr_chain :ki_home, :require
-    attr_chain :package_collector, -> { ki_home.package_collector }
+    attr_chain :finder, -> { ki_home.finder }
     attr_chain :recursive, -> { true }
     attr_chain :print, -> { false }
     attr_chain :results, -> { Hash.new }
 
+    # Tests that a version is intact
+    # * test_version(version) expects a Version parameter
+    # * test_version(file, binary_directory) expects two String parameters defining version file location and directory base for binaries
+    # @see VersionIterator
+    # @see RepositoryFinder
+    # @return [bool] returns true if there weren't any problems with the version
     def test_version(*args, &block)
       all_ok = true
       if args.size == 1
         root_version = args.first
         if !root_version.kind_of?(Version)
-          root_version = package_collector.version(root_version)
+          root_version = finder.version(root_version)
         end
       elsif args.size == 2
-        file, input = args
+        file, binary_directory = args
         root_version = Version.new
         root_version.metadata = VersionMetadataFile.new(file)
-        root_version.binaries = DirectoryBase.new(input)
+        root_version.binaries = DirectoryBase.new(binary_directory)
       else
         raise "Not supported: '#{args.inspect}'"
       end
       possible_hashes = KiCommand::CommandRegistry.find!("/hashing")
+      # iterates through all versions
       root_version.version_iterator.iterate_versions do |v|
         binaries = v.binaries
         metadata = v.metadata
@@ -83,10 +93,13 @@ module Ki
     end
   end
 
+  # Imports a version to KiHome
   class VersionImporter
     attr_chain :ki_home, :require
     attr_chain :tester, -> { VersionTester.new.recursive(false).print(true) }
 
+    # Imports a version to KiHome
+    # * import(file, binary_directory) expects two String parameters defining version file location and directory base for binaries
     def import(*args)
       if args.size == 2
         file, input = args
@@ -96,17 +109,21 @@ module Ki
         raise "Not supported: '#{args.inspect}'"
       end
       test_version(file, input)
+
+      # reads component and version strings from metadata
       metadata.cached_data
       version_id = metadata.version_id
       version_arr = version_id.split("/")
       version_number = version_arr.delete_at(-1)
       component_id = version_arr.join("/")
 
-      info_components = ki_home.package_infos.add_item("site").mkdir.components
+      # creates directories
+      info_components = ki_home.repositories.add_item("site").mkdir.components
       binaries = ki_home.packages.add_item("packages/local").mkdir.components
       binary_dest = binaries.add_item(component_id).mkdir.versions.add_version(version_number).mkdir
       metadata_dest = info_components.add_item(component_id).mkdir.versions.add_version(version_number).mkdir
 
+      # copies files
       FileUtils.cp(metadata.path, metadata_dest.metadata.path)
       metadata.files.each do |file_info|
         file_path = file_info["path"]
@@ -126,16 +143,19 @@ module Ki
     end
   end
 
+  # Exports a version to directory
+  # * if test_dependencies set to true, tests the version before exporting
   class VersionExporter
     attr_chain :ki_home, :require
-    attr_chain :package_collector, -> { ki_home.package_collector }
+    attr_chain :finder, -> { ki_home.finder }
     attr_chain :test_dependencies
 
+    # Exports a version to directory
     def export(version, out)
       if test_dependencies
         test_version(version)
       end
-      files = package_collector.version(version).find_files.file_list.sort
+      files = finder.version(version).find_files.file_list.sort
       files.each do |file_path, full_path|
         dir = File.dirname(file_path)
         if dir != "."
@@ -146,7 +166,7 @@ module Ki
     end
 
     def test_version(version)
-      tester = VersionTester.new.ki_home(ki_home).package_collector(package_collector).recursive(true).print(true)
+      tester = VersionTester.new.ki_home(ki_home).finder(finder).recursive(true).print(true)
       all_ok = tester.test_version(version)
       if !all_ok
         raise "Files are not ok!"

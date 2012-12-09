@@ -88,6 +88,7 @@ module Ki
       if name.nil?
         name = create_id_name
       end
+      pluralized_name = "#{name}s".gsub(/ys$/, "ies")
       new_methods = <<METHODS
   class #{list_class_name} < KiJSONListFile
     def create_list_item(#{name}_id)
@@ -98,12 +99,12 @@ module Ki
     end
   end
 
-  def #{name}s
-    #{list_class_name}.new("ki-#{name}s.json").parent(self)
+  def #{pluralized_name}
+    #{list_class_name}.new("ki-#{pluralized_name}.json").parent(self)
   end
 
-  def #{name}(#{name}_id, #{name}s_list=#{name}s)
-    #{name}s_list.each do |c|
+  def #{name}(#{name}_id, #{pluralized_name}_list=#{pluralized_name})
+    #{pluralized_name}_list.each do |c|
       if c.#{name}_id == #{name}_id
         return c
       end

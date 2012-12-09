@@ -17,10 +17,10 @@
 module Ki
   # Combines version's information from all different repositories
   # @see Component
-  # @see PackageInfo::Version
-  # @see PackageInfo::Component
+  # @see Repository::Version
+  # @see Repository::Component
   # @see VersionIterator
-  # @see PackageFinder
+  # @see RepositoryFinder
   # @see FileFinder
   # @see VersionMetadataFile
   # @see VersionStatusFile
@@ -30,11 +30,11 @@ module Ki
     attr_chain :version_id, :require
     attr_chain :metadata, -> { find_metadata }
     attr_chain :binaries, -> { find_binaries }
-    attr_chain :package_collector, -> { component.package_collector }
+    attr_chain :finder, -> { component.finder }
     attr_chain :versions, :require
     attr_chain :statuses, -> { collect_statuses }
 
-    # finds first PackageInfo::Version directory for this version that contains binaries
+    # finds first Repository::Version directory for this version that contains binaries
     def find_binaries
       component.components.first.root.packages.each do |package_root|
         binary_dir = package_root.go(version_id)
@@ -45,7 +45,7 @@ module Ki
       nil
     end
 
-    # finds first PackageInfo::Version directory that contains metadata
+    # finds first Repository::Version directory that contains metadata
     def find_metadata
       versions.each do |v|
         m = v.metadata
@@ -82,11 +82,12 @@ module Ki
   end
 
   # Combine's component's information from all different repositories
-  # @see PackageInfo::Component
-  # @see PackageFinder
+  # @see Repository::Component
+  # @see RepositoryFinder
   class Component
     attr_chain :component_id, :require
-    attr_chain :package_collector, :require
+    # Package collector contains
+    attr_chain :finder, :require
     attr_chain :versions, -> { find_versions }
     attr_chain :status_info, -> { find_status_info }
     attr_chain :components, :require
@@ -106,9 +107,9 @@ module Ki
     # @see Version
     def version_by_id(version_str)
       version_id = File.join(component_id, version_str)
-      package_collector.versions.cache(version_id) do
+      finder.versions.cache(version_id) do
         info_versions = components.map do |c|
-          PackageInfo::Version.new(version_str).version_id(version_id).parent(c)
+          Repository::Version.new(version_str).version_id(version_id).parent(c)
         end
         existing_versions = info_versions.select do |v|
           v.exists?

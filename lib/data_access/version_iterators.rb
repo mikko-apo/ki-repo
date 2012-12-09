@@ -15,12 +15,14 @@
 # limitations under the License.
 
 module Ki
+  #
+  #
   class VersionIterator
     attr_chain :version, :require
     attr_chain :dependency
     attr_chain :package_path
     attr_chain :dependency_path
-    attr_chain :package_collector, -> { version.component.package_collector }
+    attr_chain :finder, -> { version.component.finder }
     attr_chain :block
     attr_chain :internals
     attr_chain :exclude_dependencies, -> { [] }, :convert => lambda { |list| Array.wrap(list).map { |s| /#{s}/ } }
@@ -45,7 +47,7 @@ module Ki
       version.metadata.dependencies.map do |dep|
         if internals || !dep["internal"]
           dep_v = VersionIterator.new
-          dep_v.version = package_collector.version(dep["version_id"])
+          dep_v.version = finder.version(dep["version_id"])
           dep_v.dependency = dep
           dep_v.exclude_dependencies.concat(exclude_dependencies).concat(select_dep_rm(dep))
           dep_v.block = block
@@ -109,6 +111,7 @@ module Ki
       end
     end
 
+    # Modifies
     def file_operations(file_map, dependency)
       operations = dependency["operations"]
       if operations

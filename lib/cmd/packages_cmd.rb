@@ -205,7 +205,7 @@ module Ki
 
   # Sets status for version
   class VersionStatus
-    attr_chain :package_info, -> { "site" }
+    attr_chain :repository, -> { "site" }
 
     def help
       "Test"
@@ -221,7 +221,7 @@ module Ki
         when "add"
           version, key, value, *args = args
           flags = args.to_h("=")
-          pi = ctx.ki_home.package_info(package_info)
+          pi = ctx.ki_home.repository(repository)
           pi.version(version).statuses.add_status(key, value, flags)
         else
           raise "Not supported '#{command}'"

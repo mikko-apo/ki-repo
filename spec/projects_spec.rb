@@ -57,9 +57,9 @@ describe Lab do
   end
 
   it "version() should look up for matching version" do
-    @home.package_infos.add_item("site").mkdir.components.add_item("test/comp").mkdir.versions.add_version("13")
-    @lab.package_infos.add_item("project-common").mkdir.components.add_item("ki/core").mkdir
-    ki_versions = @project.package_infos.add_item("project-common").mkdir.components.add_item("ki/core").mkdir.versions
+    @home.repositories.add_item("site").mkdir.components.add_item("test/comp").mkdir.versions.add_version("13")
+    @lab.repositories.add_item("project-common").mkdir.components.add_item("ki/core").mkdir
+    ki_versions = @project.repositories.add_item("project-common").mkdir.components.add_item("ki/core").mkdir.versions
     ki_versions.add_version("1")
     ki_versions.add_version("2")
     @home.packages.add_item("packages/local").mkdir("ki/core/2")
@@ -80,12 +80,12 @@ describe Lab do
   end
 
   it "version() should look up for matching version based on status" do
-    component = @home.package_infos.add_item("site").mkdir.components.add_item("test/comp").mkdir
+    component = @home.repositories.add_item("site").mkdir.components.add_item("test/comp").mkdir
     version_1 = component.versions.add_version("1")
     version_1.mkdir
     version_2 = component.versions.add_version("2")
     @lab.version("test/comp").version_id.should == "test/comp/2"
-    @lab.version(@lab.package_collector.component("test/comp")).version_id.should == "test/comp/2"
+    @lab.version(@lab.finder.component("test/comp")).version_id.should == "test/comp/2"
     @lab.version("test/comp:Smoke=green").should == nil
     @lab.version("test/comp","Smoke"=>"green").should == nil
     version_1.statuses.add_status("Smoke","green")
@@ -97,9 +97,9 @@ describe Lab do
     @lab.version("test/comp","Smoke"=>"green"){|v| true}.version_id.should == "test/comp/1"
     lambda {@lab.version(1)}.should raise_error("Not supported '1'")
     # status order
-    si = component.status_info
-    si.cached_data["maturity"]=["alpha","beta","gamma"]
-    si.save
+    component.status_info.edit_data do |h|
+      h["maturity"]=["alpha","beta","gamma"]
+    end
     @lab.version("test/comp").version_id.should == "test/comp/2"
     @lab.version("test/comp:maturity>alpha").should == nil
     version_1.statuses.add_status("maturity","alpha")
@@ -133,21 +133,21 @@ describe KiHome do
     @home.packages.add_item("packages/replicated")
     @home.projects.add_item("projects/ki")
     @home.projects.add_item("projects/web")
-    @home.package_infos.add_item("site")
-    @home.package_infos.add_item("global-ki")
-    [@home.projects, @home.packages, @home.package_infos].
+    @home.repositories.add_item("site")
+    @home.repositories.add_item("global-ki")
+    [@home.projects, @home.packages, @home.repositories].
         map { |list| list.map { |obj| [obj.class, obj.ki_path] } }.should == [
         [
             [Project, "/projects/ki"],
             [Project, "/projects/web"]
         ],
         [
-            [PackageInfo::PackageInfo, "/packages/local"],
-            [PackageInfo::PackageInfo, "/packages/replicated"]
+            [Repository::Repository, "/packages/local"],
+            [Repository::Repository, "/packages/replicated"]
         ],
         [
-            [PackageInfo::PackageInfo, "/info/site"],
-            [PackageInfo::PackageInfo, "/info/global-ki"]
+            [Repository::Repository, "/info/site"],
+            [Repository::Repository, "/info/global-ki"]
         ]
     ]
   end

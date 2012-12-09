@@ -196,8 +196,8 @@ describe "version-test" do
 
   it "should test versions recursively and by version id" do
     home = KiHome.new(@source)
-    test_comp_13_metadata_dir = home.package_infos.add_item("site").mkdir.components.add_item("test/comp").mkdir.versions.add_version("13").mkdir
-    test_product_1_metadata = home.package_infos.add_item("site").mkdir.components.add_item("test/product").mkdir.versions.add_version("1").mkdir
+    test_comp_13_metadata_dir = home.repositories.add_item("site").mkdir.components.add_item("test/comp").mkdir.versions.add_version("13").mkdir
+    test_product_1_metadata = home.repositories.add_item("site").mkdir.components.add_item("test/product").mkdir.versions.add_version("1").mkdir
     test_comp_13_binary = home.packages.add_item("packages/local").mkdir.components.add_item("test/comp").mkdir.versions.add_version("13").mkdir
     Tester.write_files(test_comp_13_binary.path, "aa.txt" => "aa")
     test_comp_13_metadata_dir.metadata.add_files(test_comp_13_binary.path, "*").save
@@ -313,7 +313,7 @@ describe "version-import" do
       KiCommand.new.execute(["help","version-status"])
     end.stdout.join.should =~ /Test/
     home = KiHome.new(@source)
-    home.package_infos.add_item("site").mkdir.components.add_item("my/component").mkdir.versions.add_version("1.2.3").mkdir
+    home.repositories.add_item("site").mkdir.components.add_item("my/component").mkdir.versions.add_version("1.2.3").mkdir
     KiCommand.new.execute(["version-status","add","my/component/1.2.3","Smoke","Green","action=path/123", "-h", @source])
     KiJSON.load_json(home.path("info/site/my/component/1.2.3/ki-statuses.json")).should == [{"key"=>"Smoke", "value"=>"Green", "action"=>"path/123"}]
   end

@@ -15,8 +15,10 @@
 # limitations under the License.
 
 module Ki
-  module PackageInfo
+  module Repository
     # Contains information about a version for one repository
+    # * Files: ki-metadata.json, ki-statuses.json, ki-reverse-dependencies.json
+    # @see Component
     # @see VersionMetadataFile
     # @see VersionStatusFile
     # @see KiJSONListFile
@@ -42,6 +44,9 @@ module Ki
     end
 
     # Contains information about a component for one repository
+    # * Files: ki-versions.json, status_info.json
+    # @see Version
+    # @see Repository
     class Component < DirectoryBase
       attr_chain :component_id, :require
       DirectoryWithChildrenInListFile.add_list_file(self, Version)
@@ -62,15 +67,22 @@ module Ki
         end
       end
 
+      # Status information file. Hash that defines information about status fields
+      # * list defines order of statuses {"maturity": ["alpha","beta","gamma"]}
       def status_info
         KiJSONHashFile.new("status_info.json").parent(self)
       end
     end
 
-    class PackageInfo < DirectoryBase
-      attr_chain :package_info_id, :require
+    # Repository root
+    # * Files: ki-components.json
+    # @see Component
+    class Repository < DirectoryBase
+      attr_chain :repository_id, :require
       DirectoryWithChildrenInListFile.add_list_file(self, Component)
 
+      # finds version matching the last part of version string, for example: my/component/1 looks for version named 1
+      # @see Component#version
       def version(str)
         args = str.split("/")
         args.delete_at(-1)
