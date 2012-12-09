@@ -18,8 +18,8 @@ module Ki
 
   # File contains information for user
   class UserPrefFile < KiJSONHashFile
-    attr_chain :uses, -> { Array.new }, :accessor => CachedDataAccessor.new
-    attr_chain :prefixes, -> { Array.new }, :accessor => CachedDataAccessor.new
+    attr_chain :uses, -> { Array.new }, :accessor => CachedData
+    attr_chain :prefixes, -> { Array.new }, :accessor => CachedData
 
     def initialize
       super("ki-user-pref.json")

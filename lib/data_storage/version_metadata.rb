@@ -23,11 +23,11 @@ module Ki
 # * dependencies List. values: Dependency Hash. keys: dependency_id, path, internal, dependency_operations
 # * fileoperations
   class VersionMetadataFile < KiJSONHashFile
-    attr_chain :version_id, :require, :accessor => CachedDataAccessor.new
-    attr_chain :source, -> { Hash.new }, :accessor => CachedDataAccessor.new
-    attr_chain :files, -> { Array.new }, :accessor => CachedDataAccessor.new
-    attr_chain :operations, -> { Array.new }, :accessor => CachedDataAccessor.new
-    attr_chain :dependencies, -> { Array.new }, :accessor => CachedDataAccessor.new
+    attr_chain :version_id, :require, :accessor => CachedData
+    attr_chain :source, -> { Hash.new }, :accessor => CachedData
+    attr_chain :files, -> { Array.new }, :accessor => CachedData
+    attr_chain :operations, -> { Array.new }, :accessor => CachedData
+    attr_chain :dependencies, -> { Array.new }, :accessor => CachedData
 
     def add_file_info(name, size, *args)
       extra = (args.select { |arg| arg.kind_of?(Hash) }.size!(0..1).first or {})

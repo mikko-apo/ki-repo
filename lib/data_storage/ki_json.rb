@@ -17,8 +17,35 @@
 module Ki
   require 'json'
 
-  class KiJSON
-    def KiJSON.load_json(path, default=nil)
+  # Base implementation for json files.
+  # * DirectoryBase takes a path argument where file will exist
+  # * Classes inheriting this file should implement json_default() to define default data object
+  class KiJSONFile < DirectoryBase
+    attr_chain :cached_data, -> { load_data_from_file }
+
+    # Loads latest data from file path. Does not update cached_data
+    def load_data_from_file(default=json_default)
+      KiJSONFile.load_json(path, default)
+    end
+
+    # Loads data from file path, makes it editable. Does not update cached_data
+    def edit_data(&block)
+      data = load_data_from_file
+      block.call(data)
+      File.safe_write(path, JSON.pretty_generate(data))
+      data
+    end
+
+    # Saves data to file path. Does not update cached_data
+    def save(data=cached_data)
+      File.safe_write(path, JSON.pretty_generate(data))
+    end
+
+    def size
+      cached_data.size
+    end
+
+    def KiJSONFile.load_json(path, default=nil)
       if File.exists?(path)
         JSON.parse(IO.read(path))
       else
@@ -27,33 +54,10 @@ module Ki
     end
   end
 
-  class KiJSONFile < DirectoryBase
-    attr_chain :json_default, :require
-
-    def load_latest_data(default=json_default)
-      KiJSON.load_json(path, default)
-    end
-
-    def edit_data(&block)
-      data = load_latest_data
-      block.call(data)
-      File.safe_write(path, JSON.pretty_generate(data))
-      data
-    end
-
-    def save(data=cached_data)
-      File.safe_write(path, JSON.pretty_generate(data))
-    end
-
-    def size
-      cached_data.size
-    end
-  end
-
+  # Base implementation for Json list file
   class KiJSONListFile < KiJSONFile
     include Enumerable
     attr_chain :json_default, -> { Array.new }
-    attr_chain :cached_data, -> { load_latest_data }
 
     def create_list_item(obj)
       obj
@@ -73,14 +77,39 @@ module Ki
     end
   end
 
+  # Base implementation Json hash file
+  #
+  # Inheriting classes should implement their values using CachedDataAccessor
+  #     class VersionMetadataFile < KiJSONHashFile {
+  #       attr_chain :source, -> { Hash.new }, :accessor => CachedData
   class KiJSONHashFile < KiJSONFile
     include Enumerable
     attr_chain :json_default, -> { Hash.new }
-    attr_chain :cached_data, -> { load_latest_data }
+
+    class CachedDataAccessor
+      def get(object, name)
+        object.cached_data[name.to_s]
+      end
+
+      def set(object, name, value)
+        object.cached_data[name.to_s] = value
+      end
+
+      def defined?(object, name)
+        object.cached_data.include?(name.to_s)
+      end
+    end
+
+    CachedData = CachedDataAccessor.new
   end
 
+  # Helper method for creating list files.
   class DirectoryWithChildrenInListFile
-    def self.add_list_file(obj, clazz, name=nil)
+    # Helper method for creating list files. When called on a class it extends the class with:
+    # * class extending KiJSONListFile which stores list items: class VersionListFile
+    # * method to load the file: versions()
+    # * method to load a specific item from list file: version(version_id, versions_list=versions)
+  def self.add_list_file(obj, clazz, name=nil)
       stripped_class_name = clazz.name.split("::").last
       class_name = clazz.name
       list_class_name = "#{stripped_class_name}ListFile"
@@ -113,20 +142,6 @@ module Ki
   end
 METHODS
       obj.class_eval(new_methods, __FILE__, (__LINE__ - new_methods.split("\n").size - 1))
-    end
-  end
-
-  class CachedDataAccessor
-    def get(object, name)
-      object.cached_data[name.to_s]
-    end
-
-    def set(object, name, value)
-      object.cached_data[name.to_s] = value
-    end
-
-    def defined?(object, name)
-      object.cached_data.include?(name.to_s)
     end
   end
 end

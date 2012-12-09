@@ -55,7 +55,7 @@ describe KiCommand do
           ]
       )
       file = VersionMetadataFile.new("ki-metadata.json")
-      file.load_latest_data.should == {
+      file.load_data_from_file.should == {
           "version_id"=>"my/component/23",
           "source"=>{
               "url"=>"https://foo.fi/repo1",
@@ -99,7 +99,7 @@ describe KiCommand do
            "*"
           ])
       file = VersionMetadataFile.new("test.json")
-      file.load_latest_data.should == {
+      file.load_data_from_file.should == {
           "version_id"=>"my/component/23",
           "files"=>[
               {"path"=>"a/test.txt",
@@ -147,7 +147,7 @@ describe "version-test" do
 
   it "should test files" do
     file = VersionMetadataFile.new(@metadata_file)
-    file.load_latest_data.should == {
+    file.load_data_from_file.should == {
         "version_id"=>"my/component/23",
         "files"=>[
             {"path"=>"changed.txt", "size"=>2, "sha1"=>"e0c9035898dd52fc65c41454cec9c4d2611bfb37"},
@@ -315,7 +315,7 @@ describe "version-import" do
     home = KiHome.new(@source)
     home.repositories.add_item("site").mkdir.components.add_item("my/component").mkdir.versions.add_version("1.2.3").mkdir
     KiCommand.new.execute(["version-status","add","my/component/1.2.3","Smoke","Green","action=path/123", "-h", @source])
-    KiJSON.load_json(home.path("info/site/my/component/1.2.3/ki-statuses.json")).should == [{"key"=>"Smoke", "value"=>"Green", "action"=>"path/123"}]
+    KiJSONFile.load_json(home.path("info/site/my/component/1.2.3/ki-statuses.json")).should == [{"key"=>"Smoke", "value"=>"Green", "action"=>"path/123"}]
   end
   it "version-status handles unknown" do
     lambda{ KiCommand.new.execute(["version-status","del"]) }.should raise_error("Not supported 'del'")

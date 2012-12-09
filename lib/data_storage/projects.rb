@@ -88,6 +88,6 @@ module Ki
   end
 
   class ScheduledActions < KiJSONHashFile
-    attr_chain :builds, -> { Array.new }, :accessor => CachedDataAccessor.new
+    attr_chain :builds, -> { Array.new }, :accessor => CachedData
   end
 end
