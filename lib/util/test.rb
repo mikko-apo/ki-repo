@@ -17,6 +17,14 @@
 require 'tmpdir'
 
 module Ki
+
+  # Automatic resource cleanup that is executed when ruby is closing down
+  $testers = []
+
+  at_exit do
+    Tester.final_tester_check
+  end
+
 # Modifies run time environment for tests and automatically restores original state
 # * note: cleanup is triggered by calling the {#after} method
 #
@@ -30,6 +38,9 @@ module Ki
     # @see after
     attr_reader :cleaners
 
+    # Name of the test round that uses this tester
+    attr_reader :test_name
+
     # Dummy IO stream
     # @see catch_stdio
     attr_chain :stdin, -> { DummyIO.new }
@@ -42,8 +53,10 @@ module Ki
     # @see catch_stdio
     attr_chain :stderr, -> { DummyIO.new }
 
-    def initialize
+    def initialize(test_name = nil)
+      @test_name = test_name
       @cleaners = []
+      $testers << self
     end
 
     # Creates a temporary directory
@@ -175,6 +188,23 @@ module Ki
       catcher.check
     end
 
+    def clear?
+      @cleaners.empty?
+    end
+
+    def self.final_tester_check
+      catcher = ExceptionCatcher.new
+      $testers.each do |tester|
+        if !tester.clear?
+          puts "Tester#{tester.test_name ? " '#{tester.test_name}'" : ""} has not been cleared! Please add the missing .after() command. Clearing it automatically."
+          catcher.catch do
+            tester.after
+          end
+        end
+      end
+      catcher.check
+    end
+
     # Copies contents of src to dest
     # * excludes files and directories beginning with a '.'
     # @param [String] src source directory path
@@ -258,7 +288,7 @@ module Ki
       end
       if check_for_extra_files
         files_and_dirs = {}
-        files.each_pair do |k,v|
+        files.each_pair do |k, v|
           file_arr=k.split("/")
           c = file_arr.size
           while c > 0
@@ -267,7 +297,7 @@ module Ki
             file_arr.delete_at(-1)
           end
         end
-        Dir.glob(File.join(source_root,"**/*")).each do |file|
+        Dir.glob(File.join(source_root, "**/*")).each do |file|
           if !files_and_dirs[file]
             raise "#{ File.directory?(file) ? "Directory" : "File"} '#{file}' exists, but it should not exist!"
           end

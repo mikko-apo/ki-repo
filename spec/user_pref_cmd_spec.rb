@@ -18,7 +18,7 @@ require 'spec_helper'
 
 describe "User prefs" do
   before do
-    @tester = Tester.new
+    @tester = Tester.new(example.metadata[:full_description])
   end
 
   after do
@@ -94,19 +94,19 @@ describe "User prefs" do
       KiCommand.new.execute(["pref", "use"])
     end.stdout.join.should == "Use: \n"
     @tester.catch_stdio do
-      KiCommand.new.execute(["pref", "use", "ki/bzip2"])
+      KiCommand.new.execute(["-h", source, "pref", "use", "ki/bzip2"])
     end.stdout.join.should == "Use: ki/bzip2\n"
     @tester.catch_stdio do
-      KiCommand.new.execute(["pref", "use"])
+      KiCommand.new.execute(["-h", source, "pref", "use"])
     end.stdout.join.should == "Use: ki/bzip2\n"
     @tester.catch_stdio do
-      KiCommand.new.execute(["pref", "use", "+", "ki/zip"])
+      KiCommand.new.execute(["-h", source, "pref", "use", "+", "ki/zip"])
     end.stdout.join.should == "Use: ki/bzip2, ki/zip\n"
     @tester.catch_stdio do
-      KiCommand.new.execute(["pref", "use", "-", "ki/zip"])
+      KiCommand.new.execute(["-h", source, "pref", "use", "-", "ki/zip"])
     end.stdout.join.should == "Use: ki/bzip2\n"
     @tester.catch_stdio do
-      KiCommand.new.execute(["pref", "use", "-c"])
+      KiCommand.new.execute(["-h", source, "pref", "use", "-c"])
     end.stdout.join.should == "Use: \n"
   end
 end

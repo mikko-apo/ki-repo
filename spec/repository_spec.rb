@@ -18,7 +18,7 @@ require 'spec_helper'
 
 describe Repository do
   before do
-    @tester = Tester.new
+    @tester = Tester.new(example.metadata[:full_description])
   end
 
   after do
@@ -59,7 +59,7 @@ end
 
 describe Repository::Version do
   before do
-    @tester = Tester.new
+    @tester = Tester.new(example.metadata[:full_description])
     @package_info = Repository::Repository.new(@tester.tmpdir)
     @component = @package_info.components.add_item("my/component/in/sub/directory").mkdir
     @version = @component.versions.add_version("124").mkdir

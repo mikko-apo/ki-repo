@@ -18,7 +18,7 @@ require 'spec_helper'
 
 describe KiCommand do
   before do
-    @tester = Tester.new
+    @tester = Tester.new(example.metadata[:full_description])
   end
   after do
     @tester.after
@@ -124,7 +124,7 @@ end
 
 describe "version-test" do
   before do
-    @tester = Tester.new
+    @tester = Tester.new(example.metadata[:full_description])
     @source = @tester.tmpdir
     Tester.write_files(@source,
                         "same.txt" => "aa",
@@ -219,7 +219,7 @@ end
 
 describe "version-import" do
   before do
-    @tester = Tester.new
+    @tester = Tester.new(example.metadata[:full_description])
     @source = @tester.tmpdir
     Tester.write_files(@source, "same.txt" => "aa", "foo/changed.txt" => "aa")
     @metadata_file = File.join(@source, "test.json")

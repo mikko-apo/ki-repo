@@ -18,7 +18,7 @@ require 'spec_helper'
 
 describe FileFinder do
   before do
-    @tester = Tester.new
+    @tester = Tester.new(example.metadata[:full_description])
     @home = KiHome.new(@tester.tmpdir)
     @info_components = @home.repositories.add_item("info/site").mkdir.components
     binaries = @home.packages.add_item("packages/local").mkdir.components

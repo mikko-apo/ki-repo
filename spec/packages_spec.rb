@@ -18,7 +18,7 @@ require 'spec_helper'
 
 describe DirectoryBase do
   before do
-    @tester = Tester.new
+    @tester = Tester.new(example.metadata[:full_description])
   end
 
   after do
@@ -131,7 +131,7 @@ end
 
 describe "Version dependencies" do
   before do
-    @tester = Tester.new
+    @tester = Tester.new(example.metadata[:full_description])
   end
   after do
     @tester.after

@@ -18,8 +18,9 @@ require 'spec_helper'
 
 describe KiCommand do
   before do
-    @tester = Tester.new
+    @tester = Tester.new(example.metadata[:full_description])
   end
+
   after do
     @tester.after
   end
@@ -31,10 +32,10 @@ describe KiCommand do
   end
 
   it "should warn about unknown command" do
-    lambda{KiCommand.new.execute(["unknown-command"])}.should raise_error("No commands match: unknown-command")
+    lambda { KiCommand.new.execute(["unknown-command"]) }.should raise_error("No commands match: unknown-command")
   end
 
-    it "should support pluggable commands" do
+  it "should support pluggable commands" do
     original_commands = KiCommand::CommandRegistry.dup
     @tester.cleaners << lambda do
       KiCommand::CommandRegistry.clear
@@ -43,12 +44,12 @@ describe KiCommand do
     class TestCommand
 
     end
-    TestCommand.any_instance.expects(:execute).with {|ki_command, params| params.should == ["123","456"]}
+    TestCommand.any_instance.expects(:execute).with { |ki_command, params| params.should == ["123", "456"] }
     TestCommand.any_instance.expects(:help).returns("Help")
     KiCommand.register_cmd("test-command", TestCommand)
-    KiCommand.new.execute(["test-command","123","456"])
+    KiCommand.new.execute(["test-command", "123", "456"])
     @tester.catch_stdio do
-      KiCommand.new.execute(["help","test-command"])
+      KiCommand.new.execute(["help", "test-command"])
     end.stdout.join.should =~ /Help/
   end
 

@@ -18,7 +18,7 @@ require 'spec_helper'
 
 describe ShellCommand do
   before do
-    @tester = Tester.new
+    @tester = Tester.new(example.metadata[:full_description])
   end
 
   after do

@@ -18,7 +18,7 @@ require 'spec_helper'
 
 describe Lab do
   before do
-    @tester = Tester.new
+    @tester = Tester.new(example.metadata[:full_description])
     @home = KiHome.new(@tester.tmpdir)
     @project = @home.projects.add_item("test/project").mkdir
     @lab = @project.labs.add_item("foo/bar").mkdir
@@ -120,7 +120,7 @@ end
 
 describe KiHome do
   before do
-    @tester = Tester.new
+    @tester = Tester.new(example.metadata[:full_description])
     @home = KiHome.new(@tester.tmpdir)
   end
 
