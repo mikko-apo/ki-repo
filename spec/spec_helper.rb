@@ -29,7 +29,6 @@ end
 require 'simplecov'
 SimpleCov.start do
   add_filter "/spec/"
-  add_filter "/spec-slow/"
 end
 
 require 'ki_repo_all'

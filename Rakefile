@@ -44,12 +44,7 @@ require 'rspec/core'
 require 'rspec/core/rake_task'
 
 RSpec::Core::RakeTask.new do |t|
-  t.pattern = FileList['spec/**/*_spec.rb','spec-slow/**/*_spec.rb']
-end
-
-RSpec::Core::RakeTask.new(:coverage) do |t|
-  t.rcov = true
-  t.rcov_opts = ['--exclude', 'spec,rvm,spec-slow']
+  t.pattern = FileList['spec/**/*_spec.rb']
 end
 
 task :default => :spec
