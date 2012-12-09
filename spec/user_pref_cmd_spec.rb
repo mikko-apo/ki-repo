@@ -113,7 +113,7 @@ EOF
         end
         Tester.write_files(dir, file => file_source)
         metadata = VersionMetadataFile.new(File.join(dir, "metadata.json"))
-        metadata.add_files(dir, "*")
+        metadata.add_files(dir, "*", "tags" => "ki-cmd")
         metadata.version_id=ver
         metadata.save
         VersionImporter.new.ki_home(home).import(metadata.path, dir)
@@ -135,14 +135,14 @@ EOF
     end.stdout.join.should == "Use: ki/bzip2, ki/zip\n"
 
     # test that test scripts are loaded
+    @tester.catch_stdio do
+      KiCommand.new.execute(["-h", source, "bzip2", "a", "b"])
+    end.stdout.join.should == "bzip2:a,b\n"
     command_list_ouput = @tester.catch_stdio do
       KiCommand.new.execute(["-h", source, "commands"])
     end.stdout.join
     command_list_ouput.should =~ /bzip2summary/
     command_list_ouput.should =~ /zipsummary/
-    @tester.catch_stdio do
-      KiCommand.new.execute(["-h", source, "bzip2", "a", "b"])
-    end.stdout.join.should == "bzip2:a,b\n"
 
     # test that remove works
     @tester.catch_stdio do

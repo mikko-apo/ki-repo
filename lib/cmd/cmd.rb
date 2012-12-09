@@ -42,10 +42,10 @@ module Ki
     def load_scripts
       # load all script files defined in UserPrefFile uses
       user_pref.uses.each do |use_str|
-        ver, files_str = use_str.split(":")
-        files = files_str ? files.split(",") : ["*.rb"]
+        ver, tags_str = use_str.split(":")
+        tags = tags_str ? tags_str.split(",") : "ki-cmd"
         version = ki_home.version(ver)
-        version.find_files("*.rb").file_list.each_pair do |short_path, full_path|
+        version.find_files.tags(tags).file_list.each do |full_path|
           require full_path
         end
       end

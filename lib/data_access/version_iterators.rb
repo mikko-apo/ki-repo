@@ -85,8 +85,10 @@ module Ki
   class FileFinder < VersionIterator
     attr_chain :files, -> { [] }, :convert => lambda { |list| Array.wrap(list).map { |s| FileRegexp.matcher(s) } }
     attr_chain :exclude_files, -> { [] }, :convert => lambda { |list| Array.wrap(list).map { |s| FileRegexp.matcher(s) } }
+    attr_chain :tags, -> { [] }, :convert => lambda { |list| Array.wrap(list)}
+    attr_chain :exclude_tags, -> { [] }, :convert => lambda { |list| Array.wrap(list)}
 
-    def file_list
+    def file_map
       start_iteration do |ver_iterator|
         ret = {}
         ver_iterator.iterate_dependencies.each do |dependency, version, file_map|
@@ -96,19 +98,24 @@ module Ki
         ver = ver_iterator.version
         binaries = ver.binaries
         metadata = ver.metadata
+        # TODO: file operations should be applied to the files before the files are filtered
         metadata.files.each do |file|
           if binaries.nil?
             raise "Could not find binaries directory for '#{ver.version_id}'"
           end
           path = file["path"]
           file_path = File.join([ver_iterator.package_path, path].compact)
-          if ok_to_add_file(file_path)
+          if ok_to_add_file(file, file_path)
             ret[file_path]=binaries.path(path)
           end
         end
         file_operations(ret, metadata.cached_data)
         ret
       end
+    end
+
+    def file_list
+      file_map.values
     end
 
     # Modifies
@@ -119,8 +126,26 @@ module Ki
       end
     end
 
-    def ok_to_add_file(file_path)
-      (files.size == 0 || files.any_matches?(file_path)) && (exclude_files.size == 0 || !exclude_files.any_matches?(file_path))
+    # File is added to the list if
+    # - files pattern list is empty (select all files) or file path matches any files pattern
+    # - it does not match any file exclude patterns
+    # - tags selection list is empty or file has any tags from tags selection list
+    # - no tags match tags from tags exclusion list
+    def ok_to_add_file(file, file_path)
+      file_tags = file["tags"] || []
+      (files.size == 0 || files.any_matches?(file_path)) &&
+          !exclude_files.any_matches?(file_path) &&
+          (tags.size == 0 || (cross_any_matches?(file_tags, tags)) &&
+              !cross_any_matches?(file_tags, exclude_tags))
+    end
+
+    def cross_any_matches?(arr, dest_arr)
+      arr.each do |i|
+        if dest_arr.any_matches?(i)
+          return true
+        end
+      end
+      false
     end
   end
 end

@@ -105,8 +105,11 @@ module Ki
       if stat.executable?
         extra["executable"]=true
       end
-      if parameters["tags"] && parameters["tags"].size > 0
-        extra["tags"]= parameters["tags"]
+      if parameters["tags"]
+        tags = Array.wrap(parameters["tags"])
+        if tags && tags.size > 0
+          extra["tags"]= tags
+        end
       end
       if parameters["hashes"].nil?
         parameters["hashes"]=["sha1"]

@@ -155,7 +155,7 @@ module Ki
       if test_dependencies
         test_version(version)
       end
-      files = finder.version(version).find_files.file_list.sort
+      files = finder.version(version).find_files.file_map.sort
       files.each do |file_path, full_path|
         dir = File.dirname(file_path)
         if dir != "."

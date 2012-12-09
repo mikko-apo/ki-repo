@@ -1,7 +1,6 @@
 # @title Ki: Backlog
 # Backlog and tasks
 
-* versionmetadata file tags
 * fix directory structure
 * alias
 * package dep operations: dep-rm, dep-mv, dep-cp, dep-switch
