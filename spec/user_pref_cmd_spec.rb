@@ -32,7 +32,7 @@ describe "User prefs" do
   it "should display help" do
     @tester.catch_stdio do
       KiCommand.new.execute(["help", "pref"])
-    end.stdout.join.should =~ /Preferences/
+    end.stdout.join.should =~ /Syntax/
   end
 
   it "prefix" do
@@ -86,6 +86,17 @@ describe "User prefs" do
     KiCommand.register_cmd("test-test", TestCommand)
 
     lambda { KiCommand.new.execute(["test"]) }.should raise_error("Multiple commands match: version-test, test-test")
+  end
+
+  it "prefix shows up in pref list" do
+    @tester.chdir(source = @tester.tmpdir)
+    @tester.catch_stdio do
+      KiCommand.new.execute(["pref", "prefix", "version", "test"])
+    end.stdout.join.should == "Prefixes: version, test\n"
+
+    @tester.catch_stdio do
+      KiCommand.new.execute(["pref"])
+    end.stdout.join.should == "User preferences:\nprefixes: version, test\n"
   end
 
   it "use" do

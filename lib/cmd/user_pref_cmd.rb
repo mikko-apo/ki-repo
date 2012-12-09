@@ -30,9 +30,39 @@ module Ki
   # @see UserPrefFile
   class UserPrefCommand
     attr_chain :user_pref, -> { UserPrefFile.new }
+    attr_chain :shell_command
 
     def help
-      "Preferences #{opts(nil)}"
+      "\nSyntax: #{shell_command} prefix|use parameters(+|-) version(:file-tag) #{opts(nil)}"
+      <<EOF
+#{summary}
+Syntax: #{shell_command} prefix|use parameters...
+
+Examples for command prefixes:
+  #{shell_command} prefix
+  - shows command prefixes, when a "ki command" is executed ki looks for the command with all prefix combinations
+  #{shell_command} prefix version package
+  - sets two command prefixes, looks for "command", "version-command" and "package-command"
+  #{shell_command} prefix + foo
+  - adds one command prefix to existing ones, looks for "command", "version-command", "package-command", "foo-command"
+  #{shell_command} prefix - package foo
+  - removes two command prefixes from list
+  #{shell_command} prefix -c
+  - clears command prefix list
+
+Examples for automatic script loading:
+  #{shell_command} use
+  - shows list of automatically loading scripts. when ki starts up, it looks for all defined versions and loads all files tagged with ki-cmd
+  #{shell_command} use ki/http ki/ftp/123:ki-extra
+  - scripts are loaded from two different version. ki/http uses latest available version and files tagged with "ki-cmd", ki/ftp uses specific version and files tagged with "ki-extra"
+  #{shell_command} use + ki/scp
+  - adds one more script package version
+  #{shell_command} use - ki/scp ki/ftp/123:ki-extra
+  - removes two configurations
+  #{shell_command} use -c
+  - clear use list
+
+EOF
     end
 
     def summary
@@ -47,31 +77,43 @@ module Ki
       elsif pref == "use"
         arr = user_pref.uses
         str = "Use"
+      elsif pref.nil?
+        puts "User preferences:"
+        user_pref.cached_data.each_pair do |key, values|
+          if values
+            puts "#{key}: " + values.join(", ")
+          else
+            puts "#{key}:"
+          end
+        end
       else
         raise "not supported: " + pref
       end
-      args = opts(arr).parse(args)
-      if args.size > 0
-        if args[0] == "+"
-          args.delete_at(0)
-          arr.concat(args)
-        elsif args[0] == "-"
-          args.delete_at(0)
-          args.each do |a|
-            arr.delete(a)
+      if arr && str
+        args = opts(arr).parse(args)
+        if args.size > 0
+          if args[0] == "+"
+            args.delete_at(0)
+            arr.concat(args)
+          elsif args[0] == "-"
+            args.delete_at(0)
+            args.each do |a|
+              arr.delete(a)
+            end
+          else
+            arr.clear
+            arr.concat(args)
           end
-        else
-          arr.clear
-          arr.concat(args)
+          arr.uniq!
+          user_pref.save
         end
-        arr.uniq!
-        user_pref.save
+        puts "#{str}: " + arr.join(", ")
       end
-      puts "#{str}: " + arr.join(", ")
     end
 
     def opts(arr)
       OptionParser.new do |opts|
+        opts.banner = ""
         opts.on("-c", "--clear", "Clear existing preferences values for specified value") do |v|
           arr.clear
         end
