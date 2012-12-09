@@ -28,6 +28,8 @@ module Ki
     # Shared KiHome for commands
     attr_chain :ki_home, :require => "Use -h to set package info location"
 
+    attr_chain :user_pref, -> {UserPrefFile.new}
+
     # Command classes are registered using this method
     def self.register_cmd(name, clazz)
       register(CommandPrefix + name, clazz)
@@ -37,13 +39,27 @@ module Ki
       CommandRegistry.register(name, clazz)
     end
 
-    def self.find_cmd(name)
+    def load_scripts
+      # load all script files defined in UserPrefFile uses
+      user_pref.uses.each do |use_str|
+        ver, files_str = use_str.split(":")
+        files = files_str ? files.split(",") : ["*.rb"]
+        version = ki_home.version(ver)
+        version.find_files("*.rb").file_list.each_pair do |short_path, full_path|
+          require full_path
+        end
+      end
+    end
+
+    def find_cmd(name)
+      prefixed_command_names = user_pref.prefixes.map{|p| [p+name, p+"-"+name] }.flatten
+
       # Finds all matching combinations of prefix+name -> there should be exactly one
       all_commands = {}
       CommandRegistry.find("/commands").each {|(command, clazz)| all_commands[command[CommandPrefix.size..-1]]=clazz}
-      prefixed_command_names = UserPrefFile.new.prefixes.map{|p| [p+name, p+"-"+name] }.flatten
       prefixed_command_names.unshift(name)
       found_command_names = prefixed_command_names.select{|p| all_commands.key?(p)}
+
       # abort if found_command_names.size != 1
       if found_command_names.size > 1
         raise "Multiple commands match: " + found_command_names.join(", ")
@@ -54,7 +70,7 @@ module Ki
       initialize_cmd(all_commands[found_command_name], found_command_name)
     end
 
-    def self.initialize_cmd(cmd_class, name)
+    def initialize_cmd(cmd_class, name)
       cmd = cmd_class.new
       if cmd.respond_to?(:shell_command=)
         cmd.shell_command="#{$0} #{name}"
@@ -64,11 +80,12 @@ module Ki
 
     # bin/kaiju command line tool calls this method, which finds the correct class to manage the execution
     def execute(args)
+      my_args = opts.parse(args.dup)
+      load_scripts
       if args.empty?
         KiCommandHelp.new.execute(self, [])
       else
-        my_args = opts.parse(args.dup)
-        KiCommand.find_cmd(my_args.delete_at(0)).execute(self, my_args)
+        find_cmd(my_args.delete_at(0)).execute(self, my_args)
       end
     end
 
@@ -89,7 +106,7 @@ module Ki
     # Finds matching command and displays its help
     def execute(ctx, args)
       if args.size == 1
-        puts KiCommand.find_cmd(args.first).help
+        puts ctx.find_cmd(args.first).help
         puts "Common ki options:\n#{ctx.opts}"
       else
         puts <<EOF

@@ -90,6 +90,37 @@ describe "User prefs" do
 
   it "use" do
     @tester.chdir(source = @tester.tmpdir)
+
+    # Generate test scripts that are going to be used
+    home = KiHome.new(source)
+    [
+     ["ki/zip/1", "zip.rb", {}],
+     ["ki/bzip2/2", "bzip2.rb", {"Zip" => "Bzip2", "zip" => "bzip2"}]
+    ].each do |ver, file, replace|
+      @tester.tmpdir do |dir|
+        file_source = <<EOF
+class ZipTest
+  attr_chain :summary, -> { "zipsummary" }
+  attr_chain :help, -> { "ziphelp" }
+  def execute(a,args)
+    puts "zip:\#{args.join(",")}"
+  end
+end
+Ki::KiCommand.register_cmd("zip", ZipTest)
+EOF
+        replace.each_pair do |from, to|
+          file_source.gsub!(from, to)
+        end
+        Tester.write_files(dir, file => file_source)
+        metadata = VersionMetadataFile.new(File.join(dir, "metadata.json"))
+        metadata.add_files(dir, "*")
+        metadata.version_id=ver
+        metadata.save
+        VersionImporter.new.ki_home(home).import(metadata.path, dir)
+      end
+    end
+
+    # test that adding use scripts works
     @tester.catch_stdio do
       KiCommand.new.execute(["pref", "use"])
     end.stdout.join.should == "Use: \n"
@@ -102,6 +133,18 @@ describe "User prefs" do
     @tester.catch_stdio do
       KiCommand.new.execute(["-h", source, "pref", "use", "+", "ki/zip"])
     end.stdout.join.should == "Use: ki/bzip2, ki/zip\n"
+
+    # test that test scripts are loaded
+    command_list_ouput = @tester.catch_stdio do
+      KiCommand.new.execute(["-h", source, "commands"])
+    end.stdout.join
+    command_list_ouput.should =~ /bzip2summary/
+    command_list_ouput.should =~ /zipsummary/
+    @tester.catch_stdio do
+      KiCommand.new.execute(["-h", source, "bzip2", "a", "b"])
+    end.stdout.join.should == "bzip2:a,b\n"
+
+    # test that remove works
     @tester.catch_stdio do
       KiCommand.new.execute(["-h", source, "pref", "use", "-", "ki/zip"])
     end.stdout.join.should == "Use: ki/bzip2\n"

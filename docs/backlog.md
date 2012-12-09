@@ -2,7 +2,6 @@
 # Backlog and tasks
 
 * versionmetadata file tags
-* use loads additional commands from repository
 * fix directory structure
 * alias
 * package dep operations: dep-rm, dep-mv, dep-cp, dep-switch

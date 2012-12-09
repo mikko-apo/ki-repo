@@ -108,7 +108,11 @@ module Ki
       components = HashCache.new
       node = source
       while (node)
-        node.repositories.each do |info|
+        repositories = node.repositories.to_a
+        if node.respond_to?(:packages)
+          repositories.concat(node.packages.to_a)
+        end
+        repositories.each do |info|
           info.components.each do |component_info|
             component = components.cache(component_info.component_id) do
               Component.new.component_id(component_info.component_id).finder(self).components([])
