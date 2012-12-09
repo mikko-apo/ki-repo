@@ -109,5 +109,12 @@ describe Tester do
     lambda {Tester.verify_files(tmp, true, "a" => "1")}.should raise_error "Directory '#{tmp}/b' exists, but it should not exist!"
     lambda {Tester.verify_files(tmp, true, "a" => 1)}.should raise_error "Unsupported checker! File '#{tmp}/a' object: 1"
   end
+
+  it "final_tester_check should check for dirty testers" do
+    @tester.catch_stdio do
+      @tester.cleaners << -> { puts "foo"}
+      Tester.final_tester_check
+    end.stdout.join.should == "Tester 'Ki::Tester final_tester_check should check for dirty testers' has not been cleared! Please add the missing .after() command. Clearing it automatically.\nfoo\n"
+  end
 end
 

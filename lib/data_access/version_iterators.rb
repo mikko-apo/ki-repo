@@ -34,10 +34,7 @@ module Ki
       end
     end
 
-    def start_iteration(v=nil, &block)
-      if v
-        @version = v
-      end
+    def start_iteration(&block)
       @block = block
       @internals = true
       block.call(self)

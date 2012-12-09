@@ -82,8 +82,6 @@ EOF
         user_pref.cached_data.each_pair do |key, values|
           if values
             puts "#{key}: " + values.join(", ")
-          else
-            puts "#{key}:"
           end
         end
       else

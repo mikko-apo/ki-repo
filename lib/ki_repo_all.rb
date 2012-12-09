@@ -34,10 +34,10 @@ require_relative 'data_storage/projects'
 
 require_relative 'data_access/repository_info'
 require_relative 'data_access/repository_finder'
-require_relative 'data_access/version_commands'
+require_relative 'data_access/version_helpers'
 require_relative 'data_access/version_operations'
 require_relative 'data_access/version_iterators'
 
 require_relative 'cmd/cmd'
-require_relative 'cmd/packages_cmd'
+require_relative 'cmd/version_cmd'
 require_relative 'cmd/user_pref_cmd'
