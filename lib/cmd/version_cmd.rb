@@ -274,6 +274,9 @@ module Ki
               puts op.join(" ")
             end
           end
+          if @dirs
+            puts "Version directories: #{version.versions.map{|v| v.path}.join(", ")}"
+          end
           if !@recursive
             break
           end
@@ -287,8 +290,11 @@ module Ki
 
     def opts
       OptionParser.new do |opts|
-        opts.on("-r", "--recursive", "Shows version's dependencies also.'") do |v|
+        opts.on("-r", "--recursive", "Shows version's dependencies.'") do |v|
           @recursive = true
+        end
+        opts.on("-d", "--dirs", "Shows version's directories.'") do |v|
+          @dirs = true
         end
       end
     end

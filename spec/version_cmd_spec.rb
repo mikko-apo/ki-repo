@@ -341,9 +341,7 @@ describe "version-show" do
   end
 
   it "should show imported version" do
-    @tester.catch_stdio do
-      KiCommand.new.execute(%W(version-show -h #{@home.path} my/product))
-    end.stdout.join.should == "Version: my/product/2
+    product_txt = "Version: my/product/2
 Dependencies(1):
 my/component/23: internal=true, name=comp, path=comp
 Depedency operations:
@@ -354,22 +352,18 @@ readme.txt - size: 2, sha1=e0c9035898dd52fc65c41454cec9c4d2611bfb37, tags=bar
 Version operations(1):
 cp readme.txt README.txt
 "
-    @tester.catch_stdio do
-      KiCommand.new.execute(%W(version-show -h #{@home.path} my/product -r))
-    end.stdout.join.should == "Version: my/product/2
-Dependencies(1):
-my/component/23: internal=true, name=comp, path=comp
-Depedency operations:
-mv comp/test.sh test.sh
-cp test.sh test.bat
-Files(1):
-readme.txt - size: 2, sha1=e0c9035898dd52fc65c41454cec9c4d2611bfb37, tags=bar
-Version operations(1):
-cp readme.txt README.txt
-Version: my/component/23
+    product_dirs = "Version directories: #{@source}/info/site/my/product/2, #{@source}/info/site/my/product/2, #{@source}/packages/local/my/product/2, #{@source}/packages/local/my/product/2\n"
+    component_str = "Version: my/component/23
 Source: author=john, repotype=git, tag-url=http://test.repo/tags/23, url=http://test.repo/repo@21331
 Files(1):
 test.sh - size: 2, sha1=9a900f538965a426994e1e90600920aff0b4e8d2, tags=foo
 "
+    component_dirs = "Version directories: #{@source}/info/site/my/component/23, #{@source}/info/site/my/component/23, #{@source}/packages/local/my/component/23, #{@source}/packages/local/my/component/23\n"
+    @tester.catch_stdio do
+      KiCommand.new.execute(%W(version-show -h #{@home.path} my/product))
+    end.stdout.join.should == product_txt
+    @tester.catch_stdio do
+      KiCommand.new.execute(%W(version-show -h #{@home.path} my/product -r -d))
+    end.stdout.join.should == product_txt + product_dirs + component_str + component_dirs
   end
 end
