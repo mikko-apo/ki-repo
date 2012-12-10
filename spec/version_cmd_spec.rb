@@ -27,11 +27,11 @@ describe KiCommand do
   it "version-build" do
     @tester.chdir(source = @tester.tmpdir) do
       Tester.write_files(source,
-                          "dir/test.txt" => "aa",
-                          "foo.txt" => "f",
-                          "zap.zip" => "ff",
-                          "script.sh" => "shell script",
-                          "not-included/bar.zip" => "f")
+                         "dir/test.txt" => "aa",
+                         "foo.txt" => "f",
+                         "zap.zip" => "ff",
+                         "script.sh" => "shell script",
+                         "not-included/bar.zip" => "f")
       system("chmod u+x script.sh")
       KiCommand.new.execute(
           ["version-build",
@@ -56,32 +56,32 @@ describe KiCommand do
       )
       file = VersionMetadataFile.new("ki-metadata.json")
       file.load_data_from_file.should == {
-          "version_id"=>"my/component/23",
-          "source"=>{
-              "url"=>"https://foo.fi/repo1",
-              "tag-url"=>"https://foo.fi/repo1",
-              "repotype"=>"git", "author"=>"apo"
+          "version_id" => "my/component/23",
+          "source" => {
+              "url" => "https://foo.fi/repo1",
+              "tag-url" => "https://foo.fi/repo1",
+              "repotype" => "git", "author" => "apo"
           },
-          "files"=>[
-              {"path"=>"dir/test.txt", "size"=>2, "tags"=>["bar", "tests"],
-               "md5"=>"4124bc0a9335c27f086f24ba207a4912", "sha1"=>"e0c9035898dd52fc65c41454cec9c4d2611bfb37",
-               "sha2"=>"961b6dd3ede3cb8ecbaacbd68de040cd78eb2ed5889130cceb4c49268ea4d506"},
-              {"path"=>"script.sh", "size"=>12, "executable"=>true, "tags"=>["bar", "tests"],
-               "md5"=>"257c560384c287268c6d5096f827b9ba", "sha1"=>"6347583f73bdb545b8dad745124cf62421d7aa3c",
-               "sha2"=>"3d71079cbf751bb3e1b725aac4db9cbd73352f8773d5f66ddd5bd0bac8cba77c"},
-              {"path"=>"zap.zip", "size"=>2, "tags"=>["bar", "tests"],
-               "md5"=>"633de4b0c14ca52ea2432a3c8a5c4c31", "sha1"=>"ed70c57d7564e994e7d5f6fd6967cea8b347efbc",
-               "sha2"=>"05a9bf223fedf80a9d0da5f73f5c191a665bf4a0a4a3e608f2f9e7d5ff23959c"}
+          "files" => [
+              {"path" => "dir/test.txt", "size" => 2, "tags" => ["bar", "tests"],
+               "md5" => "4124bc0a9335c27f086f24ba207a4912", "sha1" => "e0c9035898dd52fc65c41454cec9c4d2611bfb37",
+               "sha2" => "961b6dd3ede3cb8ecbaacbd68de040cd78eb2ed5889130cceb4c49268ea4d506"},
+              {"path" => "script.sh", "size" => 12, "executable" => true, "tags" => ["bar", "tests"],
+               "md5" => "257c560384c287268c6d5096f827b9ba", "sha1" => "6347583f73bdb545b8dad745124cf62421d7aa3c",
+               "sha2" => "3d71079cbf751bb3e1b725aac4db9cbd73352f8773d5f66ddd5bd0bac8cba77c"},
+              {"path" => "zap.zip", "size" => 2, "tags" => ["bar", "tests"],
+               "md5" => "633de4b0c14ca52ea2432a3c8a5c4c31", "sha1" => "ed70c57d7564e994e7d5f6fd6967cea8b347efbc",
+               "sha2" => "05a9bf223fedf80a9d0da5f73f5c191a665bf4a0a4a3e608f2f9e7d5ff23959c"}
           ],
-          "operations"=>[
+          "operations" => [
               ["cp", "foo.txt", "foo2.txt"]
           ],
-          "dependencies"=>[
-              {"version_id"=>"my/tests/a/123",
-               "path"=>"test", "name"=>"tests",
-               "internal"=>true,
-               "operations"=>[["rm", "*.info"]]},
-              {"version_id"=>"my/docs/4411"}
+          "dependencies" => [
+              {"version_id" => "my/tests/a/123",
+               "path" => "test", "name" => "tests",
+               "internal" => true,
+               "operations" => [["rm", "*.info"]]},
+              {"version_id" => "my/docs/4411"}
           ]
       }
     end
@@ -100,11 +100,11 @@ describe KiCommand do
           ])
       file = VersionMetadataFile.new("test.json")
       file.load_data_from_file.should == {
-          "version_id"=>"my/component/23",
-          "files"=>[
-              {"path"=>"a/test.txt",
-               "size"=>2,
-               "sha1"=>"e0c9035898dd52fc65c41454cec9c4d2611bfb37"}
+          "version_id" => "my/component/23",
+          "files" => [
+              {"path" => "a/test.txt",
+               "size" => 2,
+               "sha1" => "e0c9035898dd52fc65c41454cec9c4d2611bfb37"}
           ]
       }
     end
@@ -127,10 +127,10 @@ describe "version-test" do
     @tester = Tester.new(example.metadata[:full_description])
     @source = @tester.tmpdir
     Tester.write_files(@source,
-                        "same.txt" => "aa",
-                        "changed.txt" => "aa",
-                        "changed_size.txt" => "aa",
-                        "missing.txt" => "aa")
+                       "same.txt" => "aa",
+                       "changed.txt" => "aa",
+                       "changed_size.txt" => "aa",
+                       "missing.txt" => "aa")
     @metadata_file = File.join(@source, "test.json")
     KiCommand.new.execute(
         ["version-build",
@@ -148,12 +148,12 @@ describe "version-test" do
   it "should test files" do
     file = VersionMetadataFile.new(@metadata_file)
     file.load_data_from_file.should == {
-        "version_id"=>"my/component/23",
-        "files"=>[
-            {"path"=>"changed.txt", "size"=>2, "sha1"=>"e0c9035898dd52fc65c41454cec9c4d2611bfb37"},
-            {"path"=>"changed_size.txt", "size"=>2, "sha1"=>"e0c9035898dd52fc65c41454cec9c4d2611bfb37"},
-            {"path"=>"missing.txt", "size"=>2, "sha1"=>"e0c9035898dd52fc65c41454cec9c4d2611bfb37"},
-            {"path"=>"same.txt", "size"=>2, "sha1"=>"e0c9035898dd52fc65c41454cec9c4d2611bfb37"}]
+        "version_id" => "my/component/23",
+        "files" => [
+            {"path" => "changed.txt", "size" => 2, "sha1" => "e0c9035898dd52fc65c41454cec9c4d2611bfb37"},
+            {"path" => "changed_size.txt", "size" => 2, "sha1" => "e0c9035898dd52fc65c41454cec9c4d2611bfb37"},
+            {"path" => "missing.txt", "size" => 2, "sha1" => "e0c9035898dd52fc65c41454cec9c4d2611bfb37"},
+            {"path" => "same.txt", "size" => 2, "sha1" => "e0c9035898dd52fc65c41454cec9c4d2611bfb37"}]
     }
     @tester.catch_stdio do
       KiCommand.new.execute(
@@ -298,26 +298,78 @@ describe "version-import" do
     Tester.write_files(@source, "packages/local/my/component/23/same.txt" => "bb")
     @tester.catch_stdio do
       lambda do
-      KiCommand.new.execute(
-          ["version-export",
-           "my/component",
-           "-o", out,
-           "-h", home.path,
-           "-t"
-          ])
+        KiCommand.new.execute(
+            ["version-export",
+             "my/component",
+             "-o", out,
+             "-h", home.path,
+             "-t"
+            ])
       end.should raise_error("Files are not ok!")
     end.stdout.join.should == "#{@source}/info/site/my/component/23/ki-metadata.json: 'same.txt' wrong hash '#{@source}/packages/local/my/component/23/same.txt'\n"
   end
   it "version-status add status to my/component" do
     @tester.catch_stdio do
-      KiCommand.new.execute(["help","version-status"])
+      KiCommand.new.execute(["help", "version-status"])
     end.stdout.join.should =~ /Test/
     home = KiHome.new(@source)
     home.repositories.add_item("site").mkdir.components.add_item("my/component").mkdir.versions.add_version("1.2.3").mkdir
-    KiCommand.new.execute(["version-status","add","my/component/1.2.3","Smoke","Green","action=path/123", "-h", @source])
-    KiJSONFile.load_json(home.path("info/site/my/component/1.2.3/ki-statuses.json")).should == [{"key"=>"Smoke", "value"=>"Green", "action"=>"path/123"}]
+    KiCommand.new.execute(["version-status", "add", "my/component/1.2.3", "Smoke", "Green", "action=path/123", "-h", @source])
+    KiJSONFile.load_json(home.path("info/site/my/component/1.2.3/ki-statuses.json")).should == [{"key" => "Smoke", "value" => "Green", "action" => "path/123"}]
   end
   it "version-status handles unknown" do
-    lambda{ KiCommand.new.execute(["version-status","del"]) }.should raise_error("Not supported 'del'")
+    lambda { KiCommand.new.execute(["version-status", "del"]) }.should raise_error("Not supported 'del'")
+  end
+end
+
+describe "version-show" do
+  before do
+    @tester = Tester.new(example.metadata[:full_description])
+    @tester.chdir(@source = @tester.tmpdir)
+    @home = KiHome.new(@source)
+    Tester.write_files(@source, "readme.txt" => "aa", "test.sh" => "bb")
+    KiCommand.new.execute(%W(version-build --version-id my/component/23 --file-tags foo test.sh --source-url http://test.repo/repo@21331 --source-tag-url http://test.repo/tags/23 --source-repotype git --source-author john))
+    KiCommand.new.execute(%W(version-import -h #{@home.path}))
+    FileUtils.rm("ki-metadata.json")
+    KiCommand.new.execute(%W(version-build --version-id my/product/2 --file-tags bar readme.txt -d my/component/23,name=comp,path=comp,internal) <<
+                              "-o" << "mv comp/test.sh test.sh" << "-o" << "cp test.sh test.bat" << "-O" << "cp readme.txt README.txt")
+    KiCommand.new.execute(%W(version-import -h #{@home.path}))
+  end
+
+  after do
+    @tester.after
+  end
+
+  it "should show imported version" do
+    @tester.catch_stdio do
+      KiCommand.new.execute(%W(version-show -h #{@home.path} my/product))
+    end.stdout.join.should == "Version: my/product/2
+Dependencies(1):
+my/component/23: internal=true, name=comp, path=comp
+Depedency operations:
+mv comp/test.sh test.sh
+cp test.sh test.bat
+Files(1):
+readme.txt - size: 2, sha1=e0c9035898dd52fc65c41454cec9c4d2611bfb37, tags=bar
+Version operations(1):
+cp readme.txt README.txt
+"
+    @tester.catch_stdio do
+      KiCommand.new.execute(%W(version-show -h #{@home.path} my/product -r))
+    end.stdout.join.should == "Version: my/product/2
+Dependencies(1):
+my/component/23: internal=true, name=comp, path=comp
+Depedency operations:
+mv comp/test.sh test.sh
+cp test.sh test.bat
+Files(1):
+readme.txt - size: 2, sha1=e0c9035898dd52fc65c41454cec9c4d2611bfb37, tags=bar
+Version operations(1):
+cp readme.txt README.txt
+Version: my/component/23
+Source: author=john, repotype=git, tag-url=http://test.repo/tags/23, url=http://test.repo/repo@21331
+Files(1):
+test.sh - size: 2, sha1=9a900f538965a426994e1e90600920aff0b4e8d2, tags=foo
+"
   end
 end

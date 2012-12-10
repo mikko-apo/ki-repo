@@ -136,7 +136,7 @@ module Ki
   # @see VersionImporter
   class ImportVersion
     attr_chain :input_dir, -> { Dir.pwd }
-    attr_chain :file, :require
+    attr_chain :file, -> { File.join(input_dir, "ki-metadata.json")}
     attr_chain :importer, -> { VersionImporter.new }
 
     def help
@@ -229,11 +229,77 @@ module Ki
     end
   end
 
+  # Shows information about a version
+  class ShowVersion
+    def help
+      "Test #{opts}"
+    end
+
+    def summary
+      "Prints information about version or versions"
+    end
+
+    def execute(ctx, args)
+      opts.parse(args).each do |arg|
+        VersionIterator.new.version(ctx.ki_home.version(arg)).iterate_versions do |version|
+          metadata = version.metadata
+          puts "Version: #{metadata.version_id}"
+          if metadata.source.size > 0
+            puts "Source: #{map_to_csl(metadata.source)}"
+          end
+          if metadata.dependencies.size > 0
+            puts "Dependencies(#{metadata.dependencies.size}):"
+            metadata.dependencies.each do |dep|
+              dep_data = dep.dup
+              dep_ops = dep_data.delete("operations")
+              puts "#{dep_data.delete("version_id")}: #{map_to_csl(dep_data)}"
+              if dep_ops.size > 0
+                puts "Depedency operations:"
+                dep_ops.each do |op|
+                  puts op.join(" ")
+                end
+              end
+            end
+          end
+          if metadata.files.size > 0
+            puts "Files(#{metadata.files.size}):"
+            metadata.files.each do |file|
+              file_data = file.dup
+              puts "#{file_data.delete("path")} - size: #{file_data.delete("size")}, #{map_to_csl(file_data)}"
+            end
+          end
+          if metadata.operations.size > 0
+            puts "Version operations(#{metadata.operations.size}):"
+            metadata.operations.each do |op|
+              puts op.join(" ")
+            end
+          end
+          if !@recursive
+            break
+          end
+        end
+      end
+    end
+
+    def map_to_csl(map)
+      map.sort.map{|k,v| "#{k}=#{Array.wrap(v).join(",")}"}.join(", ")
+    end
+
+    def opts
+      OptionParser.new do |opts|
+        opts.on("-r", "--recursive", "Shows version's dependencies also.'") do |v|
+          @recursive = true
+        end
+      end
+    end
+  end
+
   KiCommand.register_cmd("version-build", BuildVersionMetadataFile)
   KiCommand.register_cmd("version-test", TestVersion)
   KiCommand.register_cmd("version-import", ImportVersion)
   KiCommand.register_cmd("version-export", ExportVersion)
   KiCommand.register_cmd("version-status", VersionStatus)
+  KiCommand.register_cmd("version-show", ShowVersion)
   KiCommand.register("/hashing/sha1", SHA1)
   KiCommand.register("/hashing/sha2", SHA2)
   KiCommand.register("/hashing/md5", MD5)
