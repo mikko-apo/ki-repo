@@ -79,6 +79,23 @@ module Ki
     def find_files(*file_patterns)
       FileFinder.new.version(self).files(file_patterns)
     end
+
+    # Initializes a Version and Repository::Version for files non-imported files
+    # * works for testing and showing
+    def self.create_version(file, binary_directory=nil)
+      dir = File.dirname(file)
+      if dir == "."
+        dir = Dir.pwd
+      end
+      version = Version.new
+      repo_ver = Repository::Version.new(dir)
+      repo_ver.metadata = VersionMetadataFile.new(File.basename(file)).parent(repo_ver)
+      version.versions=[repo_ver]
+      if binary_directory
+        version.binaries = DirectoryBase.new(binary_directory)
+      end
+      version
+    end
   end
 
   # Combine's component's information from all different repositories

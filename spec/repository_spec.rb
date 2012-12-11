@@ -94,7 +94,8 @@ describe Repository::Version do
     )
     metadata.add_operation(["rm", "*.info"])
     metadata.save
-    @version.metadata.cached_data.should == {
+    metadata.reset_cached_data
+    metadata.cached_data.should == {
         "version_id"=>"my/component/1",
         "source"=>{
             "repotype"=>"git",

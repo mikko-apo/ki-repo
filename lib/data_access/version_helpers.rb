@@ -40,9 +40,7 @@ module Ki
         end
       elsif args.size == 2
         file, binary_directory = args
-        root_version = Version.new
-        root_version.metadata = VersionMetadataFile.new(file)
-        root_version.binaries = DirectoryBase.new(binary_directory)
+        root_version = Version.create_version(file, binary_directory)
       else
         raise "Not supported: '#{args.inspect}'"
       end

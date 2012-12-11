@@ -30,10 +30,10 @@ module Ki
 
     # Loads data from file path, makes it editable. Does not update cached_data
     def edit_data(&block)
-      data = load_data_from_file
-      block.call(data)
-      File.safe_write(path, JSON.pretty_generate(data))
-      data
+      @cached_data = load_data_from_file
+      block.call(self)
+      File.safe_write(path, JSON.pretty_generate(@cached_data))
+      @cached_data
     end
 
     # Saves data to file path. Does not update cached_data
@@ -52,6 +52,10 @@ module Ki
         default
       end
     end
+
+    def reset_cached_data
+      remove_instance_variable(:@cached_data)
+    end
   end
 
   # Base implementation for Json list file
@@ -64,8 +68,8 @@ module Ki
     end
 
     def add_item(obj)
-      edit_data do |list|
-        list << obj
+      edit_data do
+        @cached_data << obj
       end
       create_list_item(obj)
     end

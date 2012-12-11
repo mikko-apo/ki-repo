@@ -159,8 +159,7 @@ describe "version-test" do
       KiCommand.new.execute(
           ["version-test",
            "-f", @metadata_file,
-           "-i", @source,
-           "*"
+           "-i", @source
           ])
     end.stdout.join.should == "All files ok.\n"
   end
@@ -172,8 +171,7 @@ describe "version-test" do
       KiCommand.new.execute(
           ["version-test",
            "-f", @metadata_file,
-           "-i", @source,
-           "*"
+           "-i", @source
           ])
     end.stdout.join.should == "#{@source}/test.json: 'changed.txt' wrong hash '#{@source}/changed.txt'
 #{@source}/test.json: 'changed_size.txt' wrong size '#{@source}/changed_size.txt'
@@ -212,7 +210,7 @@ describe "version-test" do
 #      KiCommand.new.execute(["version-test", "-h", home.path, "-v", "test/product/1"])
 #    end.stdout.join.should == "All files ok.\n"
     @tester.catch_stdio do
-      KiCommand.new.execute(["version-test", "-h", home.path, "-v", "test/product/1", "-r"])
+      KiCommand.new.execute(["version-test", "-h", home.path, "test/product/1", "-r"])
     end.stdout.join.should == "#{home.path}/info/site/test/comp/13/ki-metadata.json: 'aa.txt' wrong hash '#{home.path}/packages/local/test/comp/13/aa.txt'\n"
   end
 end
@@ -247,7 +245,7 @@ describe "version-import" do
     ver = home.version("my/component")
     ver.version_id.should == "my/component/23"
     @tester.catch_stdio do
-      KiCommand.new.execute(["version-test", "-h", home.path, "-v", "my/component/23"])
+      KiCommand.new.execute(["version-test", "-h", home.path, "my/component/23"])
     end.stdout.join.should == "All files ok.\n"
   end
 
@@ -341,6 +339,10 @@ describe "version-show" do
   end
 
   it "should show imported version" do
+    @tester.catch_stdio do
+      KiCommand.new.execute(["help", "version-show"])
+    end.stdout.join.should =~ /Test/
+
     product_txt = "Version: my/product/2
 Dependencies(1):
 my/component/23: internal=true, name=comp, path=comp
@@ -353,6 +355,7 @@ Version operations(1):
 cp readme.txt README.txt
 "
     product_dirs = "Version directories: #{@source}/info/site/my/product/2, #{@source}/info/site/my/product/2, #{@source}/packages/local/my/product/2, #{@source}/packages/local/my/product/2\n"
+    product_local_dir = "Version directories: #{Dir.pwd}\n"
     component_str = "Version: my/component/23
 Source: author=john, repotype=git, tag-url=http://test.repo/tags/23, url=http://test.repo/repo@21331
 Files(1):
@@ -365,5 +368,8 @@ test.sh - size: 2, sha1=9a900f538965a426994e1e90600920aff0b4e8d2, tags=foo
     @tester.catch_stdio do
       KiCommand.new.execute(%W(version-show -h #{@home.path} my/product -r -d))
     end.stdout.join.should == product_txt + product_dirs + component_str + component_dirs
+    @tester.catch_stdio do
+      KiCommand.new.execute(%W(version-show -h #{@home.path} -f ki-metadata.json -i #{@source} -d))
+    end.stdout.join.should == product_txt + product_local_dir
   end
 end

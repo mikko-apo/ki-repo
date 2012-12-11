@@ -65,7 +65,6 @@ module Ki
     end
 
     def version(*args, &block)
-      # find component definitions which define versions
       finder.version(*args, &block)
     end
   end

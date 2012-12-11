@@ -98,7 +98,7 @@ describe Lab do
     lambda {@lab.version(1)}.should raise_error("Not supported '1'")
     # status order
     component.status_info.edit_data do |h|
-      h["maturity"]=["alpha","beta","gamma"]
+      h.cached_data["maturity"]=["alpha","beta","gamma"]
     end
     @lab.version("test/comp").version_id.should == "test/comp/2"
     @lab.version("test/comp:maturity>alpha").should == nil

@@ -85,19 +85,22 @@ module Ki
   # Tests version from repository or metadata file
   # @see VersionTester
   class TestVersion
-    attr_chain :tester, -> { VersionTester.new.recursive(false).print(true) }
-    attr_chain :input_dir, -> { Dir.pwd }
-    attr_chain :file, :require
-
     def execute(ctx, args)
-      opts.parse(args)
-      if @root_version
-        tester.ki_home(ctx.ki_home)
-        tester_args = [@root_version]
+      @tester = VersionTester.new.recursive(false).print(true)
+      ver_strs = opts.parse(args)
+      if ver_strs.size > 0 || @tester.recursive
+        @tester.ki_home(ctx.ki_home)
+        versions = ver_strs.map { |v| ctx.ki_home.version(v) }
       else
-        tester_args = [file, input_dir]
+        versions = []
       end
-      all_ok = tester.test_version(*tester_args)
+      if @file
+        versions.unshift Version.create_version(@file, @input_dir)
+      end
+      all_ok = true
+      versions.each do |v|
+        all_ok = all_ok && @tester.test_version(v)
+      end
       if all_ok
         puts "All files ok."
       end
@@ -115,18 +118,16 @@ module Ki
       OptionParser.new do |opts|
         opts.on("-f", "--file FILE", "Version source file. By default uses file's directory as source for binary files.'") do |v|
           if @input_dir.nil?
-            input_dir(File.dirname(v))
+            dir = File.dirname(v)
+            @input_dir = dir != "." ? dir : Dir.pwd
           end
-          file(v)
+          @file = v
         end
-        opts.on("-i", "--input-directory INPUT-DIR", "Input directory") do |v|
-          input_dir(v)
-        end
-        opts.on("-v", "--version-id VERSION-ID", "Version's id. Tests version from package directory.") do |v|
-          @root_version = v
+        opts.on("-i", "--input-directory INPUT-DIR", "Binary file input directory") do |v|
+          @input_dir = v
         end
         opts.on("-r", "--recursive", "Tests version's dependencies also.'") do |v|
-          tester.recursive = true
+          @tester.recursive = true
         end
       end
     end
@@ -136,8 +137,8 @@ module Ki
   # @see VersionImporter
   class ImportVersion
     attr_chain :input_dir, -> { Dir.pwd }
-    attr_chain :file, -> { File.join(input_dir, "ki-metadata.json")}
-    attr_chain :importer, -> { VersionImporter.new }
+    attr_chain :file, -> { File.join(input_dir, "ki-metadata.json") }
+    attr_chain :importer, -> {  }
 
     def help
       "Test #{opts}"
@@ -148,9 +149,9 @@ module Ki
     end
 
     def execute(ctx, args)
+      @importer = VersionImporter.new
       opts.parse(args)
-      importer.ki_home(ctx.ki_home)
-      importer.import(file, input_dir)
+      @importer.ki_home(ctx.ki_home).import(file, input_dir)
     end
 
     def opts
@@ -165,7 +166,7 @@ module Ki
           input_dir(v)
         end
         opts.on("-t", "--test-recursive", "Tests version's dependencies before importing.'") do |v|
-          importer.tester.recursive = true
+          @importer.tester.recursive = true
         end
       end
     end
@@ -175,7 +176,6 @@ module Ki
   # @see VersionExporter
   class ExportVersion
     attr_chain :out, -> { Dir.pwd }
-    attr_chain :exporter, -> { VersionExporter.new }
 
     def help
       "Test #{opts}"
@@ -186,9 +186,9 @@ module Ki
     end
 
     def execute(ctx, args)
+      @exporter = VersionExporter.new
       version = opts.parse(args).size!(1).first
-      exporter.ki_home(ctx.ki_home)
-      exporter.export(version, out)
+      @exporter.ki_home(ctx.ki_home).export(version, out)
     end
 
     def opts
@@ -197,7 +197,7 @@ module Ki
           out(v)
         end
         opts.on("-t", "--test", "Test version before export") do |v|
-          exporter.test_dependencies=true
+          @exporter.test_dependencies=true
         end
       end
     end
@@ -205,8 +205,6 @@ module Ki
 
   # Sets status for version
   class VersionStatus
-    attr_chain :repository, -> { "site" }
-
     def help
       "Test"
     end
@@ -216,12 +214,13 @@ module Ki
     end
 
     def execute(ctx, args)
+      @repository = "site"
       command = args.delete_at(0)
       case command
         when "add"
           version, key, value, *args = args
           flags = args.to_h("=")
-          pi = ctx.ki_home.repository(repository)
+          pi = ctx.ki_home.repository(@repository)
           pi.version(version).statuses.add_status(key, value, flags)
         else
           raise "Not supported '#{command}'"
@@ -240,8 +239,13 @@ module Ki
     end
 
     def execute(ctx, args)
-      opts.parse(args).each do |arg|
-        VersionIterator.new.version(ctx.ki_home.version(arg)).iterate_versions do |version|
+      finder = ctx.ki_home.finder
+      versions = opts.parse(args).map { |v| finder.version(v) }
+      if @file
+        versions.unshift Version.create_version(@file, @input_dir)
+      end
+      versions.each do |ver|
+        VersionIterator.new.finder(finder).version(ver).iterate_versions do |version|
           metadata = version.metadata
           puts "Version: #{metadata.version_id}"
           if metadata.source.size > 0
@@ -275,7 +279,7 @@ module Ki
             end
           end
           if @dirs
-            puts "Version directories: #{version.versions.map{|v| v.path}.join(", ")}"
+            puts "Version directories: #{version.versions.map { |v| v.path }.join(", ")}"
           end
           if !@recursive
             break
@@ -285,7 +289,7 @@ module Ki
     end
 
     def map_to_csl(map)
-      map.sort.map{|k,v| "#{k}=#{Array.wrap(v).join(",")}"}.join(", ")
+      map.sort.map { |k, v| "#{k}=#{Array.wrap(v).join(",")}" }.join(", ")
     end
 
     def opts
@@ -295,6 +299,16 @@ module Ki
         end
         opts.on("-d", "--dirs", "Shows version's directories.'") do |v|
           @dirs = true
+        end
+        opts.on("-f", "--file FILE", "Version source file. By default uses file's directory as source for binary files.'") do |v|
+          if @input_dir.nil?
+            dir = File.dirname(v)
+            @input_dir = dir != "." ? dir : Dir.pwd
+          end
+          @file = v
+        end
+        opts.on("-i", "--input-directory INPUT-DIR", "Binary file input directory") do |v|
+          @input_dir = v
         end
       end
     end
