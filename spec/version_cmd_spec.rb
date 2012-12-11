@@ -405,5 +405,8 @@ describe "version-search" do
     @tester.catch_stdio do
       KiCommand.new.execute(%W(version-search *pro* -h #{@source}))
     end.stdout.join.should == "Found components(1):\nmy/product\n"
+    @tester.catch_stdio do
+      KiCommand.new.execute(%W(version-search pro -h #{@source}))
+    end.stdout.join.should == "'pro' does not match versions or components\n"
   end
 end
