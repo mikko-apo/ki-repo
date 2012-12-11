@@ -68,7 +68,7 @@ module Ki
           default_parameters["tags"]= v.split(",").sort
         end
         hash_prefix = "/hashing"
-        hashes = KiCommand::CommandRegistry.find(hash_prefix).map{|k,v| k[hash_prefix.size+1..-1]}
+        hashes = KiCommand::CommandRegistry.find(hash_prefix).map { |k, v| k[hash_prefix.size+1..-1] }
         opts.on("--hashes HASHES", "Calculate checksums using defined hash algos. Default: sha1. Available: #{hashes.join(", ")}") do |v|
           default_parameters["hashes"]= v.split(",").sort
         end
@@ -226,10 +226,17 @@ module Ki
       command = args.delete_at(0)
       case command
         when "add"
-          version, key, value, *args = args
-          flags = args.to_h("=")
-          pi = ctx.ki_home.repository(@repository)
-          pi.version(version).statuses.add_status(key, value, flags)
+          version, key_value, *rest = args
+          key, value = key_value.split("=")
+          flags = rest.to_h("=")
+          repository = ctx.ki_home.repository(@repository)
+          repository.version(version).statuses.add_status(key, value, flags)
+        when "order"
+          component, key, values_str = args
+          repository = ctx.ki_home.repository(@repository)
+          repository.component(component).status_info.edit_data do |info|
+            info.cached_data[key]=values_str.split(",")
+          end
         else
           raise "Not supported '#{command}'"
       end

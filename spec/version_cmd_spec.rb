@@ -268,17 +268,38 @@ describe "version-import" do
       KiCommand.new.execute(["help", "version-import"])
     end.stdout.join.should =~ /Test/
   end
+end
 
-  it "version-status add status to my/component" do
-    @tester.catch_stdio do
-      KiCommand.new.execute(["help", "version-status"])
-    end.stdout.join.should =~ /Test/
-    home = KiHome.new(@source)
-    home.repositories.add_item("site").mkdir.components.add_item("my/component").mkdir.versions.add_version("1.2.3").mkdir
-    KiCommand.new.execute(["version-status", "add", "my/component/1.2.3", "Smoke", "Green", "action=path/123", "-h", @source])
-    KiJSONFile.load_json(home.path("info/site/my/component/1.2.3/ki-statuses.json")).should == [{"key" => "Smoke", "value" => "Green", "action" => "path/123"}]
+describe "version-export" do
+  before do
+    @tester = Tester.new(example.metadata[:full_description])
+    @tester.chdir(@source = @tester.tmpdir)
+    @home = KiHome.new(@source)
+    @home.repositories.add_item("site").mkdir.components.add_item("my/component").mkdir.versions.add_version("1.2.3").mkdir
   end
-  it "version-status handles unknown" do
+
+  after do
+    @tester.after
+  end
+
+  it "should display help" do
+    @tester.catch_stdio do
+      KiCommand.new.execute(%W(help version-status))
+    end.stdout.join.should =~ /Test/
+  end
+
+  it "add status to my/component" do
+    KiCommand.new.execute(%W(version-status add my/component/1.2.3 Smoke=Green action=path/123 -h #{@source}))
+    KiJSONFile.load_json(@home.path("info/site/my/component/1.2.3/ki-statuses.json")).should == [{"key" => "Smoke", "value" => "Green", "action" => "path/123"}]
+    @home.version("my/component").statuses.should == [["Smoke", "Green"]]
+  end
+
+  it "set status order to my/component" do
+    KiCommand.new.execute(%W(version-status order my/component maturity alpha,beta,gamma -h #{@source}))
+    @home.finder.component("my/component").status_info.should == {"maturity"=>["alpha", "beta", "gamma"]}
+  end
+
+  it "handles unknown" do
     lambda { KiCommand.new.execute(["version-status", "del"]) }.should raise_error("Not supported 'del'")
   end
 end
