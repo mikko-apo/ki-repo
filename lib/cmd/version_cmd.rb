@@ -138,7 +138,7 @@ module Ki
   class ImportVersion
     attr_chain :input_dir, -> { Dir.pwd }
     attr_chain :file, -> { File.join(input_dir, "ki-metadata.json") }
-    attr_chain :importer, -> {  }
+    attr_chain :importer, -> {}
 
     def help
       "Test #{opts}"
@@ -314,12 +314,43 @@ module Ki
     end
   end
 
+  # Sets status for version
+  class VersionSearch
+    def help
+      "Test"
+    end
+
+    def summary
+      "Searches for versions and components"
+    end
+
+    def execute(ctx, args)
+      finder = ctx.ki_home.finder
+      args.each do |arg|
+        version = finder.version(arg)
+        if version
+          puts version.version_id
+        else
+          matcher = FileRegexp.matcher(arg)
+          found_components = finder.components.keys.select { |name| matcher.match(name) }
+          if found_components.size > 0
+            puts "Found components(#{found_components.size}):"
+            puts found_components.join("\n")
+          else
+            puts "'#{arg}' does not match versions or components"
+          end
+        end
+      end
+    end
+  end
+
   KiCommand.register_cmd("version-build", BuildVersionMetadataFile)
   KiCommand.register_cmd("version-test", TestVersion)
   KiCommand.register_cmd("version-import", ImportVersion)
   KiCommand.register_cmd("version-export", ExportVersion)
   KiCommand.register_cmd("version-status", VersionStatus)
   KiCommand.register_cmd("version-show", ShowVersion)
+  KiCommand.register_cmd("version-search", VersionSearch)
   KiCommand.register("/hashing/sha1", SHA1)
   KiCommand.register("/hashing/sha2", SHA2)
   KiCommand.register("/hashing/md5", MD5)

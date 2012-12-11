@@ -373,3 +373,37 @@ test.sh - size: 2, sha1=9a900f538965a426994e1e90600920aff0b4e8d2, tags=foo
     end.stdout.join.should == product_txt + product_local_dir
   end
 end
+
+describe "version-search" do
+  before do
+    @tester = Tester.new(example.metadata[:full_description])
+    @tester.chdir(@source = @tester.tmpdir)
+    @home = KiHome.new(@source)
+    Tester.write_files(@source, "readme.txt" => "aa", "test.sh" => "bb")
+    KiCommand.new.execute(%W(version-build --version-id my/component/23 --file-tags foo test.sh --source-url http://test.repo/repo@21331 --source-tag-url http://test.repo/tags/23 --source-repotype git --source-author john))
+    KiCommand.new.execute(%W(version-import -h #{@home.path}))
+    FileUtils.rm("ki-metadata.json")
+    KiCommand.new.execute(%W(version-build --version-id my/product/2 --file-tags bar readme.txt -d my/component/23,name=comp,path=comp,internal) <<
+                              "-o" << "mv comp/test.sh test.sh" << "-o" << "cp test.sh test.bat" << "-O" << "cp readme.txt README.txt")
+    KiCommand.new.execute(%W(version-import -h #{@home.path}))
+  end
+
+  after do
+    @tester.after
+  end
+
+  it "should search" do
+    @tester.catch_stdio do
+      KiCommand.new.execute(%W(help version-search))
+    end.stdout.join.should =~ /Test/
+    @tester.catch_stdio do
+      KiCommand.new.execute(%W(version-search my/component -h #{@source}))
+    end.stdout.join.should == "my/component/23\n"
+    @tester.catch_stdio do
+      KiCommand.new.execute(%W(version-search my/* -h #{@source}))
+    end.stdout.join.should == "Found components(2):\nmy/component\nmy/product\n"
+    @tester.catch_stdio do
+      KiCommand.new.execute(%W(version-search *pro* -h #{@source}))
+    end.stdout.join.should == "Found components(1):\nmy/product\n"
+  end
+end

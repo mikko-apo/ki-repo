@@ -20,6 +20,7 @@ module Ki
   # @see Version
   class RepositoryFinder
     attr_reader :versions
+    attr_reader :components
 
     def initialize(source)
       @components = load_all_components(source)
