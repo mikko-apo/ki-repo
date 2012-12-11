@@ -64,10 +64,13 @@ module Ki
             source_parameters[source_param]=v
           end
         end
-        ["hashes", "tags"].each do |file_param|
-          opts.on("--file-#{file_param} #{file_param.upcase}", "File parameter #{file_param}") do |v|
-            default_parameters[file_param]= v.split(",").sort
-          end
+        opts.on("-t", "--tags TAGS", "Tag files with keywords") do |v|
+          default_parameters["tags"]= v.split(",").sort
+        end
+        hash_prefix = "/hashing"
+        hashes = KiCommand::CommandRegistry.find(hash_prefix).map{|k,v| k[hash_prefix.size+1..-1]}
+        opts.on("--hashes HASHES", "Calculate checksums using defined hash algos. Default: sha1. Available: #{hashes.join(", ")}") do |v|
+          default_parameters["hashes"]= v.split(",").sort
         end
         opts.on("-d", "--dependency DEPENDENCY", "Dependency definition my/component/123[,name=AA][,path=aa][,internal]") do |v|
           previous_dep(metadata_file.add_dependency(v))

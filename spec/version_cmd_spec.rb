@@ -36,9 +36,9 @@ describe KiCommand do
       KiCommand.new.execute(
           ["version-build",
            "--version-id", "my/component/23",
-           "--file-hashes", "sha1,md5,sha2",
+           "--hashes", "sha1,md5,sha2",
            "*.sh",
-           "--file-tags", "tests,bar",
+           "-t", "tests,bar",
            "*.zip", "dir",
            "-d", "my/tests/a/123,path=test,name=tests,internal",
            "-o", "rm *.info",
@@ -326,10 +326,10 @@ describe "version-show" do
     @tester.chdir(@source = @tester.tmpdir)
     @home = KiHome.new(@source)
     Tester.write_files(@source, "readme.txt" => "aa", "test.sh" => "bb")
-    KiCommand.new.execute(%W(version-build --version-id my/component/23 --file-tags foo test.sh --source-url http://test.repo/repo@21331 --source-tag-url http://test.repo/tags/23 --source-repotype git --source-author john))
+    KiCommand.new.execute(%W(version-build --version-id my/component/23 -t foo test.sh --source-url http://test.repo/repo@21331 --source-tag-url http://test.repo/tags/23 --source-repotype git --source-author john))
     KiCommand.new.execute(%W(version-import -h #{@home.path}))
     FileUtils.rm("ki-metadata.json")
-    KiCommand.new.execute(%W(version-build --version-id my/product/2 --file-tags bar readme.txt -d my/component/23,name=comp,path=comp,internal) <<
+    KiCommand.new.execute(%W(version-build --version-id my/product/2 -t bar readme.txt -d my/component/23,name=comp,path=comp,internal) <<
                               "-o" << "mv comp/test.sh test.sh" << "-o" << "cp test.sh test.bat" << "-O" << "cp readme.txt README.txt")
     KiCommand.new.execute(%W(version-import -h #{@home.path}))
   end
@@ -380,10 +380,10 @@ describe "version-search" do
     @tester.chdir(@source = @tester.tmpdir)
     @home = KiHome.new(@source)
     Tester.write_files(@source, "readme.txt" => "aa", "test.sh" => "bb")
-    KiCommand.new.execute(%W(version-build --version-id my/component/23 --file-tags foo test.sh --source-url http://test.repo/repo@21331 --source-tag-url http://test.repo/tags/23 --source-repotype git --source-author john))
+    KiCommand.new.execute(%W(version-build --version-id my/component/23 -t foo test.sh --source-url http://test.repo/repo@21331 --source-tag-url http://test.repo/tags/23 --source-repotype git --source-author john))
     KiCommand.new.execute(%W(version-import -h #{@home.path}))
     FileUtils.rm("ki-metadata.json")
-    KiCommand.new.execute(%W(version-build --version-id my/product/2 --file-tags bar readme.txt -d my/component/23,name=comp,path=comp,internal) <<
+    KiCommand.new.execute(%W(version-build --version-id my/product/2 -t bar readme.txt -d my/component/23,name=comp,path=comp,internal) <<
                               "-o" << "mv comp/test.sh test.sh" << "-o" << "cp test.sh test.bat" << "-O" << "cp readme.txt README.txt")
     KiCommand.new.execute(%W(version-import -h #{@home.path}))
   end
