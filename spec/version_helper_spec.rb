@@ -39,16 +39,12 @@ describe VersionTester do
     @tester.after
   end
 
-  it "should warn about not supported arguments" do
-    lambda{VersionTester.new.test_version()}.should raise_error("Not supported: '[]'")
-  end
-
   it "should call supplied block when there are issues" do
     Tester.write_files(@source, "changed.txt" => "bb", "changed_size.txt" => "aaa")
     FileUtils.rm(File.join(@source, "missing.txt"))
     index = 0
     issues = [["wrong hash", "changed.txt"], ["wrong size", "changed_size.txt"], ["missing", "missing.txt"]]
-    VersionTester.new.test_version(@metadata_file, @source) do |issue, version, file|
+    VersionTester.new.test_version(Version.create_version(@metadata_file, @source)) do |issue, version, file|
       [issue, file].should == issues[index]
        index+=1
     end

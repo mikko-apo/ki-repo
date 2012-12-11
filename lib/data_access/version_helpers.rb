@@ -27,23 +27,11 @@ module Ki
 
     # Tests that a version is intact
     # * test_version(version) expects a Version parameter
-    # * test_version(file, binary_directory) expects two String parameters defining version file location and directory base for binaries
     # @see VersionIterator
     # @see RepositoryFinder
     # @return [bool] returns true if there weren't any problems with the version
-    def test_version(*args, &block)
+    def test_version(root_version, &block)
       all_ok = true
-      if args.size == 1
-        root_version = args.first
-        if !root_version.kind_of?(Version)
-          root_version = finder.version(root_version)
-        end
-      elsif args.size == 2
-        file, binary_directory = args
-        root_version = Version.create_version(file, binary_directory)
-      else
-        raise "Not supported: '#{args.inspect}'"
-      end
       possible_hashes = KiCommand::CommandRegistry.find!("/hashing")
       # iterates through all versions
       root_version.version_iterator.iterate_versions do |v|
@@ -134,7 +122,7 @@ module Ki
     end
 
     def test_version(file, input)
-      all_ok = tester.ki_home(ki_home).test_version(file, input)
+      all_ok = tester.ki_home(ki_home).test_version(Version.create_version(file, input))
       if !all_ok
         raise "Files are not ok!"
       end
@@ -147,13 +135,15 @@ module Ki
     attr_chain :ki_home, :require
     attr_chain :finder, -> { ki_home.finder }
     attr_chain :test_dependencies
+    attr_chain :find_files, -> { FileFinder.new }
 
     # Exports a version to directory
     def export(version, out)
+      ver = finder.version(version)
       if test_dependencies
-        test_version(version)
+        test_version(ver)
       end
-      files = finder.version(version).find_files.file_map.sort
+      files = find_files.version(ver).file_map.sort
       files.each do |file_path, full_path|
         dir = File.dirname(file_path)
         if dir != "."

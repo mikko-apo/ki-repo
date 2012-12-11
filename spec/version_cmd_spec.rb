@@ -269,43 +269,6 @@ describe "version-import" do
     end.stdout.join.should =~ /Test/
   end
 
-  it "version-export should export files as links" do
-    @tester.catch_stdio do
-      KiCommand.new.execute(["help", "version-export"])
-    end.stdout.join.should =~ /Test/
-
-    home = KiHome.new(@source)
-    KiCommand.new.execute(
-        ["version-import",
-         "-f", @metadata_file,
-         "-i", @source,
-         "-h", home.path
-        ])
-    out = @tester.tmpdir
-    KiCommand.new.execute(
-        ["version-export",
-         "my/component",
-         "-o", out,
-         "-h", home.path
-        ])
-    File.readlink(File.join(out, "same.txt")).should == "#{@source}/packages/local/my/component/23/same.txt"
-    IO.read(File.join(out, "same.txt")).should == "aa"
-    File.readlink(File.join(out, "foo/changed.txt")).should == "#{@source}/packages/local/my/component/23/foo/changed.txt"
-    IO.read(File.join(out, "foo/changed.txt")).should == "aa"
-    # test before export should warn about broken files
-    Tester.write_files(@source, "packages/local/my/component/23/same.txt" => "bb")
-    @tester.catch_stdio do
-      lambda do
-        KiCommand.new.execute(
-            ["version-export",
-             "my/component",
-             "-o", out,
-             "-h", home.path,
-             "-t"
-            ])
-      end.should raise_error("Files are not ok!")
-    end.stdout.join.should == "#{@source}/info/site/my/component/23/ki-metadata.json: 'same.txt' wrong hash '#{@source}/packages/local/my/component/23/same.txt'\n"
-  end
   it "version-status add status to my/component" do
     @tester.catch_stdio do
       KiCommand.new.execute(["help", "version-status"])
@@ -320,18 +283,57 @@ describe "version-import" do
   end
 end
 
+describe "version-export" do
+  before do
+    create_product_component
+  end
+
+  after do
+    @tester.after
+  end
+
+  it "should print help" do
+    @tester.catch_stdio do
+      KiCommand.new.execute(["help", "version-export"])
+    end.stdout.join.should =~ /Test/
+  end
+
+  it "should export files as links" do
+    out = @tester.tmpdir
+    KiCommand.new.execute(%W(version-export my/product -o #{out} -h #{@home.path}))
+
+    Tester.verify_files(out, true, {"README" => "aa", "readme.txt" => "aa", "test.bat" => "bb", "comp/test.sh" => "bb"})
+    File.readlink(File.join(out, "README")).should == "#{@source}/packages/local/my/product/2/readme.txt"
+    File.readlink(File.join(out, "readme.txt")).should == "#{@source}/packages/local/my/product/2/readme.txt"
+    File.readlink(File.join(out, "test.bat")).should == "#{@source}/packages/local/my/component/23/test.sh"
+    File.readlink(File.join(out, "comp/test.sh")).should == "#{@source}/packages/local/my/component/23/test.sh"
+    # test before export should warn about broken files
+    Tester.write_files(@source, "packages/local/my/component/23/test.sh" => "cc")
+    @tester.catch_stdio do
+      lambda do
+        KiCommand.new.execute(%W(version-export my/product -o #{out} -h #{@home.path} -t))
+      end.should raise_error("Files are not ok!")
+    end.stdout.join.should == "#{@source}/info/site/my/component/23/ki-metadata.json: 'test.sh' wrong hash '#{@source}/packages/local/my/component/23/test.sh'\n"
+  end
+
+  it "should export selected files" do
+    out = @tester.tmpdir
+    KiCommand.new.execute(%W(version-export my/product -o #{out} -h #{@home.path} readme*))
+    Tester.verify_files(out, true, {"README" => "aa", "readme.txt" => "aa"})
+  end
+
+  it "should export selected files by tag" do
+    out = @tester.tmpdir
+    KiCommand.new.execute(%W(version-export my/product -o #{out} -h #{@home.path} --tags no-match))
+    Tester.verify_files(out, true, {})
+    KiCommand.new.execute(%W(version-export my/product -o #{out} -h #{@home.path} --tags bar,bop))
+    Tester.verify_files(out, true, {"README" => "aa", "readme.txt" => "aa"})
+  end
+end
+
 describe "version-show" do
   before do
-    @tester = Tester.new(example.metadata[:full_description])
-    @tester.chdir(@source = @tester.tmpdir)
-    @home = KiHome.new(@source)
-    Tester.write_files(@source, "readme.txt" => "aa", "test.sh" => "bb")
-    KiCommand.new.execute(%W(version-build --version-id my/component/23 -t foo test.sh --source-url http://test.repo/repo@21331 --source-tag-url http://test.repo/tags/23 --source-repotype git --source-author john))
-    KiCommand.new.execute(%W(version-import -h #{@home.path}))
-    FileUtils.rm("ki-metadata.json")
-    KiCommand.new.execute(%W(version-build --version-id my/product/2 -t bar readme.txt -d my/component/23,name=comp,path=comp,internal) <<
-                              "-o" << "mv comp/test.sh test.sh" << "-o" << "cp test.sh test.bat" << "-O" << "cp readme.txt README.txt")
-    KiCommand.new.execute(%W(version-import -h #{@home.path}))
+    create_product_component
   end
 
   after do
@@ -347,12 +349,11 @@ describe "version-show" do
 Dependencies(1):
 my/component/23: internal=true, name=comp, path=comp
 Depedency operations:
-mv comp/test.sh test.sh
-cp test.sh test.bat
+cp comp/test.sh test.bat
 Files(1):
 readme.txt - size: 2, sha1=e0c9035898dd52fc65c41454cec9c4d2611bfb37, tags=bar
 Version operations(1):
-cp readme.txt README.txt
+cp readme.txt README
 "
     product_dirs = "Version directories: #{@source}/info/site/my/product/2, #{@source}/info/site/my/product/2, #{@source}/packages/local/my/product/2, #{@source}/packages/local/my/product/2\n"
     product_local_dir = "Version directories: #{Dir.pwd}\n"
@@ -374,18 +375,22 @@ test.sh - size: 2, sha1=9a900f538965a426994e1e90600920aff0b4e8d2, tags=foo
   end
 end
 
+def create_product_component
+  @tester = Tester.new(example.metadata[:full_description])
+  @tester.chdir(@source = @tester.tmpdir)
+  @home = KiHome.new(@source)
+  Tester.write_files(@source, "readme.txt" => "aa", "test.sh" => "bb")
+  KiCommand.new.execute(%W(version-build --version-id my/component/23 -t foo test.sh --source-url http://test.repo/repo@21331 --source-tag-url http://test.repo/tags/23 --source-repotype git --source-author john))
+  KiCommand.new.execute(%W(version-import -h #{@home.path}))
+  FileUtils.rm("ki-metadata.json")
+  KiCommand.new.execute(%W(version-build --version-id my/product/2 -t bar readme.txt -d my/component/23,name=comp,path=comp,internal) <<
+                            "-o" << "cp comp/test.sh test.bat" << "-O" << "cp readme.txt README")
+  KiCommand.new.execute(%W(version-import -h #{@home.path}))
+end
+
 describe "version-search" do
   before do
-    @tester = Tester.new(example.metadata[:full_description])
-    @tester.chdir(@source = @tester.tmpdir)
-    @home = KiHome.new(@source)
-    Tester.write_files(@source, "readme.txt" => "aa", "test.sh" => "bb")
-    KiCommand.new.execute(%W(version-build --version-id my/component/23 -t foo test.sh --source-url http://test.repo/repo@21331 --source-tag-url http://test.repo/tags/23 --source-repotype git --source-author john))
-    KiCommand.new.execute(%W(version-import -h #{@home.path}))
-    FileUtils.rm("ki-metadata.json")
-    KiCommand.new.execute(%W(version-build --version-id my/product/2 -t bar readme.txt -d my/component/23,name=comp,path=comp,internal) <<
-                              "-o" << "mv comp/test.sh test.sh" << "-o" << "cp test.sh test.bat" << "-O" << "cp readme.txt README.txt")
-    KiCommand.new.execute(%W(version-import -h #{@home.path}))
+    create_product_component
   end
 
   after do

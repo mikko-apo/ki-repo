@@ -190,7 +190,9 @@ module Ki
 
     def execute(ctx, args)
       @exporter = VersionExporter.new
-      version = opts.parse(args).size!(1).first
+      file_patterns = opts.parse(args)
+      version = file_patterns.delete_at(0)
+      @exporter.find_files.files(file_patterns)
       @exporter.ki_home(ctx.ki_home).export(version, out)
     end
 
@@ -198,6 +200,9 @@ module Ki
       OptionParser.new do |opts|
         opts.on("-o", "--output-directory INPUT-DIR", "Input directory") do |v|
           out(v)
+        end
+        opts.on("--tags TAGS", "Select files with matching tag") do |v|
+          @exporter.find_files.tags(v.split(","))
         end
         opts.on("-t", "--test", "Test version before export") do |v|
           @exporter.test_dependencies=true
