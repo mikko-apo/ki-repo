@@ -26,9 +26,19 @@ describe KiCommand do
   end
 
   it "should display help if no parameters" do
-    @tester.catch_stdio do
-      KiCommand.new.execute([])
-    end.stdout.join.should =~ /ki-repo/
+    @tester.chdir(@source = @tester.tmpdir)
+    @home = KiHome.new(@source)
+    Tester.write_files(@source, "readme.txt" => "aa", "test.sh" => "bb")
+    KiCommand.new.execute(%W(version-build --version-id my/component/23 -t foo test.sh --source-url http://test.repo/repo@21331 --source-tag-url http://test.repo/tags/23 --source-repotype git --source-author john))
+    KiCommand.new.execute(%W(version-import -h #{@home.path}))
+    output = @tester.catch_stdio do
+      KiCommand.new.execute(%W(-h #{@home.path}))
+    end.stdout.join
+    output.should =~ /ki-repo/
+    output.should =~ /Home directory: #{@source}/
+    output.should =~ /- #{@source}\/info\/site \(components: 1\)/
+    output.should =~ /- #{@source}\/packages\/local \(components: 1\)/
+    output.should =~ /Components in all repositories: 1/
   end
 
   it "should warn about unknown command" do

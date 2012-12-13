@@ -23,7 +23,8 @@ module Ki
     attr_reader :components
 
     def initialize(source)
-      @components = load_all_components(source)
+      @source = source
+      @components = load_all_components
       @versions = HashCache.new
     end
 
@@ -103,28 +104,32 @@ module Ki
       end
     end
 
-    # Loads all Component from all repositories
-    # @param [KiHome] source
-    def load_all_components(source)
-      components = HashCache.new
+    def all_repositories(source=@source)
       node = source
+      repositories = []
       while (node)
-        repositories = node.repositories.to_a
+        repositories.concat(node.repositories.to_a)
         if node.respond_to?(:packages)
           repositories.concat(node.packages.to_a)
         end
-        repositories.each do |info|
-          info.components.each do |component_info|
-            component = components.cache(component_info.component_id) do
-              Component.new.component_id(component_info.component_id).finder(self).components([])
-            end
-            component.components << component_info
-          end
-        end
         if node.root?
-          node = nil
-        else
-          node = node.parent
+          break
+        end
+        node = node.parent
+      end
+      repositories
+    end
+
+    # Loads all Component from all repositories
+    # @param [KiHome] source
+    def load_all_components(source=@source)
+      components = HashCache.new
+      all_repositories(source).each do |info|
+        info.components.each do |component_info|
+          component = components.cache(component_info.component_id) do
+            Component.new.component_id(component_info.component_id).finder(self).components([])
+          end
+          component.components << component_info
         end
       end
       components
@@ -147,7 +152,7 @@ module Ki
         ret = false
         version_statuses = version_statuses_original.reverse # latest first
         status_info = component.status_info
-        # go through each rule and see if this version has matching status
+                                                             # go through each rule and see if this version has matching status
         status_rules.each do |key, op, value|
           if order = status_info[key]
             rule_value_index = order.index(value)

@@ -82,7 +82,7 @@ module Ki
     def execute(args)
       my_args = opts.parse(args.dup)
       load_scripts
-      if args.empty?
+      if my_args.empty?
         KiCommandHelp.new.execute(self, [])
       else
         find_cmd(my_args.delete_at(0)).execute(self, my_args)
@@ -109,11 +109,18 @@ module Ki
         puts ctx.find_cmd(args.first).help
         puts "Common ki options:\n#{ctx.opts}"
       else
+        finder = ctx.ki_home.finder
         puts <<EOF
 ki-repo is a repository for storing packages and metadata.
 
 Usage:
   #{$0} COMMAND parameters
+
+Info:
+  Home directory: #{ctx.ki_home.path}
+  Repositories:
+#{finder.all_repositories.map{|repo| "    - #{repo.path} (components: #{repo.components.size})"}.join("\n")}
+  Components in all repositories: #{finder.components.size}
 
 Available commands:
 EOF
