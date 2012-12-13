@@ -8,10 +8,10 @@
 
 # Next release...
 * create file operations based on user's changes
-* create build script from user's commands, generate installation scripts and tests automatically
 * Download & replication
 * Digital signing
 * Encrypted/packed packages
+* Support for using files from other repositories
 
 # Maybe at some point...
 * alias

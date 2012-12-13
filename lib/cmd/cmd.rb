@@ -26,9 +26,9 @@ module Ki
     CommandPrefix = "/commands/"
 
     # Shared KiHome for commands
-    attr_chain :ki_home, :require => "Use -h to set package info location"
+    attr_chain :ki_home, -> { KiHome.new( ENV["KIHOME"] ? ENV["KIHOME"] : File.expand_path("~")) }
 
-    attr_chain :user_pref, -> {UserPrefFile.new}
+    attr_chain :user_pref, -> { UserPrefFile.new }
 
     # Command classes are registered using this method
     def self.register_cmd(name, clazz)

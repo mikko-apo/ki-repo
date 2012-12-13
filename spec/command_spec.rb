@@ -35,6 +35,18 @@ describe KiCommand do
     lambda { KiCommand.new.execute(["unknown-command"]) }.should raise_error("No commands match: unknown-command")
   end
 
+  it "should have default location for KiHome" do
+    KiCommand.new.ki_home.path.should == File.expand_path("~")
+  end
+
+  it "should have take KiHome path from ENV[\"KIHOME\"]" do
+    @tester.cleaners << lambda do
+      ENV.delete("KIHOME")
+    end
+    ENV["KIHOME"]="/foo"
+    KiCommand.new.ki_home.path.should == "/foo"
+  end
+
   it "should support pluggable commands" do
     original_commands = KiCommand::CommandRegistry.dup
     @tester.cleaners << lambda do
