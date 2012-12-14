@@ -1,6 +1,8 @@
 # @title Ki: Backlog
 
 # Backlog for 0.1
+* use scripts can be defined for kicommand in commandline, -u
+* website command
 * fix directory structure
 * cleanup and removal operations
 * remove project stuff
@@ -12,7 +14,6 @@
 * Encrypted/packed packages
 * Support for using files from other repositories
 * when building version create file operations based on user's changes
-* website
 * daemon
 
 # Maybe at some point...
