@@ -12,6 +12,8 @@
 * Encrypted/packed packages
 * Support for using files from other repositories
 * when building version create file operations based on user's changes
+* website
+* daemon
 
 # Maybe at some point...
 * alias

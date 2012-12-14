@@ -28,7 +28,7 @@ module Ki
     # Shared KiHome for commands
     attr_chain :ki_home, -> { KiHome.new( ENV["KIHOME"] || File.expand_path("~")) }
 
-    attr_chain :user_pref, -> { UserPrefFile.new }
+    attr_chain :user_pref, -> { UserPrefFile.new.parent(ki_home) }
 
     # Command classes are registered using this method
     def self.register_cmd(name, clazz)
