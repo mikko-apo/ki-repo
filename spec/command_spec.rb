@@ -46,7 +46,7 @@ describe KiCommand do
   end
 
   it "should have default location for KiHome" do
-    KiCommand.new.ki_home.path.should == File.expand_path("~")
+    KiCommand.new.ki_home.path.should == File.expand_path(File.join("~","ki"))
   end
 
   it "should have take KiHome path from ENV[\"KIHOME\"]" do

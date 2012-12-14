@@ -29,7 +29,6 @@ module Ki
   # Sets user specific configurations
   # @see UserPrefFile
   class UserPrefCommand
-    attr_chain :user_pref, -> { UserPrefFile.new }
     attr_chain :shell_command
 
     def help
@@ -70,6 +69,7 @@ EOF
     end
 
     def execute(ctx, args)
+      user_pref = ctx.user_pref
       pref = args.delete_at(0)
       if pref == "prefix"
         arr = user_pref.prefixes
@@ -80,7 +80,7 @@ EOF
       elsif pref.nil?
         puts "User preferences:"
         user_pref.cached_data.each_pair do |key, values|
-          if values
+          if values && values.size > 0
             puts "#{key}: " + values.join(", ")
           end
         end
