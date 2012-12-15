@@ -41,12 +41,13 @@ module Ki
 
     def load_scripts
       # load all script files defined in UserPrefFile uses
-      user_pref.uses.each do |use_str|
+      uses = @use.empty? ? user_pref.uses : @use
+      uses.each do |use_str|
         ver, tags_str = use_str.split(":")
         tags = tags_str ? tags_str.split(",") : "ki-cmd"
         version = ki_home.version(ver)
         version.find_files.tags(tags).file_list.each do |full_path|
-          require full_path
+          load full_path
         end
       end
     end
@@ -80,6 +81,7 @@ module Ki
 
     # bin/kaiju command line tool calls this method, which finds the correct class to manage the execution
     def execute(args)
+      @use = []
       my_args = opts.parse(args.dup)
       load_scripts
       if my_args.empty?
@@ -93,6 +95,9 @@ module Ki
       o = SimpleOptionParser.new do |opts|
         opts.on("-h", "--home HOME-PATH", "Path to Ki root directory") do |v|
           ki_home(KiHome.new(v))
+        end
+        opts.on("-u", "--use VER", "Use defined scripts") do |v|
+          @use << v
         end
       end
       o

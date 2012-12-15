@@ -90,5 +90,4 @@ describe KiCommand do
       KiCommand.new.execute(["commands"])
     end.stdout.join.should =~ /Test command is for testing/
   end
-
 end

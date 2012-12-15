@@ -1,7 +1,6 @@
 # @title Ki: Backlog
 
-# Backlog for 0.1
-* use scripts can be defined for kicommand in commandline, -u
+# Backlog for 0.2
 * website command
 * fix directory structure
 * cleanup and removal operations
