@@ -54,7 +54,7 @@ describe KiCommand do
            "--source-author", "apo",
           ]
       )
-      file = VersionMetadataFile.new("ki-metadata.json")
+      file = VersionMetadataFile.new("ki-version.json")
       file.load_data_from_file.should eq({
           "version_id" => "my/component/23",
           "source" => {
@@ -211,7 +211,7 @@ describe "version-test" do
 #    end.stdout.join.should eq("All files ok.\n"
     @tester.catch_stdio do
       KiCommand.new.execute(["version-test", "-h", home.path, "test/product/1", "-r"])
-    end.stdout.join.should eq("#{home.path}/info/site/test/comp/13/ki-metadata.json: 'aa.txt' wrong hash '#{home.path}/packages/local/test/comp/13/aa.txt'\n")
+    end.stdout.join.should eq("#{home.path}/info/site/test/comp/13/ki-version.json: 'aa.txt' wrong hash '#{home.path}/packages/local/test/comp/13/aa.txt'\n")
   end
 end
 
@@ -334,7 +334,7 @@ describe "version-export" do
       lambda do
         KiCommand.new.execute(%W(version-export my/product -o #{out} -h #{@home.path} -t))
       end.should raise_error("Files are not ok!")
-    end.stdout.join.should eq("#{@source}/info/site/my/component/23/ki-metadata.json: 'test.sh' wrong hash '#{@source}/packages/local/my/component/23/test.sh'\n")
+    end.stdout.join.should eq("#{@source}/info/site/my/component/23/ki-version.json: 'test.sh' wrong hash '#{@source}/packages/local/my/component/23/test.sh'\n")
   end
 
   it "should export selected files" do
@@ -391,7 +391,7 @@ test.sh - size: 2, sha1=9a900f538965a426994e1e90600920aff0b4e8d2, tags=foo
       KiCommand.new.execute(%W(version-show -h #{@home.path} my/product -r -d))
     end.stdout.join.should eq(product_txt + product_dirs + component_str + component_dirs)
     @tester.catch_stdio do
-      KiCommand.new.execute(%W(version-show -h #{@home.path} -f ki-metadata.json -i #{@source} -d))
+      KiCommand.new.execute(%W(version-show -h #{@home.path} -f ki-version.json -i #{@source} -d))
     end.stdout.join.should eq(product_txt + product_local_dir)
   end
 end
@@ -403,7 +403,7 @@ def create_product_component
   Tester.write_files(@source, "readme.txt" => "aa", "test.sh" => "bb")
   KiCommand.new.execute(%W(version-build --version-id my/component/23 -t foo test.sh --source-url http://test.repo/repo@21331 --source-tag-url http://test.repo/tags/23 --source-repotype git --source-author john))
   KiCommand.new.execute(%W(version-import -h #{@home.path}))
-  FileUtils.rm("ki-metadata.json")
+  FileUtils.rm("ki-version.json")
   KiCommand.new.execute(%W(version-build --version-id my/product/2 -t bar readme.txt -d my/component/23,name=comp,path=comp,internal) <<
                             "-o" << "cp comp/test.sh test.bat" << "-O" << "cp readme.txt README")
   KiCommand.new.execute(%W(version-import -h #{@home.path}))

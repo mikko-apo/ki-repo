@@ -20,7 +20,7 @@ module Ki
   # @see VersionMetadataFile
   class BuildVersionMetadataFile
     attr_chain :input_dir, -> { Dir.pwd }
-    attr_chain :metadata_file, -> { VersionMetadataFile.new("ki-metadata.json") }
+    attr_chain :metadata_file, -> { VersionMetadataFile.new("ki-version.json") }
     attr_chain :source_parameters, -> { Hash.new }
     attr_chain :default_parameters, -> { {"hashes" => ["sha1"], "tags" => []} }
     attr_chain :previous_dep, :require => "Define a dependency before -o or --operation"
@@ -140,7 +140,7 @@ module Ki
   # @see VersionImporter
   class ImportVersion
     attr_chain :input_dir, -> { Dir.pwd }
-    attr_chain :file, -> { File.join(input_dir, "ki-metadata.json") }
+    attr_chain :file, -> { File.join(input_dir, "ki-version.json") }
     attr_chain :importer, -> {}
 
     def help
