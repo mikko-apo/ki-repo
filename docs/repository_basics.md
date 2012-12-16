@@ -4,7 +4,7 @@
 
 1. Create a version and import it to repository
 
-        echo "Hello World!" > test.sh
+        echo 'Hello World!' > test.sh
         echo "Simple demo" > "readme.txt"
         chmod u+x test.sh
         ki version-build test.sh

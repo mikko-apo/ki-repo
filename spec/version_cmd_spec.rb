@@ -39,13 +39,13 @@ describe KiCommand do
            "--hashes", "sha1,md5,sha2",
            "*.sh",
            "-t", "tests,bar",
-           "*.zip", "dir",
            "-d", "my/tests/a/123,path=test,name=tests,internal",
            "-o", "rm *.info",
            "-d", "my/docs/4411",
            "-O", "cp foo.txt foo2.txt"
           ]
       )
+      KiCommand.new.execute(%W(version-build *.zip dir -t tests,bar --hashes sha1,md5,sha2))
       KiCommand.new.execute(
           ["version-build",
            "--source-url", "https://foo.fi/repo1",
@@ -63,12 +63,12 @@ describe KiCommand do
               "repotype" => "git", "author" => "apo"
           },
           "files" => [
-              {"path" => "dir/test.txt", "size" => 2, "tags" => ["bar", "tests"],
-               "md5" => "4124bc0a9335c27f086f24ba207a4912", "sha1" => "e0c9035898dd52fc65c41454cec9c4d2611bfb37",
-               "sha2" => "961b6dd3ede3cb8ecbaacbd68de040cd78eb2ed5889130cceb4c49268ea4d506"},
               {"path" => "script.sh", "size" => 12, "executable" => true, "tags" => ["bar", "tests"],
                "md5" => "257c560384c287268c6d5096f827b9ba", "sha1" => "6347583f73bdb545b8dad745124cf62421d7aa3c",
                "sha2" => "3d71079cbf751bb3e1b725aac4db9cbd73352f8773d5f66ddd5bd0bac8cba77c"},
+              {"path" => "dir/test.txt", "size" => 2, "tags" => ["bar", "tests"],
+               "md5" => "4124bc0a9335c27f086f24ba207a4912", "sha1" => "e0c9035898dd52fc65c41454cec9c4d2611bfb37",
+               "sha2" => "961b6dd3ede3cb8ecbaacbd68de040cd78eb2ed5889130cceb4c49268ea4d506"},
               {"path" => "zap.zip", "size" => 2, "tags" => ["bar", "tests"],
                "md5" => "633de4b0c14ca52ea2432a3c8a5c4c31", "sha1" => "ed70c57d7564e994e7d5f6fd6967cea8b347efbc",
                "sha2" => "05a9bf223fedf80a9d0da5f73f5c191a665bf4a0a4a3e608f2f9e7d5ff23959c"}
