@@ -213,6 +213,9 @@ module Ki
         opts.on("-t", "--test", "Test version before export") do |v|
           @exporter.test_dependencies=true
         end
+        opts.on("-c", "--copy", "Exported files are copied instead of linked") do |v|
+          @exporter.copy=true
+        end
       end
     end
   end

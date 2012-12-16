@@ -202,6 +202,7 @@ module Ki
     attr_chain :finder, -> { ki_home.finder }
     attr_chain :test_dependencies
     attr_chain :find_files, -> { FileFinder.new }
+    attr_chain :copy
 
     # Exports a version to directory
     def export(version, out)
@@ -215,7 +216,11 @@ module Ki
         if dir != "."
           FileUtils.mkdir_p File.join(out, dir)
         end
-        FileUtils.ln_sf(full_path, File.join(out, file_path))
+        if defined? @copy
+          FileUtils.cp(full_path, File.join(out, file_path))
+        else
+          FileUtils.ln_sf(full_path, File.join(out, file_path))
+        end
       end
     end
 

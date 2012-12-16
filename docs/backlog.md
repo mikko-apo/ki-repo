@@ -3,7 +3,7 @@
 # Backlog for 0.2
 * document repository usage - add missing tutorial features
 * fix defined? checks
-* version export -c creates copies of files instead of symbolic links
+* version-import checks that version does not exist
 * version() supports > syntax for going to dependency
 * generate documentation automatically for command line utilities
 * list all entries from KiCommand.Registry

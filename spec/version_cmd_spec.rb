@@ -276,7 +276,7 @@ describe "version-import" do
   end
 end
 
-describe "version-export" do
+describe "version-status" do
   before do
     @tester = Tester.new(example.metadata[:full_description])
     @tester.chdir(@source = @tester.tmpdir)
@@ -347,6 +347,13 @@ describe "version-export" do
     out = @tester.tmpdir
     KiCommand.new.execute(%W(version-export my/product -o #{out} -h #{@home.path} readme*))
     Tester.verify_files(out, true, {"README" => "aa", "readme.txt" => "aa"})
+  end
+
+  it "should export selected files as copies" do
+    out = @tester.tmpdir
+    KiCommand.new.execute(%W(version-export my/product -o #{out} -h #{@home.path} readme* -c))
+    Tester.verify_files(out, true, {"README" => "aa", "readme.txt" => "aa"})
+    File.symlink?(File.join(out, "README")).should eq(false)
   end
 
   it "should export selected files by tag" do
