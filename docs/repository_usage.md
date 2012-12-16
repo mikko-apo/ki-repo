@@ -4,33 +4,33 @@
 
 1. Create a version and import it to repository
 
-    echo "Hello World!" > test.sh
-    echo "Simple demo" > "readme.txt"
-    chmod u+x test.sh
-    ki version-build test.sh
-    ki version-build readme* -t doc
-    ki version-import -m -c my/component
-    ki version-show my/component
+        echo "Hello World!" > test.sh
+        echo "Simple demo" > "readme.txt"
+        chmod u+x test.sh
+        ki version-build test.sh
+        ki version-build readme* -t doc
+        ki version-import -m -c my/component
+        ki version-show my/component
 
-* version-import -c creates a new version under my/component and -m moves the files to version's repository directory
-* version-show looks for the latest available version and shows information about that
+    * version-import -c creates a new version under my/component and -m moves the files to version's repository directory
+    * version-show looks for the latest available version and shows information about that
 
 2. Create another version, with dependency to my/component/1 and import that too
 
-    ki pref prefix version
-    ki build -d my/component/1,name=comp,path=doc,internal -O "mv doc/test.sh helloworld.sh"
-    ki import -m -c my/product
-    ki show -r my/product
-    ki export my/product export
-    find export
+        ki pref prefix version
+        ki build -d my/component/1,name=comp,path=doc,internal -O "mv doc/test.sh helloworld.sh"
+        ki import -m -c my/product
+        ki show -r my/product
+        ki export my/product export
+        find export
 
-* "ki pref prefix version" configures a shortcut to call version commands with shorter syntax
-* version-build generates a dependency to my/component/1 and puts the files from my/component/1 to doc directory
-* version-build -O operations are executed when the product version is exported, doc/test.sh is moved to helloworld.sh
-* the contents of "export" directory should be:
+    * "ki pref prefix version" configures a shortcut to call version commands with shorter syntax
+    * version-build generates a dependency to my/component/1 and puts the files from my/component/1 to doc directory
+    * version-build -O operations are executed when the product version is exported, doc/test.sh is moved to helloworld.sh
+    * the contents of "export" directory should be:
 
-    export/doc/readme.txt
-    export/helloworld.sh
+        export/doc/readme.txt
+        export/helloworld.sh
 
 # Repository basics
 
