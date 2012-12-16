@@ -55,6 +55,7 @@ module Ki
     DirectoryWithChildrenInListFile.add_list_file(self, Repository::Repository)
 
     class RepositoryListFile
+      undef :create_list_item
       def create_list_item(item)
         Repository::Repository.new("info/" + item).parent(parent).repository_id(item)
       end

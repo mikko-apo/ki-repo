@@ -49,6 +49,7 @@ module Ki
 
       # Chronological list of versions in this component
       class VersionListFile
+        undef create_list_item
         def create_list_item(item)
           id = item["id"]
           Version.new(id).version_id(File.join(parent.component_id, id)).parent(parent)
