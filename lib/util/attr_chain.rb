@@ -69,6 +69,9 @@ class AttrChain
     me = self
     attr_call = lambda { |*args| me.attr_chain(self, args) }
     [variable_name, "#{variable_name}="].each do |method_name|
+      if clazz.method_defined?(method_name)
+        clazz.send(:undef_method, method_name)
+      end
       clazz.send(:define_method, method_name, attr_call)
     end
   end
@@ -149,9 +152,9 @@ class AttrChain
   def attr_chain(object, args)
     if args.empty?
       if !@accessor.defined?(object, @variable_name)
-        if @default
+        if defined? @default
           @accessor.set(object, @variable_name, object.instance_exec(&@default))
-        elsif @require
+        elsif defined? @require
           if @require.kind_of?(String)
             raise "'#{@variable_name}' has not been set: #{@require}"
           else
@@ -161,7 +164,7 @@ class AttrChain
       end
       @accessor.get(object, @variable_name)
     else
-      if @immutable && @accessor.defined?(object, @variable_name)
+      if defined?(@immutable) && @accessor.defined?(object, @variable_name)
         raise "'#{@variable_name}' has been set once already"
       end
       value_to_set = if args.size == 1
@@ -169,15 +172,15 @@ class AttrChain
                      else
                        args
                      end
-      if @convert
+      if defined? @convert
         value_to_set = object.instance_exec(value_to_set, &@convert)
       end
-      if @valid_items || @valid_procs
+      if defined?(@valid_items) || defined?(@valid_procs)
         is_valid = false
-        if @valid_items && @valid_items.include?(value_to_set)
+        if defined?(@valid_items) && @valid_items.include?(value_to_set)
           is_valid = true
         end
-        if is_valid == false && @valid_procs
+        if is_valid == false && defined?(@valid_procs)
           @valid_procs.each do |valid_proc|
             if is_valid=object.instance_exec(value_to_set, &valid_proc)
               break
@@ -200,7 +203,12 @@ class AttrChain
     end
 
     def get(object, name)
-      object.instance_variable_get(edit_name(name))
+      n = edit_name(name)
+      if object.instance_variable_defined?(n)
+        object.instance_variable_get(n)
+      else
+        nil
+      end
     end
 
     def set(object, name, value)

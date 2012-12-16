@@ -44,33 +44,33 @@ describe "User prefs" do
     @tester.chdir(source = @tester.tmpdir)
     @tester.catch_stdio do
       KiCommand.new.execute(%W(pref prefix -h #{source}))
-    end.stdout.join.should == "Prefixes: \n"
+    end.stdout.join.should eq("Prefixes: \n")
     @tester.catch_stdio do
       KiCommand.new.execute(%W(pref prefix version- -h #{source}))
-    end.stdout.join.should == "Prefixes: version-\n"
+    end.stdout.join.should eq("Prefixes: version-\n")
     @tester.catch_stdio do
       KiCommand.new.execute(%W(pref prefix -h #{source}))
-    end.stdout.join.should == "Prefixes: version-\n"
+    end.stdout.join.should eq("Prefixes: version-\n")
     @tester.catch_stdio do
       KiCommand.new.execute(%W(pref prefix + package- -h #{source}))
-    end.stdout.join.should == "Prefixes: version-, package-\n"
+    end.stdout.join.should eq("Prefixes: version-, package-\n")
     @tester.catch_stdio do
       KiCommand.new.execute(%W(pref prefix - version- -h #{source}))
-    end.stdout.join.should == "Prefixes: package-\n"
+    end.stdout.join.should eq("Prefixes: package-\n")
     @tester.catch_stdio do
       KiCommand.new.execute(%W(pref prefix -c -h #{source}))
-    end.stdout.join.should == "Prefixes: \n"
+    end.stdout.join.should eq("Prefixes: \n")
 
     # Test that ki command uses prefixes
     @tester.catch_stdio do
       KiCommand.new.execute(%W(pref prefix pre -h #{source}))
-    end.stdout.join.should == "Prefixes: pre\n"
+    end.stdout.join.should eq("Prefixes: pre\n")
 
     @tester.catch_stdio do
       KiCommand.new.execute(%W(f prefix + version -h #{source}))
-    end.stdout.join.should == "Prefixes: pre, version\n"
+    end.stdout.join.should eq("Prefixes: pre, version\n")
 
-    VersionStatus.any_instance.expects(:execute).with { |ctx, args| args.should == ["test"] }
+    VersionStatus.any_instance.expects(:execute).with { |ctx, args| args.should eq(["test"]) }
     KiCommand.new.execute(%W(status test -h #{source}))
   end
 
@@ -78,7 +78,7 @@ describe "User prefs" do
     @tester.chdir(source = @tester.tmpdir)
     @tester.catch_stdio do
       KiCommand.new.execute(%W(pref prefix version test -h #{source}))
-    end.stdout.join.should == "Prefixes: version, test\n"
+    end.stdout.join.should eq("Prefixes: version, test\n")
 
     class TestCommand
 
@@ -92,11 +92,11 @@ describe "User prefs" do
     @tester.chdir(source = @tester.tmpdir)
     @tester.catch_stdio do
       KiCommand.new.execute(%W(pref prefix version test -h #{source}))
-    end.stdout.join.should == "Prefixes: version, test\n"
+    end.stdout.join.should eq("Prefixes: version, test\n")
 
     @tester.catch_stdio do
       KiCommand.new.execute(%W(pref -h #{source}))
-    end.stdout.join.should == "User preferences:\nprefixes: version, test\n"
+    end.stdout.join.should eq("User preferences:\nprefixes: version, test\n")
   end
 
   describe "use scripts"do
@@ -137,21 +137,21 @@ EOF
       # test that adding use scripts works
       @tester.catch_stdio do
         KiCommand.new.execute(%W(pref use -h #{@source}))
-      end.stdout.join.should == "Use: \n"
+      end.stdout.join.should eq("Use: \n")
       @tester.catch_stdio do
         KiCommand.new.execute(%W(pref use ki/bzip2 -h #{@source}))
-      end.stdout.join.should == "Use: ki/bzip2\n"
+      end.stdout.join.should eq("Use: ki/bzip2\n")
       @tester.catch_stdio do
         KiCommand.new.execute(%W(pref use -h #{@source}))
-      end.stdout.join.should == "Use: ki/bzip2\n"
+      end.stdout.join.should eq("Use: ki/bzip2\n")
       @tester.catch_stdio do
         KiCommand.new.execute(%W(pref use + ki/zip -h #{@source}))
-      end.stdout.join.should == "Use: ki/bzip2, ki/zip\n"
+      end.stdout.join.should eq("Use: ki/bzip2, ki/zip\n")
 
       # test that test scripts are loaded
       @tester.catch_stdio do
         KiCommand.new.execute(%W(bzip2 a b -h #{@source}))
-      end.stdout.join.should == "bzip2:a,b\n"
+      end.stdout.join.should eq("bzip2:a,b\n")
       command_list_ouput = @tester.catch_stdio do
         KiCommand.new.execute(%W(commands -h #{@source}))
       end.stdout.join
@@ -161,30 +161,32 @@ EOF
       # test that remove works
       @tester.catch_stdio do
         KiCommand.new.execute(%W(pref use - ki/zip -h #{@source}))
-      end.stdout.join.should == "Use: ki/bzip2\n"
+      end.stdout.join.should eq("Use: ki/bzip2\n")
       @tester.catch_stdio do
         KiCommand.new.execute(%W(pref use -c -h #{@source}))
-      end.stdout.join.should == "Use: \n"
+      end.stdout.join.should eq("Use: \n")
     end
 
     it "should support --use scripts from commandline" do
       @tester.catch_stdio do
         KiCommand.new.execute(%W(pref use ki/bzip2 -h #{@source}))
-      end.stdout.join.should == "Use: ki/bzip2\n"
+      end.stdout.join.should eq("Use: ki/bzip2\n")
+      undef ZipTest
+      undef Bzip2
       @tester.catch_stdio do
         KiCommand.new.execute(%W(bzip2 a b -h #{@source}))
-      end.stdout.join.should == "bzip2:a,b\n"
+      end.stdout.join.should eq("bzip2:a,b\n")
       # when registry cleared, bzip2 is no longer available
       KiCommand::CommandRegistry.clear
       lambda {KiCommand.new.execute(%W(-u ki/zip bzip2 a b -h #{@source}))}.should raise_error("No commands match: bzip2")
       # zip is available
       @tester.catch_stdio do
         KiCommand.new.execute(%W(-u ki/zip zip a b -h #{@source}))
-      end.stdout.join.should == "zip:a,b\n"
+      end.stdout.join.should eq("zip:a,b\n")
       # original use restored when -u no defined
       @tester.catch_stdio do
         KiCommand.new.execute(%W(bzip2 a b -h #{@source}))
-      end.stdout.join.should == "bzip2:a,b\n"
+      end.stdout.join.should eq("bzip2:a,b\n")
     end
   end
 end

@@ -40,7 +40,7 @@ describe Lab do
     lp.cached_data["d"]=4
     lp.cached_data["a"]=10
     lp.save
-    @lab.properties.should == {"a"=>10, "b"=>"2", "c"=>"3", "d"=>4}
+    @lab.properties.should eq({"a"=>10, "b"=>"2", "c"=>"3", "d"=>4})
   end
 
   it "access should load permissions from parents" do
@@ -50,10 +50,10 @@ describe Lab do
     pa = @project.my_permissions
     pa.cached_data << {"path" => "foo/bar", "permissions"=>["start action", "edit properties"], "groups" => ["project-admins"]}
     pa.save
-    @lab.permissions.should == [
+    @lab.permissions.should eq([
         {"path"=>"test/project", "permissions"=>["edit permissions"], "users"=>["apo"], "groups"=>["admins"]},
         {"path"=>"foo/bar", "permissions"=>["start action", "edit properties"], "groups"=>["project-admins"]}
-    ]
+    ])
   end
 
   it "version() should look up for matching version" do
@@ -65,18 +65,18 @@ describe Lab do
     @home.packages.add_item("packages/local").mkdir("ki/core/2")
     @home.packages.add_item("packages/replicated").mkdir("test/comp/13")
     latest = @lab.version("ki/core")
-    latest.version_id.should == "ki/core/2"
-    latest.name.should == "2"
-#    latest.ki_path.should == "/test/project/info/project-common/ki/core/2"
-    latest.binaries.ki_path.should == "/packages/local/ki/core/2"
+    latest.version_id.should eq("ki/core/2")
+    latest.name.should eq("2")
+#    latest.ki_path.should eq("/test/project/info/project-common/ki/core/2"
+    latest.binaries.ki_path.should eq("/packages/local/ki/core/2")
     specific = @lab.version("ki/core/1")
-    specific.version_id.should == "ki/core/1"
-#    specific.ki_path.should == "/test/project/info/project-common/ki/core/1"
-    specific.binaries.should == nil
+    specific.version_id.should eq("ki/core/1")
+#    specific.ki_path.should eq("/test/project/info/project-common/ki/core/1"
+    specific.binaries.should eq(nil)
     replicated = @lab.version("test/comp")
-#    replicated.ki_path.should == "/info/site/test/comp/13"
-    replicated.binaries.ki_path.should == "/packages/replicated/test/comp/13"
-    @lab.version(replicated).should == replicated
+#    replicated.ki_path.should eq("/info/site/test/comp/13"
+    replicated.binaries.ki_path.should eq("/packages/replicated/test/comp/13")
+    @lab.version(replicated).should eq(replicated)
   end
 
   it "version() should look up for matching version based on status" do
@@ -84,36 +84,36 @@ describe Lab do
     version_1 = component.versions.add_version("1")
     version_1.mkdir
     version_2 = component.versions.add_version("2")
-    @lab.version("test/comp").version_id.should == "test/comp/2"
-    @lab.version(@lab.finder.component("test/comp")).version_id.should == "test/comp/2"
-    @lab.version("test/comp:Smoke=green").should == nil
-    @lab.version("test/comp","Smoke"=>"green").should == nil
+    @lab.version("test/comp").version_id.should eq("test/comp/2")
+    @lab.version(@lab.finder.component("test/comp")).version_id.should eq("test/comp/2")
+    @lab.version("test/comp:Smoke=green").should eq(nil)
+    @lab.version("test/comp","Smoke"=>"green").should eq(nil)
     version_1.statuses.add_status("Smoke","green")
-    @lab.version("test/comp:Smoke=green").version_id.should == "test/comp/1"
-    @lab.version("test/comp","Smoke"=>"green").version_id.should == "test/comp/1"
+    @lab.version("test/comp:Smoke=green").version_id.should eq("test/comp/1")
+    @lab.version("test/comp","Smoke"=>"green").version_id.should eq("test/comp/1")
     c = 0
-    @lab.version("test/comp"){|v| c+=1;c==2}.version_id.should == "test/comp/1"
-    @lab.version("test/comp"){|v| true}.version_id.should == "test/comp/2"
-    @lab.version("test/comp","Smoke"=>"green"){|v| true}.version_id.should == "test/comp/1"
+    @lab.version("test/comp"){|v| c+=1;c==2}.version_id.should eq("test/comp/1")
+    @lab.version("test/comp"){|v| true}.version_id.should eq("test/comp/2")
+    @lab.version("test/comp","Smoke"=>"green"){|v| true}.version_id.should eq("test/comp/1")
     lambda {@lab.version(1)}.should raise_error("Not supported '1'")
     # status order
     component.status_info.edit_data do |h|
       h.cached_data["maturity"]=["alpha","beta","gamma"]
     end
-    @lab.version("test/comp").version_id.should == "test/comp/2"
-    @lab.version("test/comp:maturity>alpha").should == nil
+    @lab.version("test/comp").version_id.should eq("test/comp/2")
+    @lab.version("test/comp:maturity>alpha").should eq(nil)
     version_1.statuses.add_status("maturity","alpha")
-    @lab.version("test/comp:maturity>=alpha").version_id.should == "test/comp/1"
+    @lab.version("test/comp:maturity>=alpha").version_id.should eq("test/comp/1")
     version_1.statuses.add_status("maturity","beta")
-    @lab.version("test/comp:maturity>alpha").version_id.should == "test/comp/1"
+    @lab.version("test/comp:maturity>alpha").version_id.should eq("test/comp/1")
     version_2.mkdir.statuses.add_status("maturity","alpha")
-    @lab.version("test/comp:maturity>alpha").version_id.should == "test/comp/1"
-    @lab.version("test/comp:maturity>=alpha").version_id.should == "test/comp/2"
-    @lab.version("test/comp:maturity>beta").should == nil
-    @lab.version("test/comp:maturity>=beta").version_id.should == "test/comp/1"
-    @lab.version("test/comp:maturity!=alpha").version_id.should == "test/comp/1"
-    @lab.version("test/comp:maturity<beta").version_id.should == "test/comp/2"
-    @lab.version("test/comp:maturity<=beta").version_id.should == "test/comp/2"
+    @lab.version("test/comp:maturity>alpha").version_id.should eq("test/comp/1")
+    @lab.version("test/comp:maturity>=alpha").version_id.should eq("test/comp/2")
+    @lab.version("test/comp:maturity>beta").should eq(nil)
+    @lab.version("test/comp:maturity>=beta").version_id.should eq("test/comp/1")
+    @lab.version("test/comp:maturity!=alpha").version_id.should eq("test/comp/1")
+    @lab.version("test/comp:maturity<beta").version_id.should eq("test/comp/2")
+    @lab.version("test/comp:maturity<=beta").version_id.should eq("test/comp/2")
     lambda {@lab.version("test/comp:maturity<>beta")}.should raise_error("Not supported status operation: 'maturity<>beta'")
   end
 end
@@ -136,7 +136,7 @@ describe KiHome do
     @home.repositories.add_item("site")
     @home.repositories.add_item("global-ki")
     [@home.projects, @home.packages, @home.repositories].
-        map { |list| list.map { |obj| [obj.class, obj.ki_path] } }.should == [
+        map { |list| list.map { |obj| [obj.class, obj.ki_path] } }.should eq([
         [
             [Project, "/projects/ki"],
             [Project, "/projects/web"]
@@ -149,6 +149,6 @@ describe KiHome do
             [Repository::Repository, "/info/site"],
             [Repository::Repository, "/info/global-ki"]
         ]
-    ]
+    ])
   end
 end

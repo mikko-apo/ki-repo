@@ -28,25 +28,25 @@ describe DirectoryBase do
   it "should resolve path with parent" do
     root = DirectoryBase.new("/foo")
     node = DirectoryBase.new("bar").parent(root)
-    node.path.should == "/foo/bar"
-    node.path("aa").should == "/foo/bar/aa"
-    node.path("aa", "bb").should == "/foo/bar/aa/bb"
+    node.path.should eq("/foo/bar")
+    node.path("aa").should eq("/foo/bar/aa")
+    node.path("aa", "bb").should eq("/foo/bar/aa/bb")
   end
 
   it "mkdir should create directories" do
     tmp = @tester.tmpdir
     root = DirectoryBase.new(tmp)
     dest = root.mkdir("foo","bar/zop")
-    dest.path.should == "#{tmp}/foo/bar/zop"
-    dest.path("a").should == "#{tmp}/foo/bar/zop/a"
+    dest.path.should eq("#{tmp}/foo/bar/zop")
+    dest.path("a").should eq("#{tmp}/foo/bar/zop/a")
   end
 
   it "exists? should test if file exists" do
     root = DirectoryBase.new(@tester.tmpdir)
-    root.exists?.should == true
-    root.exists?("a").should == false
+    root.exists?.should eq(true)
+    root.exists?("a").should eq(false)
     File.safe_write(root.path("a"),"")
-    root.exists?("a").should == true
+    root.exists?("a").should eq(true)
   end
 end
 
@@ -72,7 +72,7 @@ describe VersionFileOperations do
         ["mv", "(*).yaml", "$1.json"],
         ["mv", "a/*", "/"]
     ])
-    files.should == {
+    files.should eq({
         "bar.txt" => "/tmp/foo.txt",
         "dir/to_dir.txt" => "/tmp/to_dir.txt",
         "properties/1.properties" => "/tmp/a/1.properties",
@@ -81,7 +81,7 @@ describe VersionFileOperations do
         "replace_3/replace.json"=>"/tmp/replace_3.yaml",
         "replace.json"=>"/tmp/replace.yaml",
         "b.txt"=>"/tmp/a/b.txt"
-    }
+    })
   end
 
   it "edit_file_map cp" do
@@ -102,7 +102,7 @@ describe VersionFileOperations do
         ["cp", "(*_3).yaml", "$1/replace.json"],
         ["cp", "(*).yaml", "$1.json"]
     ])
-    files.should == {
+    files.should eq({
         "foo.txt"=>"/tmp/foo.txt",
         "to_dir.txt"=>"/tmp/to_dir.txt",
         "a/1.properties"=>"/tmp/a/1.properties",
@@ -119,13 +119,13 @@ describe VersionFileOperations do
         "replace.json"=>"/tmp/replace.yaml",
         "replace_2.json"=>"/tmp/replace_2.yaml",
         "replace_3.json"=>"/tmp/replace_3.yaml"
-    }
+    })
   end
 
   it "edit_file_map rm" do
     files = {"foo.txt" => "/tmp/foo.txt"}
     VersionFileOperations.new.edit_file_map(files, [["rm", "foo.txt"]])
-    files.should == {}
+    files.should eq({})
   end
 end
 

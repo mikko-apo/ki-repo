@@ -46,7 +46,7 @@ describe KiCommand do
   end
 
   it "should have default location for KiHome" do
-    KiCommand.new.ki_home.path.should == File.expand_path(File.join("~","ki"))
+    KiCommand.new.ki_home.path.should eq(File.expand_path(File.join("~","ki")))
   end
 
   it "should have take KiHome path from ENV[\"KIHOME\"]" do
@@ -54,7 +54,7 @@ describe KiCommand do
       ENV.delete("KIHOME")
     end
     ENV["KIHOME"]="/foo"
-    KiCommand.new.ki_home.path.should == "/foo"
+    KiCommand.new.ki_home.path.should eq("/foo")
   end
 
   it "should support pluggable commands" do
@@ -66,7 +66,7 @@ describe KiCommand do
     class TestCommand
 
     end
-    TestCommand.any_instance.expects(:execute).with { |ki_command, params| params.should == ["123", "456"] }
+    TestCommand.any_instance.expects(:execute).with { |ki_command, params| params.should eq(["123", "456"]) }
     TestCommand.any_instance.expects(:help).returns("Help")
     KiCommand.register_cmd("test-command", TestCommand)
     KiCommand.new.execute(["test-command", "123", "456"])

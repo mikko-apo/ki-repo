@@ -20,16 +20,16 @@ describe ServiceRegistry do
   it "should register services" do
     registry = ServiceRegistry.new
     registry.register("/numbers/1" => 1, "/numbers/2" => 2)
-    registry.find("/numbers/1").should == 1
-    registry.find("/numbers/2").should == 2
-    registry.find("/numbers").should == [["/numbers/1", 1], ["/numbers/2", 2]]
+    registry.find("/numbers/1").should eq(1)
+    registry.find("/numbers/2").should eq(2)
+    registry.find("/numbers").should eq([["/numbers/1", 1], ["/numbers/2", 2]])
     lambda{registry.register(1,2,3)}.should raise_error("Not supported '[1, 2, 3]'")
   end
 
   it "find_services should find suitable services" do
     registry = ServiceRegistry.new
     registry.register("/numbers/1" => 1, "/numbers/2" => 2)
-    registry.find("/numbers").services.should == [1, 2]
+    registry.find("/numbers").services.should eq([1, 2])
   end
 
   it "find! should warn about bad finds" do
@@ -49,7 +49,7 @@ describe ServiceRegistry do
       end
     end
     registry.register("/downloaders/foo", TestService.new).register("/downloaders/bar", TestService2.new)
-    registry.find("/downloaders","http://").services.map{|i| i.class}.should == [TestService, TestService2]
-    registry.find("/downloaders","ftp://").services.map{|i| i.class}.should == [TestService2]
+    registry.find("/downloaders","http://").services.map{|i| i.class}.should eq([TestService, TestService2])
+    registry.find("/downloaders","ftp://").services.map{|i| i.class}.should eq([TestService2])
   end
 end

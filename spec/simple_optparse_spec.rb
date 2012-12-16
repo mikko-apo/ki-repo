@@ -38,16 +38,16 @@ describe SimpleOptionParser do
         f = [p1, p2]
       end
     end
-    p.parse(["-c","a"]).should == ["a"]
-    f.should == true
+    p.parse(["-c","a"]).should eq(["a"])
+    f.should eq(true)
     lambda{p.parse(["-f"])}.should raise_error("requires 1 parameters for '-f', found only 0: ")
-    f.should == true
-    p.parse(["-f","a"]).should == []
-    f.should == "a"
-    p.parse(["-f=b"]).should == []
-    f.should == "b"
-    p.parse(["-p","a","b","c"]).should == ["c"]
-    f.should == ["a","b"]
+    f.should eq(true)
+    p.parse(["-f","a"]).should eq([])
+    f.should eq("a")
+    p.parse(["-f=b"]).should eq([])
+    f.should eq("b")
+    p.parse(["-p","a","b","c"]).should eq(["c"])
+    f.should eq(["a","b"])
   end
 
   it "should provide to_s" do
@@ -55,7 +55,7 @@ describe SimpleOptionParser do
       opt.on("-f", "--file FILE", "read file") do |file|
         f = file
       end
-    end.to_s.should == "    -f, --file                       read file"
+    end.to_s.should eq("    -f, --file                       read file")
   end
 
   it "should warn about errors" do

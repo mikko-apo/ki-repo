@@ -48,7 +48,7 @@ module Ki
     def opts
       OptionParser.new do |opts|
         opts.on("-f", "--file FILE", "Version file target") do |v|
-          if @input_dir.nil?
+          if !defined? @input_dir
             input_dir(File.dirname(v))
           end
           metadata_file.init_from_path(v)
@@ -160,7 +160,7 @@ module Ki
     def opts
       OptionParser.new do |opts|
         opts.on("-f", "--file FILE", "Version source file. By default uses file's directory as source for binary files.'") do |v|
-          if @input_dir.nil?
+          if !defined? @input_dir
             input_dir(File.dirname(v))
           end
           file(v)

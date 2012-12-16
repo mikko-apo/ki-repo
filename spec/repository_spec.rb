@@ -29,31 +29,31 @@ describe Repository do
     package_info = Repository::Repository.new(@tester.tmpdir)
     File.safe_write(package_info.components.path, JSON.pretty_generate(["my/component/in/sub/directory"]))
     component = package_info.components.size!(1).first
-    component.component_id.should == "my/component/in/sub/directory"
-    component.path.should == package_info.path("my/component/in/sub/directory")
+    component.component_id.should eq("my/component/in/sub/directory")
+    component.path.should eq(package_info.path("my/component/in/sub/directory"))
     File.safe_write(component.mkdir.versions.path, JSON.pretty_generate([{"id" => "124", "date" => Time.now},
                                                                          {"id" => "123", "date" => Time.now - 2}
                                                                         ]))
     version = component.versions.size!(2).first
-    version.path.should == package_info.path("my/component/in/sub/directory/124")
-    version.version_id.should == "my/component/in/sub/directory/124"
+    version.path.should eq(package_info.path("my/component/in/sub/directory/124"))
+    version.version_id.should eq("my/component/in/sub/directory/124")
   end
 
   it "should support helper methods to add components and versions" do
     package_info = Repository::Repository.new(@tester.tmpdir)
     package_info.components.add_item("my/component/in/sub/directory")
     component = package_info.component("my/component/in/sub/directory")
-    component.component_id.should == "my/component/in/sub/directory"
-    component.path.should == package_info.path("my/component/in/sub/directory")
+    component.component_id.should eq("my/component/in/sub/directory")
+    component.path.should eq(package_info.path("my/component/in/sub/directory"))
     component.mkdir
     versions = component.versions
     versions.add_version("123", Time.now - 2)
     versions.add_version("124")
     version = component.versions.size!(2).first
-    version.path.should == package_info.path("my/component/in/sub/directory/124")
-    version.version_id.should == "my/component/in/sub/directory/124"
+    version.path.should eq(package_info.path("my/component/in/sub/directory/124"))
+    version.version_id.should eq("my/component/in/sub/directory/124")
     version.mkdir.reverse_dependencies.add_item("my/component/in/sub/directory/123")
-    version.reverse_dependencies.size!(1).first.should == "my/component/in/sub/directory/123"
+    version.reverse_dependencies.size!(1).first.should eq("my/component/in/sub/directory/123")
   end
 end
 
@@ -73,12 +73,12 @@ describe Repository::Version do
     statuses = @version.statuses
     statuses.add_status("Smoke", "green", "action"=>"/projects/hours/lab-1")
     statuses.add_status("Regression", "Red")
-    statuses.matching_statuses("Smoke").should == [{"key"=>"Smoke", "value"=>"green", "action"=>"/projects/hours/lab-1"}]
+    statuses.matching_statuses("Smoke").should eq([{"key"=>"Smoke", "value"=>"green", "action"=>"/projects/hours/lab-1"}])
   end
 
   it "metadata should have helper methods" do
     metadata = @version.metadata
-    metadata.version_id.should == "my/component/in/sub/directory/124"
+    metadata.version_id.should eq("my/component/in/sub/directory/124")
     metadata.version_id = "my/component/1"
     metadata.add_file_info("bar.txt", 123, :executable => true, "sha-1" => "11aa33")
     metadata.add_file_info("foo.txt", 124, ["doc", "bar"], :executable => true, "sha-1" => "11aa33")
@@ -95,7 +95,7 @@ describe Repository::Version do
     metadata.add_operation(["rm", "*.info"])
     metadata.save
     metadata.reset_cached_data
-    metadata.cached_data.should == {
+    metadata.cached_data.should eq({
         "version_id"=>"my/component/1",
         "source"=>{
             "repotype"=>"git",
@@ -123,6 +123,6 @@ describe Repository::Version do
              "internal"=>true}
         ],
         "operations"=>[["rm", "*.info"]]
-    }
+    })
   end
 end

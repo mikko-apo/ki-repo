@@ -53,59 +53,59 @@ describe FileFinder do
   end
 
   it "should list all files" do
-    @home.version("test/product/1").find_files.file_map.should == {
+    @home.version("test/product/1").find_files.file_map.should eq({
         "comp/aa.txt" => @comp_binary.path("aa.txt"),
         "test/foo/product-internal.txt" => @product_internal_binary.path("foo/product-internal.txt"),
         "dep-txt/product-internal.txt" => @product_internal_binary.path("foo/product-internal.txt"),
         "product-txt/aa.txt" => @comp_binary.path("aa.txt"),
         "product-txt/product-internal.txt" => @product_internal_binary.path("foo/product-internal.txt")
-    }
+    })
   end
 
   it "should list matching files" do
-    @home.version("test/product/1").find_files("*aa*").file_map.should == {
+    @home.version("test/product/1").find_files("*aa*").file_map.should eq({
         "comp/aa.txt" => @comp_binary.path("aa.txt"),
         "product-txt/aa.txt" => @comp_binary.path("aa.txt")
-    }
+    })
   end
 
   it "should list matching files but not excluded" do
-    @home.version("test/product/1").find_files("*.txt").exclude_files("*pro*").file_map.should == {
+    @home.version("test/product/1").find_files("*.txt").exclude_files("*pro*").file_map.should eq({
         "comp/aa.txt" => @comp_binary.path("aa.txt"),
         "product-txt/aa.txt" => @comp_binary.path("aa.txt")
-    }
+    })
   end
 
   it "should exclude matching versions" do
-    @home.version("test/product/1").find_files().exclude_dependencies("13").file_map.should == {
+    @home.version("test/product/1").find_files().exclude_dependencies("13").file_map.should eq({
         "test/foo/product-internal.txt" => @product_internal_binary.path("foo/product-internal.txt"),
         "dep-txt/product-internal.txt" => @product_internal_binary.path("foo/product-internal.txt"),
         "product-txt/product-internal.txt" => @product_internal_binary.path("foo/product-internal.txt")
-    }
-    @home.version("test/product/1").find_files().exclude_dependencies("dep-comp").file_map.should == {
+    })
+    @home.version("test/product/1").find_files().exclude_dependencies("dep-comp").file_map.should eq({
         "test/foo/product-internal.txt" => @product_internal_binary.path("foo/product-internal.txt"),
         "dep-txt/product-internal.txt" => @product_internal_binary.path("foo/product-internal.txt"),
         "product-txt/product-internal.txt" => @product_internal_binary.path("foo/product-internal.txt")
-    }
+    })
   end
 
   it "should filter based on tags" do
-    @home.version("test/product/1").find_files().tags("foo", "bar").file_map.should == {
+    @home.version("test/product/1").find_files().tags("foo", "bar").file_map.should eq({
         "comp/aa.txt" => @comp_binary.path("aa.txt"),
         "test/foo/product-internal.txt" => @product_internal_binary.path("foo/product-internal.txt"),
         "dep-txt/product-internal.txt" => @product_internal_binary.path("foo/product-internal.txt"),
         "product-txt/aa.txt" => @comp_binary.path("aa.txt"),
         "product-txt/product-internal.txt" => @product_internal_binary.path("foo/product-internal.txt")
-    }
-    @home.version("test/product/1").find_files().tags("bar").file_map.should == {
+    })
+    @home.version("test/product/1").find_files().tags("bar").file_map.should eq({
         "test/foo/product-internal.txt" => @product_internal_binary.path("foo/product-internal.txt"),
         "dep-txt/product-internal.txt" => @product_internal_binary.path("foo/product-internal.txt"),
         "product-txt/product-internal.txt" => @product_internal_binary.path("foo/product-internal.txt")
-    }
-    @home.version("test/product/1").find_files().tags("foo").exclude_tags("bar").file_map.should == {
+    })
+    @home.version("test/product/1").find_files().tags("foo").exclude_tags("bar").file_map.should eq({
         "comp/aa.txt" => @comp_binary.path("aa.txt"),
         "product-txt/aa.txt" => @comp_binary.path("aa.txt"),
-    }
+    })
   end
 
   it "should support dep-rm" do
@@ -113,20 +113,20 @@ describe FileFinder do
     product_metadata = product_metadata.metadata
     product_metadata.add_dependency("test/product/1")
     product_metadata.save
-    @home.version("main/product").find_files().file_map.should == {
+    @home.version("main/product").find_files().file_map.should eq({
         "comp/aa.txt" => @comp_binary.path("aa.txt"),
         "product-txt/aa.txt" => @comp_binary.path("aa.txt"),
-    }
+    })
     product_metadata.dependencies.clear
     product_metadata.add_dependency("test/product/1", "operations" => [["dep-rm", "test/comp"]])
     product_metadata.save
-    @home.version("main/product").find_files.file_map.should == {
-    }
+    @home.version("main/product").find_files.file_map.should eq({
+    })
     product_metadata.dependencies.clear
     product_metadata.add_dependency("test/product/1,name=foo", "operations" => [["dep-rm", "foo"]])
     product_metadata.save
-    @home.version("main/product").find_files.file_map.should == {
-    }
+    @home.version("main/product").find_files.file_map.should eq({
+    })
   end
 
   it "should raise exception if no binaries" do

@@ -54,14 +54,14 @@ module Ki
 
     def path(*sub_paths)
       new_path = [@path, sub_paths].flatten
-      if @parent
+      if defined? @parent
         new_path.unshift(@parent.path)
       end
       File.join(new_path)
     end
 
     def root
-      if @parent
+      if defined? @parent
         @parent.root
       else
         self
@@ -69,11 +69,11 @@ module Ki
     end
 
     def root?
-      @parent.nil?
+      !defined? @parent
     end
 
     def ki_path(*sub_paths)
-      if @parent
+      if defined? @parent
         paths = [@parent.ki_path, @path]
       else
         paths = ["/"]

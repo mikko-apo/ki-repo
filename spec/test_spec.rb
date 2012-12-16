@@ -28,11 +28,11 @@ describe Tester do
   it "tmpdir should create temp directory and clear it after" do
     tmp = @tester.tmpdir
     tmp_2 = @tester.tmpdir
-    File.directory?(tmp).should == true
-    File.directory?(tmp_2).should == true
+    File.directory?(tmp).should eq(true)
+    File.directory?(tmp_2).should eq(true)
     @tester.after
-    File.exists?(tmp).should == false
-    File.exists?(tmp_2).should == false
+    File.exists?(tmp).should eq(false)
+    File.exists?(tmp_2).should eq(false)
   end
 
   it "tmpdir should copy visible files" do
@@ -41,19 +41,19 @@ describe Tester do
     FileUtils.mkdir(File.join(tmp, ".test"))
     FileUtils.mkdir(File.join(tmp, "bar/.test"))
     dest = @tester.tmpdir(tmp)
-    IO.read(File.join(dest, "foo.txt")).should == "aa"
-    IO.read(File.join(dest, "bar/foo.txt")).should == "bb"
-    File.exists?(File.join(dest, ".config")).should == false
-    File.exists?(File.join(dest, "bar/.config")).should == false
-    File.exists?(File.join(dest, ".test")).should == false
-    File.exists?(File.join(dest, "bar/.test")).should == false
+    IO.read(File.join(dest, "foo.txt")).should eq("aa")
+    IO.read(File.join(dest, "bar/foo.txt")).should eq("bb")
+    File.exists?(File.join(dest, ".config")).should eq(false)
+    File.exists?(File.join(dest, "bar/.config")).should eq(false)
+    File.exists?(File.join(dest, ".test")).should eq(false)
+    File.exists?(File.join(dest, "bar/.test")).should eq(false)
     block_path = nil
     @tester.tmpdir(tmp) do |path|
-       IO.read(File.join(path, "foo.txt")).should == "aa"
+       IO.read(File.join(path, "foo.txt")).should eq("aa")
        block_path = path
-       File.exists?(path).should == true
+       File.exists?(path).should eq(true)
     end
-    File.exists?(block_path).should == false
+    File.exists?(block_path).should eq(false)
   end
 
   it "tmpdir should delete target file if there is exception during setup" do
@@ -66,34 +66,34 @@ describe Tester do
     @tester.catch_stdio do
       puts "foo"
     end
-    @tester.stdout.join.should == "foo\n"
+    @tester.stdout.join.should eq("foo\n")
     @tester.catch_stdio do
       puts "bar"
     end
-    @tester.stdout.join.should == "bar\n"
+    @tester.stdout.join.should eq("bar\n")
     @tester.catch_stdio
     puts "zap"
-    @tester.stdout.join.should == "zap\n"
+    @tester.stdout.join.should eq("zap\n")
   end
 
   it "chdir should change directory" do
     original = Dir.pwd
     parent = File.dirname(original)
-    parent.should_not == original
+    parent.should_not eq(original)
     @tester.chdir(parent) do
-       Dir.pwd.should == parent
+       Dir.pwd.should eq(parent)
     end
-    Dir.pwd.should == original
+    Dir.pwd.should eq(original)
     @tester.chdir(parent)
-    Dir.pwd.should == parent
+    Dir.pwd.should eq(parent)
   end
 
   it "should write files and check that files are correct" do
     tmp = @tester.tmpdir
     files = {"a" => "1", "b/c.txt" => "2"}
     Tester.write_files(tmp, files)
-    IO.read(File.join(tmp, "a")).should == "1"
-    IO.read(File.join(tmp, "b/c.txt")).should == "2"
+    IO.read(File.join(tmp, "a")).should eq("1")
+    IO.read(File.join(tmp, "b/c.txt")).should eq("2")
     Tester.verify_files(tmp, files)
     Tester.verify_files(tmp, "b/" => nil)
     Tester.verify_files(tmp, "b" => nil)
@@ -114,7 +114,7 @@ describe Tester do
     @tester.catch_stdio do
       @tester.cleaners << -> { puts "foo"}
       Tester.final_tester_check
-    end.stdout.join.should == "Tester 'Ki::Tester final_tester_check should check for dirty testers' has not been cleared! Please add the missing .after() command. Clearing it automatically.\nfoo\n"
+    end.stdout.join.should eq("Tester 'Ki::Tester final_tester_check should check for dirty testers' has not been cleared! Please add the missing .after() command. Clearing it automatically.\nfoo\n")
   end
 end
 

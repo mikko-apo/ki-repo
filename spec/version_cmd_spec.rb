@@ -55,7 +55,7 @@ describe KiCommand do
           ]
       )
       file = VersionMetadataFile.new("ki-metadata.json")
-      file.load_data_from_file.should == {
+      file.load_data_from_file.should eq({
           "version_id" => "my/component/23",
           "source" => {
               "url" => "https://foo.fi/repo1",
@@ -83,7 +83,7 @@ describe KiCommand do
                "operations" => [["rm", "*.info"]]},
               {"version_id" => "my/docs/4411"}
           ]
-      }
+      })
     end
   end
 
@@ -99,14 +99,14 @@ describe KiCommand do
            "*"
           ])
       file = VersionMetadataFile.new("test.json")
-      file.load_data_from_file.should == {
+      file.load_data_from_file.should eq({
           "version_id" => "my/component/23",
           "files" => [
               {"path" => "a/test.txt",
                "size" => 2,
                "sha1" => "e0c9035898dd52fc65c41454cec9c4d2611bfb37"}
           ]
-      }
+      })
     end
   end
 
@@ -147,21 +147,21 @@ describe "version-test" do
 
   it "should test files" do
     file = VersionMetadataFile.new(@metadata_file)
-    file.load_data_from_file.should == {
+    file.load_data_from_file.should eq({
         "version_id" => "my/component/23",
         "files" => [
             {"path" => "changed.txt", "size" => 2, "sha1" => "e0c9035898dd52fc65c41454cec9c4d2611bfb37"},
             {"path" => "changed_size.txt", "size" => 2, "sha1" => "e0c9035898dd52fc65c41454cec9c4d2611bfb37"},
             {"path" => "missing.txt", "size" => 2, "sha1" => "e0c9035898dd52fc65c41454cec9c4d2611bfb37"},
             {"path" => "same.txt", "size" => 2, "sha1" => "e0c9035898dd52fc65c41454cec9c4d2611bfb37"}]
-    }
+    })
     @tester.catch_stdio do
       KiCommand.new.execute(
           ["version-test",
            "-f", @metadata_file,
            "-i", @source
           ])
-    end.stdout.join.should == "All files ok.\n"
+    end.stdout.join.should eq("All files ok.\n")
   end
 
   it "should warn about missing and changed files" do
@@ -173,9 +173,9 @@ describe "version-test" do
            "-f", @metadata_file,
            "-i", @source
           ])
-    end.stdout.join.should == "#{@source}/test.json: 'changed.txt' wrong hash '#{@source}/changed.txt'
+    end.stdout.join.should eq("#{@source}/test.json: 'changed.txt' wrong hash '#{@source}/changed.txt'
 #{@source}/test.json: 'changed_size.txt' wrong size '#{@source}/changed_size.txt'
-#{@source}/test.json: 'missing.txt' missing '#{@source}/missing.txt'\n"
+#{@source}/test.json: 'missing.txt' missing '#{@source}/missing.txt'\n")
   end
 
   it "help should output text" do
@@ -189,7 +189,7 @@ describe "version-test" do
       @tester.chdir(@source) do
         KiCommand.new.execute(["version-test", "-f", "test.json"])
       end
-    end.stdout.join.should == "All files ok.\n"
+    end.stdout.join.should eq("All files ok.\n")
   end
 
   it "should test versions recursively and by version id" do
@@ -204,14 +204,14 @@ describe "version-test" do
     product_metadata.save
 #    @tester.catch_stdio do
 #      KiCommand.new.execute(["version-test", "-h", home.path, "-v", "test/product/1", "-r"])
-#    end.stdout.join.should == "All files ok.\n"
+#    end.stdout.join.should eq("All files ok.\n"
     Tester.write_files(test_comp_13_binary.path, "aa.txt" => "bb")
 #    @tester.catch_stdio do
 #      KiCommand.new.execute(["version-test", "-h", home.path, "-v", "test/product/1"])
-#    end.stdout.join.should == "All files ok.\n"
+#    end.stdout.join.should eq("All files ok.\n"
     @tester.catch_stdio do
       KiCommand.new.execute(["version-test", "-h", home.path, "test/product/1", "-r"])
-    end.stdout.join.should == "#{home.path}/info/site/test/comp/13/ki-metadata.json: 'aa.txt' wrong hash '#{home.path}/packages/local/test/comp/13/aa.txt'\n"
+    end.stdout.join.should eq("#{home.path}/info/site/test/comp/13/ki-metadata.json: 'aa.txt' wrong hash '#{home.path}/packages/local/test/comp/13/aa.txt'\n")
   end
 end
 
@@ -243,10 +243,10 @@ describe "version-import" do
          "-h", home.path
         ])
     ver = home.version("my/component")
-    ver.version_id.should == "my/component/23"
+    ver.version_id.should eq("my/component/23")
     @tester.catch_stdio do
       KiCommand.new.execute(["version-test", "-h", home.path, "my/component/23"])
-    end.stdout.join.should == "All files ok.\n"
+    end.stdout.join.should eq("All files ok.\n")
   end
 
   it "should test version" do
@@ -260,7 +260,7 @@ describe "version-import" do
              "-h", @source
             ])
       }.should raise_error("Files are not ok!")
-    end.stdout.join.should == "#{@source}/test.json: 'foo/changed.txt' wrong hash '#{@source}/foo/changed.txt'\n"
+    end.stdout.join.should eq("#{@source}/test.json: 'foo/changed.txt' wrong hash '#{@source}/foo/changed.txt'\n")
   end
 
   it "help should output text" do
@@ -290,13 +290,13 @@ describe "version-export" do
 
   it "add status to my/component" do
     KiCommand.new.execute(%W(version-status add my/component/1.2.3 Smoke=Green action=path/123 -h #{@source}))
-    KiJSONFile.load_json(@home.path("info/site/my/component/1.2.3/ki-statuses.json")).should == [{"key" => "Smoke", "value" => "Green", "action" => "path/123"}]
-    @home.version("my/component").statuses.should == [["Smoke", "Green"]]
+    KiJSONFile.load_json(@home.path("info/site/my/component/1.2.3/ki-statuses.json")).should eq([{"key" => "Smoke", "value" => "Green", "action" => "path/123"}])
+    @home.version("my/component").statuses.should eq([["Smoke", "Green"]])
   end
 
   it "set status order to my/component" do
     KiCommand.new.execute(%W(version-status order my/component maturity alpha,beta,gamma -h #{@source}))
-    @home.finder.component("my/component").status_info.should == {"maturity"=>["alpha", "beta", "gamma"]}
+    @home.finder.component("my/component").status_info.should eq({"maturity"=>["alpha", "beta", "gamma"]})
   end
 
   it "handles unknown" do
@@ -324,17 +324,17 @@ describe "version-export" do
     KiCommand.new.execute(%W(version-export my/product -o #{out} -h #{@home.path}))
 
     Tester.verify_files(out, true, {"README" => "aa", "readme.txt" => "aa", "test.bat" => "bb", "comp/test.sh" => "bb"})
-    File.readlink(File.join(out, "README")).should == "#{@source}/packages/local/my/product/2/readme.txt"
-    File.readlink(File.join(out, "readme.txt")).should == "#{@source}/packages/local/my/product/2/readme.txt"
-    File.readlink(File.join(out, "test.bat")).should == "#{@source}/packages/local/my/component/23/test.sh"
-    File.readlink(File.join(out, "comp/test.sh")).should == "#{@source}/packages/local/my/component/23/test.sh"
+    File.readlink(File.join(out, "README")).should eq("#{@source}/packages/local/my/product/2/readme.txt")
+    File.readlink(File.join(out, "readme.txt")).should eq("#{@source}/packages/local/my/product/2/readme.txt")
+    File.readlink(File.join(out, "test.bat")).should eq("#{@source}/packages/local/my/component/23/test.sh")
+    File.readlink(File.join(out, "comp/test.sh")).should eq("#{@source}/packages/local/my/component/23/test.sh")
     # test before export should warn about broken files
     Tester.write_files(@source, "packages/local/my/component/23/test.sh" => "cc")
     @tester.catch_stdio do
       lambda do
         KiCommand.new.execute(%W(version-export my/product -o #{out} -h #{@home.path} -t))
       end.should raise_error("Files are not ok!")
-    end.stdout.join.should == "#{@source}/info/site/my/component/23/ki-metadata.json: 'test.sh' wrong hash '#{@source}/packages/local/my/component/23/test.sh'\n"
+    end.stdout.join.should eq("#{@source}/info/site/my/component/23/ki-metadata.json: 'test.sh' wrong hash '#{@source}/packages/local/my/component/23/test.sh'\n")
   end
 
   it "should export selected files" do
@@ -386,13 +386,13 @@ test.sh - size: 2, sha1=9a900f538965a426994e1e90600920aff0b4e8d2, tags=foo
     component_dirs = "Version directories: #{@source}/info/site/my/component/23, #{@source}/info/site/my/component/23, #{@source}/packages/local/my/component/23, #{@source}/packages/local/my/component/23\n"
     @tester.catch_stdio do
       KiCommand.new.execute(%W(version-show -h #{@home.path} my/product))
-    end.stdout.join.should == product_txt
+    end.stdout.join.should eq(product_txt)
     @tester.catch_stdio do
       KiCommand.new.execute(%W(version-show -h #{@home.path} my/product -r -d))
-    end.stdout.join.should == product_txt + product_dirs + component_str + component_dirs
+    end.stdout.join.should eq(product_txt + product_dirs + component_str + component_dirs)
     @tester.catch_stdio do
       KiCommand.new.execute(%W(version-show -h #{@home.path} -f ki-metadata.json -i #{@source} -d))
-    end.stdout.join.should == product_txt + product_local_dir
+    end.stdout.join.should eq(product_txt + product_local_dir)
   end
 end
 
@@ -424,15 +424,15 @@ describe "version-search" do
     end.stdout.join.should =~ /Test/
     @tester.catch_stdio do
       KiCommand.new.execute(%W(version-search my/component -h #{@source}))
-    end.stdout.join.should == "my/component/23\n"
+    end.stdout.join.should eq("my/component/23\n")
     @tester.catch_stdio do
       KiCommand.new.execute(%W(version-search my/* -h #{@source}))
-    end.stdout.join.should == "Found components(2):\nmy/component\nmy/product\n"
+    end.stdout.join.should eq("Found components(2):\nmy/component\nmy/product\n")
     @tester.catch_stdio do
       KiCommand.new.execute(%W(version-search *pro* -h #{@source}))
-    end.stdout.join.should == "Found components(1):\nmy/product\n"
+    end.stdout.join.should eq("Found components(1):\nmy/product\n")
     @tester.catch_stdio do
       KiCommand.new.execute(%W(version-search pro -h #{@source}))
-    end.stdout.join.should == "'pro' does not match versions or components\n"
+    end.stdout.join.should eq("'pro' does not match versions or components\n")
   end
 end

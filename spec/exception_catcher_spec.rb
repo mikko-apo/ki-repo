@@ -22,18 +22,18 @@ describe ExceptionCatcher do
     var = catcher.catch("test") do
       "a"
     end
-    var.should == "a"
-    catcher.result("test").should == "a"
+    var.should eq("a")
+    catcher.result("test").should eq("a")
   end
   it "should return value if no exceptions" do
     catcher = ExceptionCatcher.new
     var = catcher.catch("exp") do
       raise "a"
     end
-    var.should == nil
-    catcher.result("exp").should == nil
-    catcher.exceptions.size.should == 1
-    catcher.exception("exp").message.should == "a"
+    var.should eq(nil)
+    catcher.result("exp").should eq(nil)
+    catcher.exceptions.size.should eq(1)
+    catcher.exception("exp").message.should eq("a")
     lambda {catcher.check}.should raise_error(RuntimeError, "a")
   end
   it "should return multiple exceptions" do
@@ -44,17 +44,17 @@ describe ExceptionCatcher do
     catcher.catch("b") do
       raise "b"
     end
-    catcher.exceptions.size.should == 2
-    catcher.exception("a").message.should == "a"
-    catcher.exception("b").message.should == "b"
+    catcher.exceptions.size.should eq(2)
+    catcher.exception("a").message.should eq("a")
+    catcher.exception("b").message.should eq("b")
     begin
       catcher.check
     rescue => e
-      e.message.should == "Caught 2 exceptions!"
-      e.class.should == ExceptionCatcher::MultipleExceptions
-      e.exceptions.values.map {|exp| exp.message}.should == ["a", "b"]
-      e.tasks.should == ["a", "b"]
-      e.each {|exp| exp.class.should == RuntimeError}
+      e.message.should eq("Caught 2 exceptions!")
+      e.class.should eq(ExceptionCatcher::MultipleExceptions)
+      e.exceptions.values.map {|exp| exp.message}.should eq(["a", "b"])
+      e.tasks.should eq(["a", "b"])
+      e.each {|exp| exp.class.should eq(RuntimeError)}
     end
 
   end

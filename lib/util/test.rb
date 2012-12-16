@@ -141,7 +141,7 @@ module Ki
       if block
         Dir.chdir(dest, &block)
       else
-        if @original_dir.nil?
+        if !defined? @original_dir
           @original_dir = Dir.pwd
           @cleaners << -> { Dir.chdir(@original_dir); @original_dir=nil }
         end

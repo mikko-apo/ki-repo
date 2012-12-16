@@ -19,7 +19,7 @@ module Ki
     # merged with parents
     def properties
       parent_properties = {}
-      if @parent
+      if defined? @parent
         parent_properties = @parent.properties
       end
       parent_properties.merge(my_properties.cached_data)
@@ -42,7 +42,7 @@ module Ki
     # List of path, user/group, access rights
     def permissions
       parent_permissions = []
-      if @parent
+      if defined? @parent
         parent_permissions = @parent.permissions
       end
       parent_permissions + my_permissions.cached_data

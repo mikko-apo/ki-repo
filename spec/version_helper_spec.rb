@@ -45,7 +45,7 @@ describe VersionTester do
     index = 0
     issues = [["wrong hash", "changed.txt"], ["wrong size", "changed_size.txt"], ["missing", "missing.txt"]]
     VersionTester.new.test_version(Version.create_version(@metadata_file, @source)) do |issue, version, file|
-      [issue, file].should == issues[index]
+      [issue, file].should eq(issues[index])
        index+=1
     end
   end

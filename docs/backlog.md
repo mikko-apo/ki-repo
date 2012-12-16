@@ -1,11 +1,12 @@
 # @title Ki: Backlog
 
 # Backlog for 0.2
+* fix -w warnings
 * website command
 * fix directory structure
+* cleanup gem
 * cleanup and removal operations
 * remove project stuff
-* cleanup gem
 
 # Next release...
 * Download & replication
