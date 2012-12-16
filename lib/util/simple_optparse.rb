@@ -57,7 +57,7 @@ module Ki
         if open
           collected_params << a
           if collect_count == collected_params.size
-            open[:block].call *collected_params
+            open[:block].call(*collected_params)
             open = nil
           end
         else

@@ -32,8 +32,7 @@ module Ki
     attr_chain :shell_command
 
     def help
-      "\nSyntax: #{shell_command} prefix|use parameters(+|-) version(:file-tag) #{opts(nil)}"
-      <<EOF
+<<EOF
 #{summary}
 Syntax: #{shell_command} prefix|use parameters...
 

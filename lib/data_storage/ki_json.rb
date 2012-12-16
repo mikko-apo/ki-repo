@@ -113,7 +113,7 @@ module Ki
     # * class extending KiJSONListFile which stores list items: class VersionListFile
     # * method to load the file: versions()
     # * method to load a specific item from list file: version(version_id, versions_list=versions)
-  def self.add_list_file(obj, clazz, name=nil)
+    def self.add_list_file(obj, clazz, name=nil)
       stripped_class_name = clazz.name.split("::").last
       class_name = clazz.name
       list_class_name = "#{stripped_class_name}ListFile"
@@ -133,7 +133,7 @@ module Ki
   end
 
   def #{pluralized_name}
-    #{list_class_name}.new("ki-#{pluralized_name}.json").parent(self)
+      #{list_class_name}.new("ki-#{pluralized_name}.json").parent(self)
   end
 
   def #{name}(#{name}_id, #{pluralized_name}_list=#{pluralized_name})

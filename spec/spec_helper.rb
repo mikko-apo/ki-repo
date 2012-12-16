@@ -33,5 +33,3 @@ end
 
 require 'ki_repo_all'
 include Ki
-
-$VERBOSE = true

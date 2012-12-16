@@ -114,6 +114,7 @@ describe "User prefs" do
 class ZipTest
   attr_chain :summary, -> { "zipsummary" }
   attr_chain :help, -> { "ziphelp" }
+  undef :execute if method_defined? :execute
   def execute(a,args)
     puts "zip:\#{args.join(",")}"
   end
@@ -171,8 +172,6 @@ EOF
       @tester.catch_stdio do
         KiCommand.new.execute(%W(pref use ki/bzip2 -h #{@source}))
       end.stdout.join.should eq("Use: ki/bzip2\n")
-      undef ZipTest
-      undef Bzip2
       @tester.catch_stdio do
         KiCommand.new.execute(%W(bzip2 a b -h #{@source}))
       end.stdout.join.should eq("bzip2:a,b\n")
