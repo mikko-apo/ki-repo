@@ -18,7 +18,7 @@ Gem::Specification.new do |s|
   ]
   s.files = [
     "README.md",
-    "docs/setup_development.md",
+    "docs/development_setup.md",
     "lib/cmd/cmd.rb",
     "lib/cmd/version_cmd.rb",
     "lib/data_access/repository_info.rb",

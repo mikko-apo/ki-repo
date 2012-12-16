@@ -1,4 +1,4 @@
-# @title Ki: Repository
+# @title Ki: Repository basics
 
 # Getting started
 
@@ -12,10 +12,10 @@
         ki version-import -m -c my/component
         ki version-show my/component
 
-    * version-import -c creates a new version under my/component and -m moves the files to version's repository directory
-    * version-show looks for the latest available version and shows information about that
+    * `version-import -c` creates a new version under `"my/component`` and `-m` moves the files to version's repository directory
+    * `version-show` looks for the latest available version and shows information about that
 
-2. Create another version, with dependency to my/component/1 and import that too
+2. Create another version, with dependency to `my/component/1` and import that too
 
         ki pref prefix version
         ki build -d my/component/1,name=comp,path=doc,internal -O "mv doc/test.sh helloworld.sh"
@@ -24,54 +24,53 @@
         ki export my/product export
         find export
 
-    * "ki pref prefix version" configures a shortcut to call version commands with shorter syntax
-    * version-build generates a dependency to my/component/1 and puts the files from my/component/1 to doc directory
-    * version-build -O operations are executed when the product version is exported, doc/test.sh is moved to helloworld.sh
+    * `ki pref prefix version` configures a shortcut to call version commands with shorter syntax
+    * `version-build` generates a dependency to `"my/component/1"` and puts the files from `"my/component/1"` to doc directory
+    * `version-build -O` operations are executed when the product version is exported, `"doc/test.sh"` is moved to helloworld.sh
     * the contents of "export" directory should be:
 
-        export/doc/readme.txt
-        export/helloworld.sh
+            export/doc/readme.txt
+            export/helloworld.sh
 
-# Repository basics
+# Repository structure: components, versions
 
-## Repository structure: components, versions
+Ki-Repo is a repository for storing file packages and metadata about those packages.
 
-Ki-Repo is a repository for storing file packages and metadata about those packages. A repository has following structure
+An example repository has following structure:
+
+* Repository has three components: `"my/componentA"`, `"my/componentB"`, `"my/product"`.
+* Each component maintains a chronological list of versions. For example, `"my/component"` has versions `"3"`, `"2"` and `"1"`.
+* Component's name should be a unique identifier and it can include any number of identifiers. Valid component names include `"ki/repo"`, `"ki-repo"` or `"my/test/builds/ki/repo/"`.
+* Version contains a set of files. Version can also define dependencies and other metadata.
+
+The repository and its directories and files would look like this:
 
     repository/
-      my/component/
-        23/
-          jar/lib.jar
-          readme.txt
-          start.sh
-        22/
-          jar/lib.jar
-          readme.txt
-          start.sh
-        21/
-          jar/lib.jar
-          readme.txt
-          start.sh
-      my/componentB/
-        build-211/
-          lib/utils.rb
-        build-210/
-        build-209/
-        ...
-      my/product/
-        product-97/
-        product-98/
-        ...
-
-Repository maintains a list of components: "my/componentA", "my/componentB", "my/product".
-
-Component maintains a chronological list of versions: "build-3", "build-2", "build-1".
-Component's name should be a unique identifier and it can include any number of identifiers. Valid component names
-include "ki/repo", "ki-repo", "my/test/builds/ki/repo/".
-
-Version contains a set of files. Version can also define dependencies and other metadata.
-
-The repository structure is very close to the actual directory structure.
+      my/
+        component/
+          23/
+            jar/lib.jar
+            readme.txt
+            start.sh
+          22/
+            jar/lib.jar
+            readme.txt
+            start.sh
+          21/
+            jar/lib.jar
+            readme.txt
+            start.sh
+        componentB/
+          build-211/
+            lib/utils.rb
+          build-210/
+            ...
+          build-209/
+          ...
+        product/
+          98/
+          97/
+          ...
 
 ## Version
 
@@ -82,7 +81,7 @@ In addition to having files, version can define metadata about its files (size, 
 Files can also be tagged with identifiers to make it easier to identify files of different types. Versions can also have status
 information (for example "IntegrationTest=green"), which makes it easier to search for versions.
 
-Version's full name is the name of the component and the version name: my/component/23
+Version's full name is the name of the component and the version name: `"my/component/23"`
 
 ### File metadata
 
@@ -115,8 +114,8 @@ versions with full version name.
 * version_id defines the full name of the required version
 * path defines a subdirectory where files from this dependency are placed
 * dependency can have a name, which makes it possible to compare version's dependencies and also navigate version hierarchies
-** navigation syntax: my/product/1>comp -> my/component/1
-** my/product/1>comp = my/component/23, my/product/2>comp -> my/component/24
+    * navigation syntax: my/product/1>comp -> my/component/1
+    * my/product/1>comp = my/component/23, my/product/2>comp -> my/component/24
 * internal dependencies are visible in the version hierarchy only for top level version. comp is visible from my/product,
 but if other version has a dependency on product, files from comp are not visible
 
@@ -137,25 +136,6 @@ Examples
     "cp *.txt sub-directory"
     "mv *.sh scripts"
 
-# Command line utilities
+# Component
 
-## version-build
-* Creates version metadata file. Possible to set source info, dependencies, files and operations.
-
-## version-test
-* Tests version's files if they are intact.
-
-## version-import
-* Imports version to local package directories
-
-## version-export
-* Export version to current directory or selected output directory
-
-## version-status
-* Add status to version to specified package info location
-
-##  version-show
-* Prints information about version or versions
-
-##  version-search
-* Searches for versions and components
+# Repository

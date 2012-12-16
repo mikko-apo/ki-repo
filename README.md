@@ -10,13 +10,17 @@ note: Currently Ki is not ready for any kind of use.
 2. Metadata support: statuses, file tagging
 3. Repository cleanup and removal
 4. Use script files in repository to add additional commands to ki
+5. Documentation
 
 Once these features are implemented Ki is ready for use on local server. In the future, the goal is to provide tools
 to manage distributed repositories: downloads and replication.
 
-# Setting up development environment
+# Documentation
 
-Follow the instructions here: {file:docs/setup_development.md Setup Development}
+* {file:docs/repository_basics.md Repository basics} includes a simple tutorial and explains basic concepts.
+* {file:docs/version_commands.md Version commands} contains documentation for all repository related commands.
+* {file:docs/writing_extensions.md Writing extensions} describes how to extend Ki by writing extension scripts.
+* {file:docs/development.md Development} provides additional development related information.
 
 ## Copyright
 

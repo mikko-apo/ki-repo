@@ -8,6 +8,7 @@
 * version-import -m moves files when importing
 * version export -c creates copies of files instead of symbolic links
 * version() supports > syntax for going to dependency
+* list all entries from KiCommand.Registry
 * fix directory structure
 * cleanup gem
 * cleanup and removal operations
