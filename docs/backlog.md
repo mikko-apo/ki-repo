@@ -1,14 +1,22 @@
 # @title Ki: Backlog
 
 # Backlog for 0.2
-* fix -w warnings
-* website command
+* document repository usage - add missing tutorial features
+* generate documentation automatically for command line utilities
+* version-build appends to existing data
+* when importing version, set version number to latest + 1 if -c my/component defined
+* version-import -m moves files when importing
+* version export -c creates copies of files instead of symbolic links
+* version() supports > syntax for going to dependency
 * fix directory structure
 * cleanup gem
 * cleanup and removal operations
 * remove project stuff
+* document script usage
+* create release notes
 
-# Next release...
+# Future releases...
+* website command
 * Download & replication
 * Digital signing
 * Encrypted/packed packages
@@ -19,3 +27,7 @@
 # Maybe at some point...
 * alias
 * package dep operations: dep-rm, dep-mv, dep-cp, dep-switch
+* named version lists for component my/component#released:Smoke=green
+
+# Future backwards compatability issues
+* how to store version directories so that per directory limits can be bypassed
