@@ -1,13 +1,13 @@
 # @title Ki: Backlog
 
 # Backlog for 0.2
-* document repository usage - add missing tutorial features
 * fix defined? checks
+* fix double repository entries in finder.all_repositories
 * version() supports > syntax for going to dependency
 * version!()
-* Version.exists? - there should be a better way to check if version exists
+* fix Version.exists? - there should be a better way to check if version exists
 * generate documentation automatically for command line utilities
-* list all entries from KiCommand.Registry
+* command line tool to list all entries from KiCommand.Registry
 * fix directory structure
 * cleanup gem
 * cleanup and removal operations

@@ -21,7 +21,7 @@
         ki build -d my/component/1,name=comp,path=doc,internal -O "mv doc/test.sh helloworld.sh"
         ki import -m -c my/product
         ki show -r my/product
-        ki export my/product export
+        ki export my/product -o export
         find export
 
     * `ki pref prefix version` configures a shortcut to call version commands with shorter syntax
@@ -29,6 +29,8 @@
     * `version-build -O` operations are executed when the product version is exported, `"doc/test.sh"` is moved to helloworld.sh
     * the contents of "export" directory should be:
 
+            export
+            export/doc
             export/doc/readme.txt
             export/helloworld.sh
 

@@ -281,7 +281,7 @@ module Ki
               dep_data = dep.dup
               dep_ops = dep_data.delete("operations")
               puts "#{dep_data.delete("version_id")}: #{map_to_csl(dep_data)}"
-              if dep_ops.size > 0
+              if dep_ops && dep_ops.size > 0
                 puts "Depedency operations:"
                 dep_ops.each do |op|
                   puts op.join(" ")
