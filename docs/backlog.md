@@ -3,8 +3,9 @@
 # Backlog for 0.2
 * document repository usage - add missing tutorial features
 * fix defined? checks
-* version-import checks that version does not exist
 * version() supports > syntax for going to dependency
+* version!()
+* Version.exists? - there should be a better way to check if version exists
 * generate documentation automatically for command line utilities
 * list all entries from KiCommand.Registry
 * fix directory structure

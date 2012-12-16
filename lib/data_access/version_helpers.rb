@@ -99,21 +99,28 @@ module Ki
       test_version(file, input)
 
       # reads component and version strings from metadata
+      finder = ki_home.finder
       if defined? @create_new_version
         component_id = @create_new_version
-        version = ki_home.version(component_id)
+        version = finder.version(component_id)
         if version
           id = version.version_id.split("/").last
           version_number = (Integer(id) + 1).to_s
         else
           version_number = "1"
         end
+        version_id = File.join(component_id, version_number)
       else
         metadata.cached_data
-        id = metadata.version_id
-        version_arr = id.split("/")
+        version_id = metadata.version_id
+        version_arr = version_id.split("/")
         version_number = version_arr.delete_at(-1)
         component_id = version_arr.join("/")
+      end
+
+      version = finder.version(version_id)
+      if version && version.exists?
+        raise "'#{version_id}' exists in repository already!"
       end
 
       # creates directories
@@ -122,14 +129,14 @@ module Ki
       binary_dest = binaries.add_item(component_id).mkdir.versions.add_version(version_number).mkdir
       metadata_dest = info_components.add_item(component_id).mkdir.versions.add_version(version_number).mkdir
 
-      source_dirs = copy_files_to_repo(component_id, version_number, source, metadata, metadata_dest, binary_dest)
+      source_dirs = copy_files_to_repo(version_id, source, metadata, metadata_dest, binary_dest)
       delete_empty_source_dirs(source, source_dirs)
     end
 
-    def copy_files_to_repo(component_id, version_number, source, metadata, metadata_dest, binary_dest)
+    def copy_files_to_repo(version_id, source, metadata, metadata_dest, binary_dest)
       if defined? @create_new_version
         metadata_dest.metadata.cached_data = metadata.cached_data
-        metadata_dest.metadata.version_id=File.join(component_id, version_number)
+        metadata_dest.metadata.version_id=File.join(version_id)
         metadata_dest.metadata.save
         if defined? @move_files
           FileUtils.rm(metadata.path)

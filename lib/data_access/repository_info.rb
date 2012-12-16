@@ -80,6 +80,10 @@ module Ki
       FileFinder.new.version(self).files(file_patterns)
     end
 
+    def exists?
+      metadata || binaries
+    end
+
     # Initializes a Version and Repository::Version for files non-imported files
     # * works for testing and showing
     def self.create_version(file, binary_directory=nil)
