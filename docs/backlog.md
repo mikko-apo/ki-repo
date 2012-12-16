@@ -2,10 +2,8 @@
 
 # Backlog for 0.2
 * document repository usage - add missing tutorial features
-* version-build appends to existing data
-* version-import -m moves files when importing
+* fix defined? checks
 * version export -c creates copies of files instead of symbolic links
-* when importing version, set version number to latest + 1 if -c my/component defined
 * version() supports > syntax for going to dependency
 * generate documentation automatically for command line utilities
 * list all entries from KiCommand.Registry

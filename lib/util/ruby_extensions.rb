@@ -23,7 +23,7 @@ module Ki
             return self
           end
         elsif valid_size.respond_to?(:to_i)
-          if valid_size.to_i == size
+          if Integer(valid_size) == size
             return self
           end
         else

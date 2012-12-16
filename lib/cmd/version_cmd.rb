@@ -171,6 +171,12 @@ module Ki
         opts.on("-t", "--test-recursive", "Tests version's dependencies before importing.'") do |v|
           @importer.tester.recursive = true
         end
+        opts.on("-m", "--move", "Moves files to repository'") do |v|
+          @importer.move_files = true
+        end
+        opts.on("-c", "--create-new-version COMPONENT", "Creates new version number for defined component'") do |c|
+          @importer.create_new_version = c
+        end
       end
     end
   end

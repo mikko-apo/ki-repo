@@ -19,7 +19,7 @@ module Ki
     def resolve_dest_file(file, dest, matching_pattern)
       matcher = matching_pattern.match(file)
       dest = dest.gsub(/\$\d/) do |str|
-        matcher[str[1..-1].to_i]
+        matcher[Integer(str[1..-1])]
       end
       if dest.end_with?("/")
         dest = File.join(dest, File.basename(file))

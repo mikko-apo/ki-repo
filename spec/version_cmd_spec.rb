@@ -219,14 +219,10 @@ describe "version-import" do
   before do
     @tester = Tester.new(example.metadata[:full_description])
     @source = @tester.tmpdir
-    Tester.write_files(@source, "same.txt" => "aa", "foo/changed.txt" => "aa")
+    @original_files = {"same.txt" => "aa", "foo/changed.txt" => "aa"}
+    Tester.write_files(@source, @original_files)
     @metadata_file = File.join(@source, "test.json")
-    KiCommand.new.execute(
-        ["version-build",
-         "--version-id", "my/component/23",
-         "-f", @metadata_file,
-         "*"
-        ])
+    KiCommand.new.execute(%W(version-build --version-id my/component/23 -f #{@metadata_file} *))
   end
 
   after do
@@ -234,14 +230,8 @@ describe "version-import" do
   end
 
   it "should import version" do
+    KiCommand.new.execute(%W(version-import -f #{@metadata_file} -i #{@source} -h #{@source} -t))
     home = KiHome.new(@source)
-    KiCommand.new.execute(
-        ["version-import",
-         "-f", @metadata_file,
-         "-i", @source,
-         "-t",
-         "-h", home.path
-        ])
     ver = home.version("my/component")
     ver.version_id.should eq("my/component/23")
     @tester.catch_stdio do
@@ -249,16 +239,32 @@ describe "version-import" do
     end.stdout.join.should eq("All files ok.\n")
   end
 
+  it "should import version, move files and define product id" do
+    repo = @tester.tmpdir
+    FileUtils.rm(@metadata_file)
+    KiCommand.new.execute(%W(version-build -f #{@metadata_file} *))
+
+    # import first version
+    KiCommand.new.execute(%W(version-import -f #{@metadata_file} -i #{@source} -h #{repo} -t -c test/component))
+    home = KiHome.new(repo)
+    v1 = home.version("test/component")
+    v1.version_id.should eq "test/component/1"
+    v1.metadata.cached_data.should eq({"files"=>[{"path"=>"foo/changed.txt", "size"=>2, "sha1"=>"e0c9035898dd52fc65c41454cec9c4d2611bfb37"}, {"path"=>"same.txt", "size"=>2, "sha1"=>"e0c9035898dd52fc65c41454cec9c4d2611bfb37"}], "version_id"=>"test/component/1"})
+    Tester.verify_files(@source, @original_files)
+
+    # import second version
+    KiCommand.new.execute(%W(version-import -f #{@metadata_file} -i #{@source} -h #{repo} -t -c test/component -m))
+    Dir.glob(File.join(@source,"**/*")).should eq []
+    v2 = home.version("test/component")
+    v2.version_id.should eq "test/component/2"
+    v2.metadata.cached_data.should eq({"files"=>[{"path"=>"foo/changed.txt", "size"=>2, "sha1"=>"e0c9035898dd52fc65c41454cec9c4d2611bfb37"}, {"path"=>"same.txt", "size"=>2, "sha1"=>"e0c9035898dd52fc65c41454cec9c4d2611bfb37"}], "version_id"=>"test/component/2"})
+  end
+
   it "should test version" do
     Tester.write_files(@source, "foo/changed.txt" => "bb")
     @tester.catch_stdio do
       lambda {
-        KiCommand.new.execute(
-            ["version-import",
-             "-f", @metadata_file,
-             "-i", @source,
-             "-h", @source
-            ])
+        KiCommand.new.execute(%W(version-import -f #{@metadata_file} -i #{@source} -h #{@source}))
       }.should raise_error("Files are not ok!")
     end.stdout.join.should eq("#{@source}/test.json: 'foo/changed.txt' wrong hash '#{@source}/foo/changed.txt'\n")
   end

@@ -83,6 +83,8 @@ module Ki
   class VersionImporter
     attr_chain :ki_home, :require
     attr_chain :tester, -> { VersionTester.new.recursive(false).print(true) }
+    attr_chain :move_files
+    attr_chain :create_new_version
 
     # Imports a version to KiHome
     # * import(file, binary_directory) expects two String parameters defining version file location and directory base for binaries
@@ -97,11 +99,22 @@ module Ki
       test_version(file, input)
 
       # reads component and version strings from metadata
-      metadata.cached_data
-      version_id = metadata.version_id
-      version_arr = version_id.split("/")
-      version_number = version_arr.delete_at(-1)
-      component_id = version_arr.join("/")
+      if defined? @create_new_version
+        component_id = @create_new_version
+        version = ki_home.version(component_id)
+        if version
+          id = version.version_id.split("/").last
+          version_number = (Integer(id) + 1).to_s
+        else
+          version_number = "1"
+        end
+      else
+        metadata.cached_data
+        id = metadata.version_id
+        version_arr = id.split("/")
+        version_number = version_arr.delete_at(-1)
+        component_id = version_arr.join("/")
+      end
 
       # creates directories
       info_components = ki_home.repositories.add_item("site").mkdir.components
@@ -109,15 +122,68 @@ module Ki
       binary_dest = binaries.add_item(component_id).mkdir.versions.add_version(version_number).mkdir
       metadata_dest = info_components.add_item(component_id).mkdir.versions.add_version(version_number).mkdir
 
-      # copies files
-      FileUtils.cp(metadata.path, metadata_dest.metadata.path)
+      source_dirs = copy_files_to_repo(component_id, version_number, source, metadata, metadata_dest, binary_dest)
+      delete_empty_source_dirs(source, source_dirs)
+    end
+
+    def copy_files_to_repo(component_id, version_number, source, metadata, metadata_dest, binary_dest)
+      if defined? @create_new_version
+        metadata_dest.metadata.cached_data = metadata.cached_data
+        metadata_dest.metadata.version_id=File.join(component_id, version_number)
+        metadata_dest.metadata.save
+        if defined? @move_files
+          FileUtils.rm(metadata.path)
+        end
+      else
+        to_repo(metadata.path, metadata_dest.metadata.path)
+      end
+      source_dirs = []
       metadata.files.each do |file_info|
         file_path = file_info["path"]
         dir = File.dirname(file_path)
         if dir != "."
+          source_dirs << dir
           binary_dest.mkdir(dir)
         end
-        FileUtils.cp(source.path(file_path), binary_dest.path(file_path))
+        to_repo(source.path(file_path), binary_dest.path(file_path))
+      end
+      source_dirs
+    end
+
+    def delete_empty_source_dirs(source, source_dirs)
+      if defined? @move_files
+        expanded_source_dirs = {}
+        source_dirs.each do |d|
+          dir_entries(d).each do |expanded|
+            expanded_source_dirs[expanded] = true
+          end
+        end
+        expanded_source_dirs.keys.each do |dir|
+          checked_dir = source.path(dir)
+          if Dir.entries(checked_dir) == [".", ".."]
+            FileUtils.rmdir(checked_dir)
+          end
+        end
+      end
+    end
+
+    # splits dir path in to all components: foo/bar/baz, foo/bar, foo
+    def dir_entries(str)
+      arr = str.split("/")
+      ret = []
+      c = arr.size
+      while (c > 0)
+        ret << File.join(arr[0..c])
+        c-=1
+      end
+      ret
+    end
+
+    def to_repo(src, dest)
+      if defined? @move_files
+        FileUtils.mv(src, dest)
+      else
+        FileUtils.cp(src, dest)
       end
     end
 
