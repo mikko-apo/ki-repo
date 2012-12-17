@@ -9,6 +9,7 @@
 * generate documentation automatically for command line utilities
 * command line tool to list all entries from KiCommand.Registry
 * fix directory structure
+* gem version stored as internally available version number (script backwards compatability)
 * cleanup gem
 * cleanup and removal operations
 * remove project stuff

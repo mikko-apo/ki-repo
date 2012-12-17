@@ -50,11 +50,14 @@ describe KiCommand do
   end
 
   it "should have take KiHome path from ENV[\"KIHOME\"]" do
+    tmpdir = @tester.tmpdir
     @tester.cleaners << lambda do
       ENV.delete("KIHOME")
     end
-    ENV["KIHOME"]="/foo"
-    KiCommand.new.ki_home.path.should eq("/foo")
+    path = File.join(tmpdir, "foo")
+    ENV["KIHOME"]=path
+    KiCommand.new.ki_home.path.should eq(path)
+    File.exists?(path).should eq(true)
   end
 
   it "should support pluggable commands" do
