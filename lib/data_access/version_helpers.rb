@@ -82,6 +82,7 @@ module Ki
   # Imports a version to KiHome
   class VersionImporter
     attr_chain :ki_home, :require
+    attr_chain :finder, -> { ki_home.finder}
     attr_chain :tester, -> { VersionTester.new.recursive(false).print(true) }
     attr_chain :move_files
     attr_chain :create_new_version
@@ -99,15 +100,15 @@ module Ki
       end
       test_version(file, input)
 
-      # reads component and version strings from metadata
-      finder = ki_home.finder
+      import_from_metadata(metadata, source)
+    end
+
+    def import_from_metadata(metadata, source=nil)
       if defined?(@specific_version_id) && defined?(@create_new_version)
         raise "Can't define both specific_version_id '#{specific_version_id}' and create_new_version '#{create_new_version}'!"
       end
+
       if defined?(@specific_version_id)
-        version_arr = @specific_version_id.split("/")
-        version_number = version_arr.delete_at(-1)
-        component_id = version_arr.join("/")
         version_id = @specific_version_id
       elsif defined? @create_new_version
         component_id = @create_new_version
@@ -120,12 +121,12 @@ module Ki
         end
         version_id = File.join(component_id, version_number)
       else
-        metadata.cached_data
         version_id = metadata.version_id
-        version_arr = version_id.split("/")
-        version_number = version_arr.delete_at(-1)
-        component_id = version_arr.join("/")
       end
+
+      version_arr = version_id.split("/")
+      version_number = version_arr.delete_at(-1)
+      component_id = version_arr.join("/")
 
       version = finder.version(version_id)
       if version && version.exists?
@@ -136,25 +137,16 @@ module Ki
       info_components = ki_home.repositories.add_item("site").mkdir.components
       binaries = ki_home.packages.add_item("packages/local").mkdir.components
       binary_dest = binaries.add_item(component_id).mkdir.versions.add_version(version_number).mkdir
-      metadata_dest = info_components.add_item(component_id).mkdir.versions.add_version(version_number).mkdir
+      metadata_dir = info_components.add_item(component_id).mkdir.versions.add_version(version_number).mkdir
 
-      source_dirs = copy_files_to_repo(version_id, source, metadata, metadata_dest, binary_dest)
-      delete_empty_source_dirs(source, source_dirs)
-    end
-
-    def copy_files_to_repo(version_id, source, metadata, metadata_dest, binary_dest)
-      if defined? @create_new_version
-        metadata_dest.metadata.cached_data = metadata.cached_data
-        metadata_dest.metadata.version_id=File.join(version_id)
-        metadata_dest.metadata.save
-        if defined? @move_files
-          FileUtils.rm(metadata.path)
-        end
-      else
-        to_repo(metadata.path, metadata_dest.metadata.path)
+      metadata_dir.metadata.cached_data = metadata.cached_data
+      metadata_dir.metadata.version_id = version_id
+      metadata_dir.metadata.save
+      if defined? @move_files
+        FileUtils.rm(metadata.path)
       end
       source_dirs = []
-      metadata.files.each do |file_info|
+      metadata_dir.metadata.files.each do |file_info|
         file_path = file_info["path"]
         dir = File.dirname(file_path)
         if dir != "."
@@ -163,8 +155,9 @@ module Ki
         end
         to_repo(source.path(file_path), binary_dest.path(file_path))
       end
-      source_dirs
+      delete_empty_source_dirs(source, source_dirs)
     end
+
 
     def delete_empty_source_dirs(source, source_dirs)
       if defined? @move_files

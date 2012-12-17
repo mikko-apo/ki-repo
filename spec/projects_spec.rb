@@ -78,44 +78,6 @@ describe Lab do
     replicated.binaries.ki_path.should eq("/packages/replicated/test/comp/13")
     @lab.version(replicated).should eq(replicated)
   end
-
-  it "version() should look up for matching version based on status" do
-    component = @home.repositories.add_item("site").mkdir.components.add_item("test/comp").mkdir
-    version_1 = component.versions.add_version("1")
-    version_1.mkdir
-    version_2 = component.versions.add_version("2")
-    @lab.version("test/comp").version_id.should eq("test/comp/2")
-    @lab.version(@lab.finder.component("test/comp")).version_id.should eq("test/comp/2")
-    @lab.version("test/comp:Smoke=green").should eq(nil)
-    @lab.version("test/comp","Smoke"=>"green").should eq(nil)
-    version_1.statuses.add_status("Smoke","green")
-    @lab.version("test/comp:Smoke=green").version_id.should eq("test/comp/1")
-    @lab.version("test/comp","Smoke"=>"green").version_id.should eq("test/comp/1")
-    c = 0
-    @lab.version("test/comp"){|v| c+=1;c==2}.version_id.should eq("test/comp/1")
-    @lab.version("test/comp"){|v| true}.version_id.should eq("test/comp/2")
-    @lab.version("test/comp","Smoke"=>"green"){|v| true}.version_id.should eq("test/comp/1")
-    lambda {@lab.version(1)}.should raise_error("Not supported '1'")
-    # status order
-    component.status_info.edit_data do |h|
-      h.cached_data["maturity"]=["alpha","beta","gamma"]
-    end
-    @lab.version("test/comp").version_id.should eq("test/comp/2")
-    @lab.version("test/comp:maturity>alpha").should eq(nil)
-    version_1.statuses.add_status("maturity","alpha")
-    @lab.version("test/comp:maturity>=alpha").version_id.should eq("test/comp/1")
-    version_1.statuses.add_status("maturity","beta")
-    @lab.version("test/comp:maturity>alpha").version_id.should eq("test/comp/1")
-    version_2.mkdir.statuses.add_status("maturity","alpha")
-    @lab.version("test/comp:maturity>alpha").version_id.should eq("test/comp/1")
-    @lab.version("test/comp:maturity>=alpha").version_id.should eq("test/comp/2")
-    @lab.version("test/comp:maturity>beta").should eq(nil)
-    @lab.version("test/comp:maturity>=beta").version_id.should eq("test/comp/1")
-    @lab.version("test/comp:maturity!=alpha").version_id.should eq("test/comp/1")
-    @lab.version("test/comp:maturity<beta").version_id.should eq("test/comp/2")
-    @lab.version("test/comp:maturity<=beta").version_id.should eq("test/comp/2")
-    lambda {@lab.version("test/comp:maturity<>beta")}.should raise_error("Not supported status operation: 'maturity<>beta'")
-  end
 end
 
 describe KiHome do
@@ -150,5 +112,60 @@ describe KiHome do
             [Repository::Repository, "/info/global-ki"]
         ]
     ])
+  end
+
+  it "version() should look up for matching version based on status" do
+    component = @home.repositories.add_item("site").mkdir.components.add_item("test/comp").mkdir
+    version_1 = component.versions.add_version("1")
+    version_1.mkdir
+    version_2 = component.versions.add_version("2")
+    @home.version("test/comp").version_id.should eq("test/comp/2")
+    @home.version(@home.finder.component("test/comp")).version_id.should eq("test/comp/2")
+    @home.version("test/comp:Smoke=green").should eq(nil)
+    @home.version("test/comp","Smoke"=>"green").should eq(nil)
+    version_1.statuses.add_status("Smoke","green")
+    @home.version("test/comp:Smoke=green").version_id.should eq("test/comp/1")
+    @home.version("test/comp","Smoke"=>"green").version_id.should eq("test/comp/1")
+    c = 0
+    @home.version("test/comp"){|v| c+=1;c==2}.version_id.should eq("test/comp/1")
+    @home.version("test/comp"){|v| true}.version_id.should eq("test/comp/2")
+    @home.version("test/comp","Smoke"=>"green"){|v| true}.version_id.should eq("test/comp/1")
+    lambda {@home.version(1)}.should raise_error("Not supported '1'")
+    # status order
+    component.status_info.edit_data do |h|
+      h.cached_data["maturity"]=["alpha","beta","gamma"]
+    end
+    @home.version("test/comp").version_id.should eq("test/comp/2")
+    @home.version("test/comp:maturity>alpha").should eq(nil)
+    version_1.statuses.add_status("maturity","alpha")
+    @home.version("test/comp:maturity>=alpha").version_id.should eq("test/comp/1")
+    version_1.statuses.add_status("maturity","beta")
+    @home.version("test/comp:maturity>alpha").version_id.should eq("test/comp/1")
+    version_2.mkdir.statuses.add_status("maturity","alpha")
+    @home.version("test/comp:maturity>alpha").version_id.should eq("test/comp/1")
+    @home.version("test/comp:maturity>=alpha").version_id.should eq("test/comp/2")
+    @home.version("test/comp:maturity>beta").should eq(nil)
+    @home.version("test/comp:maturity>=beta").version_id.should eq("test/comp/1")
+    @home.version("test/comp:maturity!=alpha").version_id.should eq("test/comp/1")
+    @home.version("test/comp:maturity<beta").version_id.should eq("test/comp/2")
+    @home.version("test/comp:maturity<=beta").version_id.should eq("test/comp/2")
+    lambda {@home.version("test/comp:maturity<>beta")}.should raise_error("Not supported status operation: 'maturity<>beta'")
+  end
+
+  it "version() supports > navigation" do
+    importer = VersionImporter.new.ki_home(@home)
+    metadata = VersionMetadataFile.new(nil)
+    metadata.cached_data = {}
+    importer.import_from_metadata(metadata.version_id("comp/2"))
+    metadata.add_dependency("comp/2,name=comp")
+    importer.import_from_metadata(metadata.version_id("product/3"))
+    @home.version("comp").version_id.should eq "comp/2"
+    @home.version("product").version_id.should eq "product/3"
+    @home.version("product->comp").version_id.should eq "comp/2"
+    lambda{@home.version("product->comp2")}.should raise_error("Could not locate dependency 'comp2' from 'product/3'")
+  end
+
+  it "version() warns about empty arguments" do
+    lambda{@home.version()}.should raise_error("no parameters!")
   end
 end

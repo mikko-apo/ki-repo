@@ -51,11 +51,17 @@ module Ki
     # * version(my_component, "Smoke:green") -> finds Version matching other parameters
     # @return [Version] matching version
     def version(*args, &block)
+      if args.empty?
+        raise "no parameters!"
+      end
       status_rules = []
       component_or_version = nil
+      dep_navigation_arr = []
       args.each do |str|
         if str.kind_of?(String)
-          strings = str.split(":")
+          dep_nav_arr = str.split("->")
+          strings = dep_nav_arr.delete_at(0).split(":")
+          dep_navigation_arr.concat(dep_nav_arr)
           if component_or_version.nil?
             component_or_version = strings.delete_at(0)
           end
@@ -98,10 +104,29 @@ module Ki
         component = @components[component_str]
       end
       if component && version_name
-        component.version_by_id(version_name)
+        ver = component.version_by_id(version_name)
+        if dep_navigation_arr
+          dep_navigation_arr.each do |dep_str|
+            dep_version_str = find_dep_by_name(ver, dep_str)
+            if dep_version_str.nil?
+              raise "Could not locate dependency '#{dep_str}' from '#{ver.version_id}'"
+            end
+            ver = version(dep_version_str)
+          end
+        end
+        ver
       else
         nil
       end
+    end
+
+    def find_dep_by_name(ver, dep_str)
+      ver.metadata.dependencies.each do |dep|
+        if dep["name"] == dep_str
+          return dep["version_id"]
+        end
+      end
+      nil
     end
 
     def all_repositories(source=@source)
