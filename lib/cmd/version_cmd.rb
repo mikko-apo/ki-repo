@@ -177,6 +177,9 @@ module Ki
         opts.on("-c", "--create-new-version COMPONENT", "Creates new version number for defined component'") do |c|
           @importer.create_new_version = c
         end
+        opts.on("-v", "--version-id VERSION", "Imports version with defined version id'") do |v|
+          @importer.specific_version_id = v
+        end
       end
     end
   end

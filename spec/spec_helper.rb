@@ -33,3 +33,6 @@ end
 
 require 'ki_repo_all'
 include Ki
+
+# Override user's own ki-repository settings
+ENV["KIHOME"]=File.dirname(File.dirname(File.expand_path(__FILE__)))

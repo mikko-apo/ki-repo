@@ -85,6 +85,7 @@ module Ki
     attr_chain :tester, -> { VersionTester.new.recursive(false).print(true) }
     attr_chain :move_files
     attr_chain :create_new_version
+    attr_chain :specific_version_id
 
     # Imports a version to KiHome
     # * import(file, binary_directory) expects two String parameters defining version file location and directory base for binaries
@@ -100,7 +101,15 @@ module Ki
 
       # reads component and version strings from metadata
       finder = ki_home.finder
-      if defined? @create_new_version
+      if defined?(@specific_version_id) && defined?(@create_new_version)
+        raise "Can't define both specific_version_id '#{specific_version_id}' and create_new_version '#{create_new_version}'!"
+      end
+      if defined?(@specific_version_id)
+        version_arr = @specific_version_id.split("/")
+        version_number = version_arr.delete_at(-1)
+        component_id = version_arr.join("/")
+        version_id = @specific_version_id
+      elsif defined? @create_new_version
         component_id = @create_new_version
         version = finder.version(component_id)
         if version

@@ -46,16 +46,14 @@ describe KiCommand do
   end
 
   it "should have default location for KiHome" do
+    @tester.env("KIHOME", nil)
     KiCommand.new.ki_home.path.should eq(File.expand_path(File.join("~","ki")))
   end
 
   it "should have take KiHome path from ENV[\"KIHOME\"]" do
     tmpdir = @tester.tmpdir
-    @tester.cleaners << lambda do
-      ENV.delete("KIHOME")
-    end
     path = File.join(tmpdir, "foo")
-    ENV["KIHOME"]=path
+    @tester.env("KIHOME", path)
     KiCommand.new.ki_home.path.should eq(path)
     File.exists?(path).should eq(true)
   end

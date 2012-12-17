@@ -149,6 +149,13 @@ module Ki
       end
     end
 
+    def env(key, value)
+      current = ENV[key]
+      @cleaners << -> {ENV[key]=current}
+      ENV[key]=value
+      self
+    end
+
     # Executes all pending cleanup operations
     # * cleaners lists all procs that will be executed
     # * all exceptions from procs are caught and raised together

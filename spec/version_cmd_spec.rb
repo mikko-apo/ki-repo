@@ -260,6 +260,16 @@ describe "version-import" do
     v2.metadata.cached_data.should eq({"files" => [{"path" => "foo/changed.txt", "size" => 2, "sha1" => "e0c9035898dd52fc65c41454cec9c4d2611bfb37"}, {"path" => "same.txt", "size" => 2, "sha1" => "e0c9035898dd52fc65c41454cec9c4d2611bfb37"}], "version_id" => "test/component/2"})
   end
 
+  it "should import version with specific id" do
+    KiCommand.new.execute(%W(version-import -f #{@metadata_file} -i #{@source} -h #{@source} -v test/component/2 -t))
+    home = KiHome.new(@source)
+    ver = home.version("test/component")
+    ver.version_id.should eq("test/component/2")
+    @tester.catch_stdio do
+      KiCommand.new.execute(["version-test", "-h", home.path, "test/component"])
+    end.stdout.join.should eq("All files ok.\n")
+  end
+
   it "should test version" do
     Tester.write_files(@source, "foo/changed.txt" => "bb")
     @tester.catch_stdio do
@@ -274,6 +284,17 @@ describe "version-import" do
     lambda {
       KiCommand.new.execute(%W(version-import -f #{@metadata_file} -i #{@source} -h #{@source} -t))
     }.should raise_error("'my/component/23' exists in repository already!")
+  end
+
+  it "should warn about bad parameters" do
+    FileUtils.rm_rf(@metadata_file)
+    KiCommand.new.execute(%W(version-build -f #{@metadata_file} *))
+    lambda {
+      KiCommand.new.execute(%W(version-import -f #{@metadata_file} -i #{@source} -h #{@source}))
+    }.should raise_error("'version_id' has not been set")
+    lambda {
+      KiCommand.new.execute(%W(version-import -f #{@metadata_file} -i #{@source} -h #{@source} -c foo -v foo/1))
+    }.should raise_error("Can't define both specific_version_id 'foo/1' and create_new_version 'foo'!")
   end
 
   it "help should output text" do

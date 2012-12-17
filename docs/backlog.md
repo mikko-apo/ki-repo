@@ -4,10 +4,12 @@
 * fix defined? checks
 * fix double repository entries in finder.all_repositories
 * version() supports > syntax for going to dependency
+* version() returns sometime nil, sometimes Version
 * version!()
 * fix Version.exists? - there should be a better way to check if version exists
 * generate documentation automatically for command line utilities
 * command line tool to list all entries from KiCommand.Registry
+* replace popen4.spawn with Kernel.spawn
 * fix directory structure
 * gem version stored as internally available version number (script backwards compatability)
 * cleanup gem
