@@ -14,9 +14,26 @@ Test
     -c, --commands                   List commands
     -r, --registered                 List all registered extensions
 
-## version-build: Creates version metadata file. Possible to set source info, dependencies, files and operations.
+## version-build: Creates version metadata file
 
-ki version-build
+
+ki version-build can be used to generate version metadata files. Version metadata files
+contain information about files (size, permission bits, hash checksums), version origins
+and dependencies.
+
+After version metadata file is ready, it can be imported to repository using version-import.
+
+### Usage
+
+ki version-build <parameters> file_pattern1*.* file_pattern2*.*
+
+### Examples
+
+    ki version-build test.sh
+    ki version-build readme* -t doc
+    ki version-build -d my/component/1,name=comp,path=doc,internal -O "mv doc/test.sh helloworld.sh"
+
+### Parameters
 
     -f, --file FILE                  Version file target
     -i, --input-directory INPUT-DIR  Input directory
@@ -31,6 +48,7 @@ ki version-build
     -o, --operation OP               Add operation to previous dependency
     -O, --version-operation OP       Add operation to version
 
+
 ## version-test: Tests version's files if they are intact.
 
 Test
@@ -39,7 +57,7 @@ Test
     -i, --input-directory INPUT-DIR  Binary file input directory
     -r, --recursive                  Tests version's dependencies also.'
 
-## version-import: Imports version to local package directories
+## version-import: Imports version metadata and files to repository
 
 Test
 
@@ -51,7 +69,7 @@ Test
         --create-new-version
     -v, --version-id VERSION         Imports version with defined version id'
 
-## version-export: Export version to current directory or selected output directory
+## version-export: Export version to a directory
 
 Test
 
@@ -60,7 +78,7 @@ Test
     -t, --test                       Test version before export
     -c, --copy                       Exported files are copied instead of linked
 
-## version-status: Add status to version to specified package info location
+## version-status: Add status values to version
 
 Test
 

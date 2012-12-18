@@ -38,11 +38,31 @@ module Ki
     end
 
     def help
-      "#{shell_command}\n#{opts}"
+      <<EOF
+
+#{shell_command} can be used to generate version metadata files. Version metadata files
+contain information about files (size, permission bits, hash checksums), version origins
+and dependencies.
+
+After version metadata file is ready, it can be imported to repository using version-import.
+
+### Usage
+
+#{shell_command} <parameters> file_pattern1*.* file_pattern2*.*
+
+### Examples
+
+    #{shell_command} test.sh
+    #{shell_command} readme* -t doc
+    #{shell_command} -d my/component/1,name=comp,path=doc,internal -O "mv doc/test.sh helloworld.sh"
+
+### Parameters
+#{opts}
+EOF
     end
 
     def summary
-      "Creates version metadata file. Possible to set source info, dependencies, files and operations."
+      "Creates version metadata file"
     end
 
     def opts
@@ -150,7 +170,7 @@ module Ki
     end
 
     def summary
-      "Imports version to local package directories"
+      "Imports version metadata and files to repository"
     end
 
     def execute(ctx, args)
@@ -197,7 +217,7 @@ module Ki
     end
 
     def summary
-      "Export version to current directory or selected output directory"
+      "Export version to a directory"
     end
 
     def execute(ctx, args)
@@ -234,7 +254,7 @@ module Ki
     end
 
     def summary
-      "Add status to version to specified package info location"
+      "Add status values to version"
     end
 
     def execute(ctx, args)
