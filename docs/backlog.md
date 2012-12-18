@@ -1,7 +1,6 @@
 # @title Ki: Backlog
 
 # Backlog for 0.2
-* generate documentation automatically for command line utilities
 * fix defined? checks
 * fix double repository entries in finder.all_repositories
 * version() returns sometime nil, sometimes Version

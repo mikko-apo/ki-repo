@@ -108,6 +108,7 @@ module Ki
   class KiCommandHelp
     # Summary
     attr_chain :summary, -> { "Displays help for given Ki command" }
+    attr_chain :help, -> {""}
     # Finds matching command and displays its help
     def execute(ctx, args)
       if args.size == 1

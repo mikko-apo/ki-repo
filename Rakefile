@@ -48,6 +48,35 @@ RSpec::Core::RakeTask.new do |t|
   t.ruby_opts = "-w"
 end
 
+desc "Generates documentation from code"
+task "ki:generate_doc" do
+  require_relative 'lib/ki_repo_all'
+  include Ki
+  pwd = File.dirname(File.expand_path(__FILE__))
+  File.safe_write(File.join(pwd, "docs", "version_commands.md")) do |f|
+    f.puts "# Command line utilities for Ki Repository v#{IO.read(File.join(pwd, 'VERSION'))}"
+    f.puts
+    f.puts "Common parameters:"
+    f.puts KiCommand.new.opts
+    commands = KiCommand::CommandRegistry.find(KiCommand::CommandPrefix[0..-2])
+    commands.each do |id, clazz|
+      f.puts
+      cmd = clazz.new
+      name = id[KiCommand::CommandPrefix.size..-1]
+      if cmd.respond_to?(:shell_command=)
+        cmd.shell_command="ki #{name}"
+      end
+      f.puts "## #{name}: #{cmd.summary}"
+      f.puts
+      help = cmd.help
+      f.write help
+      if !help.end_with?("\n")
+        f.puts
+      end
+    end
+  end
+end
+
 task :default => :spec
 
 require 'yard'

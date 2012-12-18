@@ -100,14 +100,19 @@ require 'fileutils'
 class File
   def File.safe_write(dest, txt=nil, &block)
     tmp = dest + "-" + rand(9999).to_s
-    File.open(tmp, "w") do |file|
-      if block
-        block.call(file)
-      elsif txt
-        file.write(txt)
+    begin
+      File.open(tmp, "w") do |file|
+        if block
+          block.call(file)
+        elsif txt
+          file.write(txt)
+        end
       end
+      FileUtils.mv(tmp, dest)
+    rescue Exception => e
+      FileUtils.remove_entry_secure(tmp)
+      raise
     end
-    FileUtils.mv(tmp, dest)
   end
 end
 

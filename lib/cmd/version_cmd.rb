@@ -47,6 +47,7 @@ module Ki
 
     def opts
       OptionParser.new do |opts|
+        opts.banner = ""
         opts.on("-f", "--file FILE", "Version file target") do |v|
           if !defined? @input_dir
             input_dir(File.dirname(v))
@@ -119,6 +120,7 @@ module Ki
 
     def opts
       OptionParser.new do |opts|
+        opts.banner = ""
         opts.on("-f", "--file FILE", "Version source file. By default uses file's directory as source for binary files.'") do |v|
           if @input_dir.nil?
             dir = File.dirname(v)
@@ -159,6 +161,7 @@ module Ki
 
     def opts
       OptionParser.new do |opts|
+        opts.banner = ""
         opts.on("-f", "--file FILE", "Version source file. By default uses file's directory as source for binary files.'") do |v|
           if !defined? @input_dir
             input_dir(File.dirname(v))
@@ -207,6 +210,7 @@ module Ki
 
     def opts
       OptionParser.new do |opts|
+        opts.banner = ""
         opts.on("-o", "--output-directory INPUT-DIR", "Input directory") do |v|
           out(v)
         end
@@ -321,6 +325,7 @@ module Ki
 
     def opts
       OptionParser.new do |opts|
+        opts.banner = ""
         opts.on("-r", "--recursive", "Shows version's dependencies.'") do |v|
           @recursive = true
         end
