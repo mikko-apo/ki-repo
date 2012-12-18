@@ -86,9 +86,18 @@ describe KiCommand do
 
     end
     KiCommand.register_cmd("test-command", TestCommand)
-    TestCommand.any_instance.expects(:summary).returns("Test command is for testing")
+    TestCommand.any_instance.expects(:summary).returns("Test command is for testing").twice
     @tester.catch_stdio do
-      KiCommand.new.execute(["commands"])
+      KiCommand.new.execute(%W(ki-info))
     end.stdout.join.should =~ /Test command is for testing/
+    @tester.catch_stdio do
+      KiCommand.new.execute(%W(ki-info -c))
+    end.stdout.join.should =~ /Test command is for testing/
+  end
+
+  it "should list registered things" do
+    @tester.catch_stdio do
+      KiCommand.new.execute(%W(ki-info -r))
+    end.stdout.join.should =~ /sha1 \(Ki::SHA1\)/
   end
 end

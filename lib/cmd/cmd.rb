@@ -26,7 +26,7 @@ module Ki
     CommandPrefix = "/commands/"
 
     # Shared KiHome for commands
-    attr_chain :ki_home, -> { KiHome.new( ENV["KIHOME"] || File.expand_path(File.join("~", "ki"))).mkdir }
+    attr_chain :ki_home, -> { KiHome.new(ENV["KIHOME"] || File.expand_path(File.join("~", "ki"))).mkdir }
 
     attr_chain :user_pref, -> { UserPrefFile.new.parent(ki_home) }
 
@@ -53,13 +53,13 @@ module Ki
     end
 
     def find_cmd(name)
-      prefixed_command_names = user_pref.prefixes.map{|p| [p+name, p+"-"+name] }.flatten
+      prefixed_command_names = user_pref.prefixes.map { |p| [p+name, p+"-"+name] }.flatten
 
       # Finds all matching combinations of prefix+name -> there should be exactly one
       all_commands = {}
-      CommandRegistry.find("/commands").each {|(command, clazz)| all_commands[command[CommandPrefix.size..-1]]=clazz}
+      CommandRegistry.find("/commands").each { |(command, clazz)| all_commands[command[CommandPrefix.size..-1]]=clazz }
       prefixed_command_names.unshift(name)
-      found_command_names = prefixed_command_names.select{|p| all_commands.key?(p)}
+      found_command_names = prefixed_command_names.select { |p| all_commands.key?(p) }
 
       # abort if found_command_names.size != 1
       if found_command_names.size > 1
@@ -124,12 +124,12 @@ Usage:
 Info:
   Home directory: #{ctx.ki_home.path}
   Repositories:
-#{finder.all_repositories.map{|repo| "    - #{repo.path} (components: #{repo.components.size})"}.join("\n")}
+#{finder.all_repositories.map { |repo| "    - #{repo.path} (components: #{repo.components.size})" }.join("\n")}
   Components in all repositories: #{finder.components.size}
 
 Available commands:
 EOF
-        KiCommandList.new.execute(ctx, nil)
+        KiInfoCommand.new.execute(ctx, ["-c"])
 
         puts "\nRun '#{$0} help COMMAND' for more information about that command."
       end
@@ -137,19 +137,37 @@ EOF
   end
 
 # Lists available Ki commands
-  class KiCommandList
+  class KiInfoCommand
     # Summary
-    attr_chain :summary, -> { "Lists available Ki commands" }
+    attr_chain :summary, -> { "Show information about Ki" }
     # Finds all commands under /commands and outputs their id and summary
     def execute(ctx, args)
-      commands = KiCommand::CommandRegistry.find(KiCommand::CommandPrefix[0..-2])
-      commands.each do |id, service_class|
-        puts "  #{id[KiCommand::CommandPrefix.size..-1]}: #{service_class.new.summary}"
+      opts.parse(args.empty? ? ["-c"] : args)
+    end
+
+    def opts
+      o = SimpleOptionParser.new do |opts|
+        opts.on("-c", "--commands", "List commands") do |v|
+          commands = KiCommand::CommandRegistry.find(KiCommand::CommandPrefix[0..-2])
+          commands.each do |id, service_class|
+            puts "  #{id[KiCommand::CommandPrefix.size..-1]}: #{service_class.new.summary}"
+          end
+        end
+        opts.on("-r", "--registered", "List all registered extensions") do |v|
+          by_parent = KiCommand::CommandRegistry.by_parent
+          by_parent.keys.sort.each do |parent_key|
+            puts "#{parent_key}:"
+            by_parent[parent_key].each do |url, clazz|
+              puts "  - #{url[parent_key.size+1..-1]} (#{clazz.name})"
+            end
+          end
+        end
       end
+      o
     end
   end
 
   KiCommand.register_cmd("help", KiCommandHelp)
-  KiCommand.register_cmd("commands", KiCommandList)
+  KiCommand.register_cmd("ki-info", KiInfoCommand)
 
 end

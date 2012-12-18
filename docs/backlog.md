@@ -2,7 +2,6 @@
 
 # Backlog for 0.2
 * generate documentation automatically for command line utilities
-* command line tool to list all entries from KiCommand.Registry
 * replace popen4.spawn with Kernel.spawn
 * fix defined? checks
 * fix double repository entries in finder.all_repositories

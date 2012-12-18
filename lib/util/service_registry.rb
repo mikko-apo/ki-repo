@@ -18,6 +18,8 @@ require 'monitor'
 
 module Ki
   class ServiceRegistry < Hash
+    attr_reader :by_parent
+
     def initialize
       @monitor = Monitor.new
       @by_parent = {}

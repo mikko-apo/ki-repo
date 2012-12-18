@@ -154,7 +154,7 @@ EOF
         KiCommand.new.execute(%W(bzip2 a b -h #{@source}))
       end.stdout.join.should eq("bzip2:a,b\n")
       command_list_ouput = @tester.catch_stdio do
-        KiCommand.new.execute(%W(commands -h #{@source}))
+        KiCommand.new.execute(%W(ki-info -h #{@source}))
       end.stdout.join
       command_list_ouput.should =~ /bzip2summary/
       command_list_ouput.should =~ /zipsummary/
