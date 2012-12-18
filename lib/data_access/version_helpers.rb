@@ -134,10 +134,8 @@ module Ki
       end
 
       # creates directories
-      info_components = ki_home.repositories.add_item("site").mkdir.components
-      binaries = ki_home.packages.add_item("packages/local").mkdir.components
-      binary_dest = binaries.add_item(component_id).mkdir.versions.add_version(version_number).mkdir
-      metadata_dir = info_components.add_item(component_id).mkdir.versions.add_version(version_number).mkdir
+      components_dir = ki_home.repositories.add_item("local").mkdir.components
+      binary_dest = metadata_dir = components_dir.add_item(component_id).mkdir.versions.add_version(version_number).mkdir
 
       metadata_dir.metadata.cached_data = metadata.cached_data
       metadata_dir.metadata.version_id = version_id

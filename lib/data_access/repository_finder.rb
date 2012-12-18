@@ -134,9 +134,6 @@ module Ki
       repositories = []
       while (node)
         repositories.concat(node.repositories.to_a)
-        if node.respond_to?(:packages)
-          repositories.concat(node.packages.to_a)
-        end
         if node.root?
           break
         end

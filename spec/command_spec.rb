@@ -36,8 +36,7 @@ describe KiCommand do
     end.stdout.join
     output.should =~ /ki-repo/
     output.should =~ /Home directory: #{@source}/
-    output.should =~ /- #{@source}\/info\/site \(components: 1\)/
-    output.should =~ /- #{@source}\/packages\/local \(components: 1\)/
+    output.should =~ /- #{@source}\/repositories\/local \(components: 1\)/
     output.should =~ /Components in all repositories: 1/
   end
 

@@ -196,22 +196,21 @@ describe "version-test" do
     home = KiHome.new(@source)
     test_comp_13_metadata_dir = home.repositories.add_item("site").mkdir.components.add_item("test/comp").mkdir.versions.add_version("13").mkdir
     test_product_1_metadata = home.repositories.add_item("site").mkdir.components.add_item("test/product").mkdir.versions.add_version("1").mkdir
-    test_comp_13_binary = home.packages.add_item("packages/local").mkdir.components.add_item("test/comp").mkdir.versions.add_version("13").mkdir
-    Tester.write_files(test_comp_13_binary.path, "aa.txt" => "aa")
-    test_comp_13_metadata_dir.metadata.add_files(test_comp_13_binary.path, "*").save
+    Tester.write_files(test_comp_13_metadata_dir.path, "aa.txt" => "aa")
+    test_comp_13_metadata_dir.metadata.add_files(test_comp_13_metadata_dir.path, "*").save
     product_metadata = test_product_1_metadata.metadata
     product_metadata.add_dependency("test/comp/13,name=comp,path=comp")
     product_metadata.save
 #    @tester.catch_stdio do
 #      KiCommand.new.execute(["version-test", "-h", home.path, "-v", "test/product/1", "-r"])
 #    end.stdout.join.should eq("All files ok.\n"
-    Tester.write_files(test_comp_13_binary.path, "aa.txt" => "bb")
+    Tester.write_files(test_comp_13_metadata_dir.path, "aa.txt" => "bb")
 #    @tester.catch_stdio do
 #      KiCommand.new.execute(["version-test", "-h", home.path, "-v", "test/product/1"])
 #    end.stdout.join.should eq("All files ok.\n"
     @tester.catch_stdio do
       KiCommand.new.execute(["version-test", "-h", home.path, "test/product/1", "-r"])
-    end.stdout.join.should eq("#{home.path}/info/site/test/comp/13/ki-version.json: 'aa.txt' wrong hash '#{home.path}/packages/local/test/comp/13/aa.txt'\n")
+    end.stdout.join.should eq("#{home.path}/repositories/site/test/comp/13/ki-version.json: 'aa.txt' wrong hash '#{home.path}/repositories/site/test/comp/13/aa.txt'\n")
   end
 end
 
@@ -309,7 +308,7 @@ describe "version-status" do
     @tester = Tester.new(example.metadata[:full_description])
     @tester.chdir(@source = @tester.tmpdir)
     @home = KiHome.new(@source)
-    @home.repositories.add_item("site").mkdir.components.add_item("my/component").mkdir.versions.add_version("1.2.3").mkdir
+    @home.repositories.add_item("local").mkdir.components.add_item("my/component").mkdir.versions.add_version("1.2.3").mkdir
   end
 
   after do
@@ -324,7 +323,7 @@ describe "version-status" do
 
   it "add status to my/component" do
     KiCommand.new.execute(%W(version-status add my/component/1.2.3 Smoke=Green action=path/123 -h #{@source}))
-    KiJSONFile.load_json(@home.path("info/site/my/component/1.2.3/ki-statuses.json")).should eq([{"key" => "Smoke", "value" => "Green", "action" => "path/123"}])
+    KiJSONFile.load_json(@home.path("repositories/local/my/component/1.2.3/ki-statuses.json")).should eq([{"key" => "Smoke", "value" => "Green", "action" => "path/123"}])
     @home.version("my/component").statuses.should eq([["Smoke", "Green"]])
   end
 
@@ -358,17 +357,17 @@ describe "version-export" do
     KiCommand.new.execute(%W(version-export my/product -o #{out} -h #{@home.path}))
 
     Tester.verify_files(out, true, {"README" => "aa", "readme.txt" => "aa", "test.bat" => "bb", "comp/test.sh" => "bb"})
-    File.readlink(File.join(out, "README")).should eq("#{@source}/packages/local/my/product/2/readme.txt")
-    File.readlink(File.join(out, "readme.txt")).should eq("#{@source}/packages/local/my/product/2/readme.txt")
-    File.readlink(File.join(out, "test.bat")).should eq("#{@source}/packages/local/my/component/23/test.sh")
-    File.readlink(File.join(out, "comp/test.sh")).should eq("#{@source}/packages/local/my/component/23/test.sh")
+    File.readlink(File.join(out, "README")).should eq("#{@source}/repositories/local/my/product/2/readme.txt")
+    File.readlink(File.join(out, "readme.txt")).should eq("#{@source}/repositories/local/my/product/2/readme.txt")
+    File.readlink(File.join(out, "test.bat")).should eq("#{@source}/repositories/local/my/component/23/test.sh")
+    File.readlink(File.join(out, "comp/test.sh")).should eq("#{@source}/repositories/local/my/component/23/test.sh")
     # test before export should warn about broken files
-    Tester.write_files(@source, "packages/local/my/component/23/test.sh" => "cc")
+    Tester.write_files(@source, "repositories/local/my/component/23/test.sh" => "cc")
     @tester.catch_stdio do
       lambda do
         KiCommand.new.execute(%W(version-export my/product -o #{out} -h #{@home.path} -t))
       end.should raise_error("Files are not ok!")
-    end.stdout.join.should eq("#{@source}/info/site/my/component/23/ki-version.json: 'test.sh' wrong hash '#{@source}/packages/local/my/component/23/test.sh'\n")
+    end.stdout.join.should eq("#{@source}/repositories/local/my/component/23/ki-version.json: 'test.sh' wrong hash '#{@source}/repositories/local/my/component/23/test.sh'\n")
   end
 
   it "should export selected files" do
@@ -417,14 +416,14 @@ readme.txt - size: 2, sha1=e0c9035898dd52fc65c41454cec9c4d2611bfb37, tags=bar
 Version operations(1):
 cp readme.txt README
 "
-    product_dirs = "Version directories: #{@source}/info/site/my/product/2, #{@source}/info/site/my/product/2, #{@source}/packages/local/my/product/2, #{@source}/packages/local/my/product/2\n"
+    product_dirs = "Version directories: #{@source}/repositories/local/my/product/2, #{@source}/repositories/local/my/product/2\n"
     product_local_dir = "Version directories: #{Dir.pwd}\n"
     component_str = "Version: my/component/23
 Source: author=john, repotype=git, tag-url=http://test.repo/tags/23, url=http://test.repo/repo@21331
 Files(1):
 test.sh - size: 2, sha1=9a900f538965a426994e1e90600920aff0b4e8d2, tags=foo
 "
-    component_dirs = "Version directories: #{@source}/info/site/my/component/23, #{@source}/info/site/my/component/23, #{@source}/packages/local/my/component/23, #{@source}/packages/local/my/component/23\n"
+    component_dirs = "Version directories: #{@source}/repositories/local/my/component/23, #{@source}/repositories/local/my/component/23\n"
     @tester.catch_stdio do
       KiCommand.new.execute(%W(version-show -h #{@home.path} my/product))
     end.stdout.join.should eq(product_txt)

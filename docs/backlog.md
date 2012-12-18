@@ -2,7 +2,6 @@
 
 # Backlog for 0.2
 * generate documentation automatically for command line utilities
-* replace popen4.spawn with Kernel.spawn
 * fix defined? checks
 * fix double repository entries in finder.all_repositories
 * version() returns sometime nil, sometimes Version
@@ -13,7 +12,6 @@
 * VersionTester should support test_version(metadata, source)
 * cleanup gem
 * cleanup and removal operations
-* remove project stuff
 * document script usage
 * create release notes
 
@@ -25,8 +23,10 @@
 * Support for using files from other repositories
 * when building version create file operations based on user's changes
 * daemon
+* support for separate binaries directory
 
 # Maybe at some point...
+* replace popen4.spawn with Kernel.spawn
 * alias
 * package dep operations: dep-rm, dep-mv, dep-cp, dep-switch
 * named version lists for component my/component#released:Smoke=green

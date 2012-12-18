@@ -31,4 +31,12 @@ describe DirectoryBase do
     DirectoryBase.find!("test", test, root).ki_path.should eq("/test")
     lambda { DirectoryBase.find!("test/2", test, root) }.should raise_error("Could not find 'test/2' from '#{root.path}/test', '#{root.path}'")
   end
+
+  it "should support root" do
+    root = Dir.pwd
+    a = DirectoryBase.new(root)
+    a.root.should eq a
+    b = DirectoryBase.new("b").parent(a)
+    b.root.should eq a
+  end
 end

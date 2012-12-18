@@ -234,7 +234,7 @@ module Ki
     end
 
     def execute(ctx, args)
-      @repository = "site"
+      @repository = "local"
       command = args.delete_at(0)
       case command
         when "add"

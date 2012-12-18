@@ -36,7 +36,7 @@ module Ki
 
     # finds first Repository::Version directory for this version that contains binaries
     def find_binaries
-      component.components.first.root.packages.each do |package_root|
+      finder.all_repositories.each do |package_root|
         binary_dir = package_root.go(version_id)
         if binary_dir.exists?
           return binary_dir

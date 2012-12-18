@@ -27,19 +27,13 @@ describe KiHome do
   end
 
   it "should keep lists of package and package info" do
-    @home.packages.add_item("packages/local")
-    @home.packages.add_item("packages/replicated")
     @home.repositories.add_item("site")
     @home.repositories.add_item("global-ki")
-    [@home.packages, @home.repositories].
+    [@home.repositories].
         map { |list| list.map { |obj| [obj.class, obj.ki_path] } }.should eq([
         [
-            [Repository::Repository, "/packages/local"],
-            [Repository::Repository, "/packages/replicated"]
-        ],
-        [
-            [Repository::Repository, "/info/site"],
-            [Repository::Repository, "/info/global-ki"]
+            [Repository::Repository, "/repositories/site"],
+            [Repository::Repository, "/repositories/global-ki"]
         ]
     ])
   end
@@ -104,20 +98,20 @@ describe KiHome do
     ki_versions = @home.repositories.add_item("project-common").mkdir.components.add_item("ki/core").mkdir.versions
     ki_versions.add_version("1")
     ki_versions.add_version("2")
-    @home.packages.add_item("packages/local").mkdir("ki/core/2")
-    @home.packages.add_item("packages/replicated").mkdir("test/comp/13")
+    @home.repositories.add_item("local").mkdir("ki/core/2")
+    @home.repositories.add_item("replicated").mkdir("test/comp/13")
     latest = @home.version("ki/core")
     latest.version_id.should eq("ki/core/2")
     latest.name.should eq("2")
 #    latest.ki_path.should eq("/test/project/info/project-common/ki/core/2"
-    latest.binaries.ki_path.should eq("/packages/local/ki/core/2")
+    latest.binaries.ki_path.should eq("/repositories/local/ki/core/2")
     specific = @home.version("ki/core/1")
     specific.version_id.should eq("ki/core/1")
 #    specific.ki_path.should eq("/test/project/info/project-common/ki/core/1"
     specific.binaries.should eq(nil)
     replicated = @home.version("test/comp")
 #    replicated.ki_path.should eq("/info/site/test/comp/13"
-    replicated.binaries.ki_path.should eq("/packages/replicated/test/comp/13")
+    replicated.binaries.ki_path.should eq("/repositories/replicated/test/comp/13")
     @home.version(replicated).should eq(replicated)
   end
 end

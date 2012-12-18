@@ -97,9 +97,6 @@ module Ki
         metadata = ver.metadata
         # TODO: file operations should be applied to the files before the files are filtered
         metadata.files.each do |file|
-          if binaries.nil?
-            raise "Could not find binaries directory for '#{ver.version_id}'"
-          end
           path = file["path"]
           file_path = File.join([ver_iterator.package_path, path].compact)
           if ok_to_add_file(file, file_path)

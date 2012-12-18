@@ -20,8 +20,7 @@ describe FileFinder do
   before do
     @tester = Tester.new(example.metadata[:full_description])
     @home = KiHome.new(@tester.tmpdir)
-    @info_components = @home.repositories.add_item("info/site").mkdir.components
-    binaries = @home.packages.add_item("packages/local").mkdir.components
+    binaries = @info_components = @home.repositories.add_item("local").mkdir.components
 
     comp_metadata = @info_components.add_item("test/comp").mkdir.versions.add_version("13").mkdir
     comp_internal_metadata = @info_components.add_item("test/comp-internal").mkdir.versions.add_version("3").mkdir
@@ -127,10 +126,5 @@ describe FileFinder do
     product_metadata.save
     @home.version("main/product").find_files.file_map.should eq({
     })
-  end
-
-  it "should raise exception if no binaries" do
-    FileUtils.rm_rf(@product_internal_binary.path)
-    lambda { @home.version("test/product/1").find_files.file_map }.should raise_error("Could not find binaries directory for 'test/product-internal/2'")
   end
 end

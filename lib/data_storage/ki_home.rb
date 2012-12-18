@@ -21,7 +21,7 @@ module Ki
     class RepositoryListFile
       undef :create_list_item
       def create_list_item(item)
-        Repository::Repository.new("info/" + item).parent(parent).repository_id(item)
+        Repository::Repository.new("repositories/" + item).parent(parent).repository_id(item)
       end
     end
 
@@ -36,6 +36,5 @@ module Ki
 
   class KiHome < DirectoryBase
     include RepositoryMethods
-    DirectoryWithChildrenInListFile.add_list_file(self, Repository::Repository, "package")
   end
 end
