@@ -29,7 +29,7 @@ Gem::Specification.new do |s|
     "lib/data_storage/dir_base.rb",
     "lib/data_storage/ki_json.rb",
     "lib/data_storage/repository.rb",
-    "lib/data_storage/projects.rb",
+    "lib/data_storage/ki_home.rb",
     "lib/data_storage/version_metadata.rb",
     "lib/ki_repo_all.rb",
     "lib/util/attr_chain.rb",
@@ -38,7 +38,6 @@ Gem::Specification.new do |s|
     "lib/util/hash_cache.rb",
     "lib/util/ruby_extensions.rb",
     "lib/util/service_registry.rb",
-    "lib/util/shell.rb",
     "lib/util/test.rb"
   ]
   s.homepage = "http://github.com/mikko-apo/ki-repo"

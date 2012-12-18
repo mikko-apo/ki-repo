@@ -100,4 +100,10 @@ describe KiCommand do
       KiCommand.new.execute(%W(ki-info -r))
     end.stdout.join.should =~ /sha1 \(Ki::SHA1\)/
   end
+
+  it "should list registered things" do
+    @tester.catch_stdio do
+      KiCommand.new.execute(%W(help ki-info))
+    end.stdout.join.should =~ /Test/
+  end
 end

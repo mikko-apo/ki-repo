@@ -145,6 +145,10 @@ EOF
       opts.parse(args.empty? ? ["-c"] : args)
     end
 
+    def help
+      "Test\n#{opts}"
+    end
+
     def opts
       o = SimpleOptionParser.new do |opts|
         opts.on("-c", "--commands", "List commands") do |v|

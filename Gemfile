@@ -30,5 +30,3 @@ group :development do
   gem "rdiscount"
   gem "mocha"
 end
-
-gem "open4"
