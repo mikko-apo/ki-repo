@@ -38,7 +38,7 @@ module Ki
     end
 
     def help
-      "#{shell_command} #{opts}"
+      "#{shell_command}\n#{opts}"
     end
 
     def summary
@@ -111,7 +111,7 @@ module Ki
     end
 
     def help
-      "Test #{opts}"
+      "Test\n#{opts}"
     end
 
     def summary
@@ -146,7 +146,7 @@ module Ki
     attr_chain :importer, -> {}
 
     def help
-      "Test #{opts}"
+      "Test\n#{opts}"
     end
 
     def summary
@@ -193,7 +193,7 @@ module Ki
     attr_chain :out, -> { Dir.pwd }
 
     def help
-      "Test #{opts}"
+      "Test\n#{opts}"
     end
 
     def summary
@@ -262,7 +262,7 @@ module Ki
   # Shows information about a version
   class ShowVersion
     def help
-      "Test #{opts}"
+      "Test\n#{opts}"
     end
 
     def summary

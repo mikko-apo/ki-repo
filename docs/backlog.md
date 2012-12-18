@@ -13,6 +13,7 @@
 * cleanup and removal operations
 * document script usage
 * create release notes
+* update command helps to markdown
 
 # Future releases...
 * website command

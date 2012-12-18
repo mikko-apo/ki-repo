@@ -16,7 +16,8 @@ Test
 
 ## version-build: Creates version metadata file. Possible to set source info, dependencies, files and operations.
 
-ki version-build 
+ki version-build
+
     -f, --file FILE                  Version file target
     -i, --input-directory INPUT-DIR  Input directory
     -v, --version-id VERSION-ID      Version's id
@@ -32,14 +33,16 @@ ki version-build
 
 ## version-test: Tests version's files if they are intact.
 
-Test 
+Test
+
     -f, --file FILE                  Version source file. By default uses file's directory as source for binary files.'
     -i, --input-directory INPUT-DIR  Binary file input directory
     -r, --recursive                  Tests version's dependencies also.'
 
 ## version-import: Imports version to local package directories
 
-Test 
+Test
+
     -f, --file FILE                  Version source file. By default uses file's directory as source for binary files.'
     -i, --input-directory INPUT-DIR  Input directory
     -t, --test-recursive             Tests version's dependencies before importing.'
@@ -50,7 +53,8 @@ Test
 
 ## version-export: Export version to current directory or selected output directory
 
-Test 
+Test
+
     -o, --output-directory INPUT-DIR Input directory
         --tags TAGS                  Select files with matching tag
     -t, --test                       Test version before export
@@ -62,7 +66,8 @@ Test
 
 ## version-show: Prints information about version or versions
 
-Test 
+Test
+
     -r, --recursive                  Shows version's dependencies.'
     -d, --dirs                       Shows version's directories.'
     -f, --file FILE                  Version source file. By default uses file's directory as source for binary files.'
