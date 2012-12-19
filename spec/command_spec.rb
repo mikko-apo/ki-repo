@@ -103,6 +103,6 @@ describe KiCommand do
   it "should list registered things" do
     @tester.catch_stdio do
       KiCommand.new.execute(%W(help ki-info))
-    end.stdout.join.should =~ /Test/
+    end.stdout.join.should =~ /shows information about Ki/
   end
 end

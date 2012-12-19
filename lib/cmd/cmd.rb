@@ -85,7 +85,7 @@ module Ki
       my_args = opts.parse(args.dup)
       load_scripts
       if my_args.empty?
-        KiCommandHelp.new.execute(self, [])
+        KiCommandHelp.new.shell_command("#{0} help").execute(self, [])
       else
         find_cmd(my_args.delete_at(0)).execute(self, my_args)
       end

@@ -26,6 +26,10 @@ describe KiHome do
     @tester.after
   end
 
+  it "should return API version" do
+    KiHome.ki_version.should == IO.read(File.join(File.dirname(File.dirname(__FILE__)), "VERSION"))
+  end
+
   it "should keep lists of package and package info" do
     @home.repositories.add_item("site")
     @home.repositories.add_item("global-ki")

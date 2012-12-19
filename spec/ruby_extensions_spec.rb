@@ -39,7 +39,7 @@ describe Hash do
     h["a", 1].should eq(1)
   end
   it "require should warn if value not defined" do
-    {"a"=>1}.require("a").should eq(1)
+    {"a" => 1}.require("a").should eq(1)
     lambda { {}.require("a") }.should raise_error("'a' is not defined!")
   end
 end
@@ -62,6 +62,12 @@ describe File do
       file.write("2")
     end
     IO.read(dest).should eq("2")
+    lambda do
+      File.safe_write(dest) do |file|
+        file.write("3")
+        raise "foo"
+      end
+    end.should raise_error("foo")
   end
 end
 
@@ -79,7 +85,7 @@ describe Enumerable do
     Test.new.find_first { |c| c==2 }.should eq(2)
   end
   it "to_h should convert list to hash" do
-    ["a=1", "b", "c="].to_h("=").should eq({"a"=>"1", "b"=>true, "c"=>""})
-    ["a=1", "b"].to_h { |i| i.split("=") }.should eq({"a"=>"1", "b"=>nil})
+    ["a=1", "b", "c="].to_h("=").should eq({"a" => "1", "b" => true, "c" => ""})
+    ["a=1", "b"].to_h { |i| i.split("=") }.should eq({"a" => "1", "b" => nil})
   end
 end
