@@ -2,12 +2,10 @@
 
 # Backlog for 0.2
 * fix defined? checks
-* fix double repository entries in finder.all_repositories
+* fix double repository entries in finder.all_repositories "should show imported version"
 * version() returns sometime nil, sometimes Version
 * version!()
 * fix Version.exists? - there should be a better way to check if version exists
-* fix directory structure
-* gem version stored as internally available version number (script backwards compatability)
 * VersionTester should support test_version(metadata, source)
 * cleanup gem
 * cleanup and removal operations

@@ -36,5 +36,8 @@ module Ki
 
   class KiHome < DirectoryBase
     include RepositoryMethods
+    def self.ki_version
+      IO.read(File.expand_path(File.join(File.dirname(__FILE__),"../..", 'VERSION')))
+    end
   end
 end
