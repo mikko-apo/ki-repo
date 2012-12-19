@@ -1,23 +1,36 @@
 # Command line utilities for Ki Repository v0.1.0
 
 Common parameters:
+
     -h, --home                       Path to Ki root directory
     -u, --use                        Use defined scripts
 
 ## help: Displays help for given Ki command
 
+"ki help" shows information Ki and its commands.
+
+### Examples
+
+    ki help
+    ki help version-build
 
 
 ## ki-info: Show information about Ki
 
-Test
+"ki ki-info" shows information about Ki.
+
+### Examples
+
+    ki ki-info -c
+    ki ki-info -r
+
+### Parameters
     -c, --commands                   List commands
     -r, --registered                 List all registered extensions
 
-## version-build: Creates version metadata file
+## version-build: Create version metadata file
 
-
-ki version-build can be used to generate version metadata files. Version metadata files
+"ki version-build" can be used to generate version metadata files. Version metadata files
 contain information about files (size, permission bits, hash checksums), version origins
 and dependencies.
 
@@ -25,7 +38,7 @@ After version metadata file is ready, it can be imported to repository using ver
 
 ### Usage
 
-ki version-build <parameters> file_pattern1*.* file_pattern2*.*
+    ki version-build <parameters> file_pattern1*.* file_pattern2*.*
 
 ### Examples
 

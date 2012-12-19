@@ -39,8 +39,7 @@ module Ki
 
     def help
       <<EOF
-
-#{shell_command} can be used to generate version metadata files. Version metadata files
+"#{shell_command}" can be used to generate version metadata files. Version metadata files
 contain information about files (size, permission bits, hash checksums), version origins
 and dependencies.
 
@@ -48,7 +47,7 @@ After version metadata file is ready, it can be imported to repository using ver
 
 ### Usage
 
-#{shell_command} <parameters> file_pattern1*.* file_pattern2*.*
+    #{shell_command} <parameters> file_pattern1*.* file_pattern2*.*
 
 ### Examples
 
@@ -62,7 +61,7 @@ EOF
     end
 
     def summary
-      "Creates version metadata file"
+      "Create version metadata file"
     end
 
     def opts

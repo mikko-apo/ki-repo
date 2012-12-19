@@ -108,7 +108,20 @@ module Ki
   class KiCommandHelp
     # Summary
     attr_chain :summary, -> { "Displays help for given Ki command" }
-    attr_chain :help, -> {""}
+    attr_chain :shell_command, :require
+
+    def help
+<<EOF
+"#{shell_command}" shows information Ki and its commands.
+
+### Examples
+
+    #{shell_command}
+    #{shell_command} version-build
+
+EOF
+    end
+
     # Finds matching command and displays its help
     def execute(ctx, args)
       if args.size == 1
@@ -119,8 +132,7 @@ module Ki
         puts <<EOF
 ki-repo is a repository for storing packages and metadata.
 
-Usage:
-  #{$0} COMMAND parameters
+#{help}
 
 Info:
   Home directory: #{ctx.ki_home.path}
@@ -141,13 +153,25 @@ EOF
   class KiInfoCommand
     # Summary
     attr_chain :summary, -> { "Show information about Ki" }
+    attr_chain :shell_command, :require
+
     # Finds all commands under /commands and outputs their id and summary
     def execute(ctx, args)
       opts.parse(args.empty? ? ["-c"] : args)
     end
 
     def help
-      "Test\n#{opts}"
+      <<EOF
+"#{shell_command}" shows information about Ki.
+
+### Examples
+
+    #{shell_command} -c
+    #{shell_command} -r
+
+### Parameters
+#{opts}
+EOF
     end
 
     def opts

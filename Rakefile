@@ -57,6 +57,7 @@ task "ki:generate_doc" do
     f.puts "# Command line utilities for Ki Repository v#{IO.read(File.join(pwd, 'VERSION'))}"
     f.puts
     f.puts "Common parameters:"
+    f.puts
     f.puts KiCommand.new.opts
     commands = KiCommand::CommandRegistry.find(KiCommand::CommandPrefix[0..-2])
     commands.each do |id, clazz|
