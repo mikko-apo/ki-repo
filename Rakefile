@@ -53,7 +53,7 @@ task "ki:generate_doc" do
   require_relative 'lib/ki_repo_all'
   include Ki
   pwd = File.dirname(File.expand_path(__FILE__))
-  File.safe_write(File.join(pwd, "docs", "version_commands.md")) do |f|
+  File.safe_write(File.join(pwd, "docs", "ki_commands.md")) do |f|
     f.puts "# Command line utilities for Ki Repository v#{KiHome.ki_version}"
     f.puts
     f.puts "Common parameters:"
