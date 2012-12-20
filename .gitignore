@@ -3,6 +3,7 @@
 .bundle
 .config
 coverage
+internal-docs
 InstalledFiles
 lib/bundler/man
 pkg
