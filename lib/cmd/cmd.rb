@@ -102,6 +102,26 @@ module Ki
       end
       o
     end
+
+    def help
+<<EOF
+"ki" is the main command line tool that starts all other Ki processes. Whenever ki command line tools
+are executed, ki goes through the following startup process
+
+1. Common command line parameters are parsed. These can used to set execution parameters for this invocation.
+2. Extension scripts are loaded from repository. Version configuration is from either -u or user preferences
+3. Find command by name
+4. Execute the command and pass rest of the command line parameters
+
+Examples
+
+    ki build-version *.txt
+
+Common parameters:
+
+#{opts}
+EOF
+    end
   end
 
 # Displays help for given command

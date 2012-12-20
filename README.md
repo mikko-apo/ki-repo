@@ -18,8 +18,7 @@ to manage distributed repositories: downloads and replication.
 # Documentation
 
 * {file:docs/repository_basics.md Repository basics} includes a simple tutorial and explains basic concepts.
-* {file:docs/version_commands.md Version commands} contains documentation for all repository related commands.
-* {file:docs/writing_extensions.md Writing extensions} describes how to extend Ki by writing extension scripts.
+* Ki command line utilies are documented in {file:docs/ki_commands.md}.
 * {file:docs/development.md Development} provides additional development related information.
 
 ## Copyright

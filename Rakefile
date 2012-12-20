@@ -55,10 +55,7 @@ task "ki:generate_doc" do
   pwd = File.dirname(File.expand_path(__FILE__))
   File.safe_write(File.join(pwd, "docs", "ki_commands.md")) do |f|
     f.puts "# Command line utilities for Ki Repository v#{KiHome.ki_version}"
-    f.puts
-    f.puts "Common parameters:"
-    f.puts
-    f.puts KiCommand.new.opts
+    f.puts KiCommand.new.help
     commands = KiCommand::CommandRegistry.find(KiCommand::CommandPrefix[0..-2])
     commands.each do |id, clazz|
       f.puts

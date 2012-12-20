@@ -54,6 +54,7 @@ After version metadata file is ready, it can be imported to repository using ver
     #{shell_command} test.sh
     #{shell_command} readme* -t doc
     #{shell_command} -d my/component/1,name=comp,path=doc,internal -O "mv doc/test.sh helloworld.sh"
+    ki version-import
 
 ### Parameters
 #{opts}
@@ -108,6 +109,8 @@ EOF
   # Tests version from repository or metadata file
   # @see VersionTester
   class TestVersion
+    attr_chain :shell_command, :require
+
     def execute(ctx, args)
       @tester = VersionTester.new.recursive(false).print(true)
       ver_strs = opts.parse(args)
@@ -130,11 +133,21 @@ EOF
     end
 
     def help
-      "Test\n#{opts}"
+      <<EOF
+"#{shell_command}" tests versions, their files and their dependencies. Can also test version that has not been imported yet.
+
+### Examples
+
+    #{shell_command} -r my/product other/product
+    #{shell_command} -f ki-version.json -i file-directory
+
+### Parameters
+#{opts}
+EOF
     end
 
     def summary
-      "Tests version's files if they are intact."
+      "Tests versions and their dependencies"
     end
 
     def opts
@@ -163,19 +176,34 @@ EOF
     attr_chain :input_dir, -> { Dir.pwd }
     attr_chain :file, -> { File.join(input_dir, "ki-version.json") }
     attr_chain :importer, -> {}
-
-    def help
-      "Test\n#{opts}"
-    end
-
-    def summary
-      "Imports version metadata and files to repository"
-    end
+    attr_chain :shell_command, :require
 
     def execute(ctx, args)
       @importer = VersionImporter.new
       opts.parse(args)
       @importer.ki_home(ctx.ki_home).import(file, input_dir)
+    end
+
+    def help
+      <<EOF
+"#{shell_command}" imports version and its files to repository.
+
+Version name can be defined either during "version-build",
+or generated automatically for component at import (with -c my/component) or defined to be a specific version (-v).
+Can also move files (-m), test dependencies before import (-t).
+
+### Examples
+
+    #{shell_command} -m -t -c my/product
+    #{shell_command} -f ki-version.json -i file-directory
+
+### Parameters
+#{opts}
+EOF
+    end
+
+    def summary
+      "Imports version metadata and files to repository"
     end
 
     def opts
@@ -210,14 +238,7 @@ EOF
   # @see VersionExporter
   class ExportVersion
     attr_chain :out, -> { Dir.pwd }
-
-    def help
-      "Test\n#{opts}"
-    end
-
-    def summary
-      "Export version to a directory"
-    end
+    attr_chain :shell_command, :require
 
     def execute(ctx, args)
       @exporter = VersionExporter.new
@@ -225,6 +246,28 @@ EOF
       version = file_patterns.delete_at(0)
       @exporter.find_files.files(file_patterns)
       @exporter.ki_home(ctx.ki_home).export(version, out)
+    end
+
+    def help
+      <<EOF
+"#{shell_command}" exports version and its dependencies to target directory.
+
+### Usage
+
+    #{shell_command} <parameters> <file_export_pattern*.*>
+
+### Examples
+
+    #{shell_command} -o export-dir --tags -c bin my/product
+    #{shell_command} -o scripts -c -t my/admin-tools '*.sh'
+
+### Parameters
+#{opts}
+EOF
+    end
+
+    def summary
+      "Export version to a directory"
     end
 
     def opts
@@ -248,13 +291,7 @@ EOF
 
   # Sets status for version
   class VersionStatus
-    def help
-      "Test"
-    end
-
-    def summary
-      "Add status values to version"
-    end
+    attr_chain :shell_command, :require
 
     def execute(ctx, args)
       @repository = "local"
@@ -276,17 +313,30 @@ EOF
           raise "Not supported '#{command}'"
       end
     end
+
+    def help
+      <<EOF
+"#{shell_command}" sets status values to versions and sets status value order to component.
+
+Status order is used to determine which statuses match version queries:
+
+    my/component:maturity>alpha
+
+### Examples
+
+    #{shell_command} add my/component/1.2.3 Smoke=Green action=path/123
+    #{shell_command} order my/component maturity alpha,beta,gamma
+EOF
+    end
+
+    def summary
+      "Add status values to version"
+    end
   end
 
   # Shows information about a version
   class ShowVersion
-    def help
-      "Test\n#{opts}"
-    end
-
-    def summary
-      "Prints information about version or versions"
-    end
+    attr_chain :shell_command, :require
 
     def execute(ctx, args)
       finder = ctx.ki_home.finder
@@ -342,16 +392,31 @@ EOF
       map.sort.map { |k, v| "#{k}=#{Array.wrap(v).join(",")}" }.join(", ")
     end
 
+    def help
+      <<EOF
+"#{shell_command}" prints information about version or versions and their dependencies
+
+### Examples
+
+    #{shell_command} -r -d my/component/23 my/product/127
+    #{shell_command} -f ki-version.json -i binary-dir
+EOF
+    end
+
+    def summary
+      "Prints information about version or versions"
+    end
+
     def opts
       OptionParser.new do |opts|
         opts.banner = ""
-        opts.on("-r", "--recursive", "Shows version's dependencies.'") do |v|
+        opts.on("-r", "--recursive", "Shows version's dependencies.") do |v|
           @recursive = true
         end
-        opts.on("-d", "--dirs", "Shows version's directories.'") do |v|
+        opts.on("-d", "--dirs", "Shows version's directories.") do |v|
           @dirs = true
         end
-        opts.on("-f", "--file FILE", "Version source file. By default uses file's directory as source for binary files.'") do |v|
+        opts.on("-f", "--file FILE", "Version source file. By default uses file's directory as source for binary files.") do |v|
           if @input_dir.nil?
             dir = File.dirname(v)
             @input_dir = dir != "." ? dir : Dir.pwd
@@ -367,13 +432,7 @@ EOF
 
   # Sets status for version
   class VersionSearch
-    def help
-      "Test"
-    end
-
-    def summary
-      "Searches for versions and components"
-    end
+    attr_chain :shell_command, :require
 
     def execute(ctx, args)
       finder = ctx.ki_home.finder
@@ -392,6 +451,22 @@ EOF
           end
         end
       end
+    end
+
+    def help
+<<EOF
+"#{shell_command}" searches for versions and components.
+
+### Examples
+
+    #{shell_command} my/component
+    #{shell_command} my/*
+
+EOF
+    end
+
+    def summary
+      "Searches for versions and components"
     end
   end
 

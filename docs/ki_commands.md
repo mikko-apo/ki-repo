@@ -1,4 +1,15 @@
 # Command line utilities for Ki Repository v0.1.0
+"ki" is the main command line tool that starts all other Ki processes. Whenever ki command line tools
+are executed, ki goes through the following startup process
+
+1. Common command line parameters are parsed. These can used to set execution parameters for this invocation.
+2. Extension scripts are loaded from repository. Version configuration is from either -u or user preferences
+3. Find command by name
+4. Execute the command and pass rest of the command line parameters
+
+Examples
+
+    ki build-version *.txt
 
 Common parameters:
 
@@ -45,6 +56,7 @@ After version metadata file is ready, it can be imported to repository using ver
     ki version-build test.sh
     ki version-build readme* -t doc
     ki version-build -d my/component/1,name=comp,path=doc,internal -O "mv doc/test.sh helloworld.sh"
+    ki version-import
 
 ### Parameters
 
@@ -62,17 +74,36 @@ After version metadata file is ready, it can be imported to repository using ver
     -O, --version-operation OP       Add operation to version
 
 
-## version-test: Tests version's files if they are intact.
+## version-test: Tests versions and their dependencies
 
-Test
+"ki version-test" tests versions, their files and their dependencies. Can also test version that has not been imported yet.
+
+### Examples
+
+    ki version-test -r my/product other/product
+    ki version-test -f ki-version.json -i file-directory
+
+### Parameters
 
     -f, --file FILE                  Version source file. By default uses file's directory as source for binary files.'
     -i, --input-directory INPUT-DIR  Binary file input directory
     -r, --recursive                  Tests version's dependencies also.'
 
+
 ## version-import: Imports version metadata and files to repository
 
-Test
+"ki version-import" imports version and its files to repository.
+
+Version name can be defined either during "version-build",
+or generated automatically for component at import (with -c my/component) or defined to be a specific version (-v).
+Can also move files (-m), test dependencies before import (-t).
+
+### Examples
+
+    ki version-import -m -t -c my/product
+    ki version-import -f ki-version.json -i file-directory
+
+### Parameters
 
     -f, --file FILE                  Version source file. By default uses file's directory as source for binary files.'
     -i, --input-directory INPUT-DIR  Input directory
@@ -82,31 +113,59 @@ Test
         --create-new-version
     -v, --version-id VERSION         Imports version with defined version id'
 
+
 ## version-export: Export version to a directory
 
-Test
+"ki version-export" exports version and its dependencies to target directory.
+
+### Usage
+
+    ki version-export <parameters> <file_export_pattern*.*>
+
+### Examples
+
+    ki version-export -o export-dir --tags -c bin my/product
+    ki version-export -o scripts -c -t my/admin-tools '*.sh'
+
+### Parameters
 
     -o, --output-directory INPUT-DIR Input directory
         --tags TAGS                  Select files with matching tag
     -t, --test                       Test version before export
     -c, --copy                       Exported files are copied instead of linked
 
+
 ## version-status: Add status values to version
 
-Test
+"ki version-status" sets status values to versions and sets status value order to component.
+
+Status order is used to determine which statuses match version queries:
+
+    my/component:maturity>alpha
+
+### Examples
+
+    ki version-status add my/component/1.2.3 Smoke=Green action=path/123
+    ki version-status order my/component maturity alpha,beta,gamma
 
 ## version-show: Prints information about version or versions
 
-Test
+"ki version-show" prints information about version or versions and their dependencies
 
-    -r, --recursive                  Shows version's dependencies.'
-    -d, --dirs                       Shows version's directories.'
-    -f, --file FILE                  Version source file. By default uses file's directory as source for binary files.'
-    -i, --input-directory INPUT-DIR  Binary file input directory
+### Examples
+
+    ki version-show -r -d my/component/23 my/product/127
+    ki version-show -f ki-version.json -i binary-dir
 
 ## version-search: Searches for versions and components
 
-Test
+"ki version-search" searches for versions and components.
+
+### Examples
+
+    ki version-search my/component
+    ki version-search my/*
+
 
 ## pref: Sets user preferences
 

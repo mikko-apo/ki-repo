@@ -318,7 +318,7 @@ describe "version-status" do
   it "should display help" do
     @tester.catch_stdio do
       KiCommand.new.execute(%W(help version-status))
-    end.stdout.join.should =~ /Test/
+    end.stdout.join.should =~ /sets status values/
   end
 
   it "add status to my/component" do
@@ -404,7 +404,7 @@ describe "version-show" do
   it "should show imported version" do
     @tester.catch_stdio do
       KiCommand.new.execute(["help", "version-show"])
-    end.stdout.join.should =~ /Test/
+    end.stdout.join.should =~ /prints information/
 
     product_txt = "Version: my/product/2
 Dependencies(1):
@@ -461,7 +461,7 @@ describe "version-search" do
   it "should search" do
     @tester.catch_stdio do
       KiCommand.new.execute(%W(help version-search))
-    end.stdout.join.should =~ /Test/
+    end.stdout.join.should =~ /searches for versions/
     @tester.catch_stdio do
       KiCommand.new.execute(%W(version-search my/component -h #{@source}))
     end.stdout.join.should eq("my/component/23\n")

@@ -25,7 +25,7 @@ describe KiCommand do
     @tester.after
   end
 
-  it "should display help if no parameters" do
+  it "should display ki help if no parameters" do
     @tester.chdir(@source = @tester.tmpdir)
     @home = KiHome.new(@source)
     Tester.write_files(@source, "readme.txt" => "aa", "test.sh" => "bb")
@@ -38,6 +38,10 @@ describe KiCommand do
     output.should =~ /Home directory: #{@source}/
     output.should =~ /- #{@source}\/repositories\/local \(components: 1\)/
     output.should =~ /Components in all repositories: 1/
+  end
+
+  it "should have help" do
+    KiCommand.new.help.should =~ /the main command line tool/
   end
 
   it "should warn about unknown command" do
