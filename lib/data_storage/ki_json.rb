@@ -20,6 +20,8 @@ module Ki
   # Base implementation for json files.
   # * DirectoryBase takes a path argument where file will exist
   # * Classes inheriting this file should implement json_default() to define default data object
+  # * cached_data loads data from disk when first accessed and edit_data modifies it
+  # * helper methods should access data through cached_data
   class KiJSONFile < DirectoryBase
     attr_chain :cached_data, -> { load_data_from_file }
 
@@ -28,7 +30,7 @@ module Ki
       KiJSONFile.load_json(path, default)
     end
 
-    # Loads data from file path, makes it editable. Does not update cached_data
+    # Loads data from file path, makes it editable and saves data
     def edit_data(&block)
       @cached_data = load_data_from_file
       block.call(self)
@@ -83,14 +85,14 @@ module Ki
 
   # Base implementation Json hash file
   #
-  # Inheriting classes should implement their values using CachedDataAccessor
+  # Inheriting classes should implement their values using CachedMapDataAccessor
   #     class VersionMetadataFile < KiJSONHashFile {
   #       attr_chain :source, -> { Hash.new }, :accessor => CachedData
   class KiJSONHashFile < KiJSONFile
     include Enumerable
     attr_chain :json_default, -> { Hash.new }
 
-    class CachedDataAccessor
+    class CachedMapDataAccessor
       def get(object, name)
         object.cached_data[name.to_s]
       end
@@ -104,7 +106,7 @@ module Ki
       end
     end
 
-    CachedData = CachedDataAccessor.new
+    CachedData = CachedMapDataAccessor.new
   end
 
   # Helper method for creating list files.

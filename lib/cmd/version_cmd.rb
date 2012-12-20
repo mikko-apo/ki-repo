@@ -89,7 +89,7 @@ EOF
           default_parameters["tags"]= v.split(",").sort
         end
         hash_prefix = "/hashing"
-        hashes = KiCommand::CommandRegistry.find(hash_prefix).map { |k, v| k[hash_prefix.size+1..-1] }
+        hashes = KiCommand::KiExtensions.find(hash_prefix).map { |k, v| k[hash_prefix.size+1..-1] }
         opts.on("--hashes HASHES", "Calculate checksums using defined hash algos. Default: sha1. Available: #{hashes.join(", ")}") do |v|
           default_parameters["hashes"]= v.split(",").sort
         end
@@ -318,7 +318,7 @@ EOF
       <<EOF
 "#{shell_command}" sets status values to versions and sets status value order to component.
 
-Status order is used to determine which statuses match version queries:
+Status value order is used to determine which statuses match version queries:
 
     my/component:maturity>alpha
 
@@ -461,7 +461,6 @@ EOF
 
     #{shell_command} my/component
     #{shell_command} my/*
-
 EOF
     end
 

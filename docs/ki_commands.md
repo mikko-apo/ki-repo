@@ -1,3 +1,4 @@
+# @title Ki: Command line utilities
 # Command line utilities for Ki Repository v0.1.0
 "ki" is the main command line tool that starts all other Ki processes. Whenever ki command line tools
 are executed, ki goes through the following startup process
@@ -10,6 +11,10 @@ are executed, ki goes through the following startup process
 Examples
 
     ki build-version *.txt
+    ki -u my/tools compile
+    ki -u my/tools:scripts,tools compile
+
+note: By default only files with tag "ki-cmd" are used. Use the 'my/tools:scripts,tools' to define additional tags.
 
 Common parameters:
 
@@ -139,7 +144,7 @@ Can also move files (-m), test dependencies before import (-t).
 
 "ki version-status" sets status values to versions and sets status value order to component.
 
-Status order is used to determine which statuses match version queries:
+Status value order is used to determine which statuses match version queries:
 
     my/component:maturity>alpha
 
@@ -165,7 +170,6 @@ Status order is used to determine which statuses match version queries:
 
     ki version-search my/component
     ki version-search my/*
-
 
 ## pref: Sets user preferences
 

@@ -22,7 +22,7 @@ module Ki
 # * all command classes can register themselves using the register_cmd method
   class KiCommand
     # Shared command registry
-    CommandRegistry = ServiceRegistry.new
+    KiExtensions = ServiceRegistry.new
     CommandPrefix = "/commands/"
 
     # Shared KiHome for commands
@@ -36,7 +36,7 @@ module Ki
     end
 
     def self.register(name, clazz)
-      CommandRegistry.register(name, clazz)
+      KiExtensions.register(name, clazz)
     end
 
     def load_scripts
@@ -57,7 +57,7 @@ module Ki
 
       # Finds all matching combinations of prefix+name -> there should be exactly one
       all_commands = {}
-      CommandRegistry.find("/commands").each { |(command, clazz)| all_commands[command[CommandPrefix.size..-1]]=clazz }
+      KiExtensions.find("/commands").each { |(command, clazz)| all_commands[command[CommandPrefix.size..-1]]=clazz }
       prefixed_command_names.unshift(name)
       found_command_names = prefixed_command_names.select { |p| all_commands.key?(p) }
 
@@ -116,6 +116,10 @@ are executed, ki goes through the following startup process
 Examples
 
     ki build-version *.txt
+    ki -u my/tools compile
+    ki -u my/tools:scripts,tools compile
+
+note: By default only files with tag "ki-cmd" are used. Use the 'my/tools:scripts,tools' to define additional tags.
 
 Common parameters:
 
@@ -138,7 +142,6 @@ EOF
 
     #{shell_command}
     #{shell_command} version-build
-
 EOF
     end
 
@@ -153,7 +156,6 @@ EOF
 ki-repo is a repository for storing packages and metadata.
 
 #{help}
-
 Info:
   Home directory: #{ctx.ki_home.path}
   Repositories:
@@ -197,13 +199,13 @@ EOF
     def opts
       o = SimpleOptionParser.new do |opts|
         opts.on("-c", "--commands", "List commands") do |v|
-          commands = KiCommand::CommandRegistry.find(KiCommand::CommandPrefix[0..-2])
+          commands = KiCommand::KiExtensions.find(KiCommand::CommandPrefix[0..-2])
           commands.each do |id, service_class|
             puts "  #{id[KiCommand::CommandPrefix.size..-1]}: #{service_class.new.summary}"
           end
         end
         opts.on("-r", "--registered", "List all registered extensions") do |v|
-          by_parent = KiCommand::CommandRegistry.by_parent
+          by_parent = KiCommand::KiExtensions.by_parent
           by_parent.keys.sort.each do |parent_key|
             puts "#{parent_key}:"
             by_parent[parent_key].each do |url, clazz|

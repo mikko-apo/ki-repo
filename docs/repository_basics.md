@@ -34,7 +34,7 @@
             export/doc/readme.txt
             export/helloworld.sh
 
-# Repository structure: components, versions
+# Repository structure: versions, components
 
 Ki-Repo is a repository for storing file packages and metadata about those packages.
 
@@ -128,16 +128,44 @@ that they affect version's all files (the ones defined in the version and brough
 can also be defined per dependency.
 
 Available file operations:
+
 * cp - copy pattern1 pattern2 ... dest
 * mv - move pattern1 pattern2 ... dest
 * rm - remove.
 
-Examples
+Examples, command line format - json storage format
 
-    "rm *.txt"
-    "cp *.txt sub-directory"
-    "mv *.sh scripts"
+    "rm *.txt" - ["rm", "*.txt"]
+    "cp *.txt sub-directory" - ["cp", "*.txt", "sub-directory"]
+    "mv *.sh scripts" - ["mv", "*.sh", "scripts"]
 
-# Component
+File operations are defined for "version-build" with -o and -O parameters
 
-# Repository
+    ki version-build -d my/tests/a/123,name=tests -o "rm *.txt"
+    ki version-build -O "cp scripts/start.sh start.sh"
+
+## Component
+
+Component has only a two responsibilities:
+
+1. Keep a chronological list of versions
+2. Store status value order for different status fields
+
+Status value order is used to determine which statuses match version queries:
+
+    my/component:maturity>alpha
+
+## Repository
+
+Repository directory keeps a list of all components that have data in the repository.
+
+## KiHome
+
+KiHome is the root directory for Ki. It contains repositories.
+
+# Multiple repositories (TODO)
+
+Ki supports storing information to multiple repositories. It will be possible to use one repository for shared
+artifacts like binaries and store statuses to a different repository. This way it's easy to support for example
+team specific status values for artifacts produced by other team.
+

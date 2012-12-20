@@ -21,7 +21,7 @@ to manage distributed repositories: downloads and replication.
 * Ki command line utilies are documented in {file:docs/ki_commands.md}.
 * {file:docs/development.md Development} provides additional development related information.
 
-## Copyright
+# Copyright
 
-Copyright (c) 2012 Mikko Apo. See LICENSE.txt for further details.
+Copyright (c) 2012 Mikko Apo. See {file:LICENSE.txt} for further details.
 

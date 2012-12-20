@@ -18,6 +18,7 @@ module Ki
   module RepositoryMethods
     DirectoryWithChildrenInListFile.add_list_file(self, Repository::Repository)
 
+    # repositories are stored under repositories directory
     class RepositoryListFile
       undef :create_list_item
       def create_list_item(item)

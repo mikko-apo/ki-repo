@@ -4,21 +4,22 @@
 * fix defined? checks
 * fix double repository entries in finder.all_repositories "should show imported version"
 * cleanup gem
-* document script usage
 * create release notes
 
-# 0.2.1
+# 0.3
 * cleanup and removal operations
 * version() returns sometime nil, sometimes Version
 * version!()
 * fix Version.exists? - there should be a better way to check if version exists
 * VersionTester should support test_version(metadata, source)
 * Download & replication
-* support for separate binaries directory
 * website command
-* daemon
+* daemon: long running processes, web site monitoring
+* multiple local repositories: command line tools and helpers
+* support for separate binaries directory
+* pref: define repository lookup order
 
-# Future releases...
+# Future releases
 * Digital signing
 * Encrypted/packed packages
 * Support for using files from other repositories

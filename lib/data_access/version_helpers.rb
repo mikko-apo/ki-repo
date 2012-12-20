@@ -32,7 +32,7 @@ module Ki
     # @return [bool] returns true if there weren't any problems with the version
     def test_version(root_version, &block)
       all_ok = true
-      possible_hashes = KiCommand::CommandRegistry.find!("/hashing")
+      possible_hashes = KiCommand::KiExtensions.find!("/hashing")
       # iterates through all versions
       root_version.version_iterator.iterate_versions do |v|
         binaries = v.binaries

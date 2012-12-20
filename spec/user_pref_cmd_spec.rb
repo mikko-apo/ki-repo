@@ -19,10 +19,10 @@ require 'spec_helper'
 describe "User prefs" do
   before do
     @tester = Tester.new(example.metadata[:full_description])
-    original_commands = KiCommand::CommandRegistry.dup
+    original_commands = KiCommand::KiExtensions.dup
     @tester.cleaners << lambda do
-      KiCommand::CommandRegistry.clear
-      KiCommand::CommandRegistry.register(original_commands)
+      KiCommand::KiExtensions.clear
+      KiCommand::KiExtensions.register(original_commands)
     end
   end
 
@@ -176,7 +176,7 @@ EOF
         KiCommand.new.execute(%W(bzip2 a b -h #{@source}))
       end.stdout.join.should eq("bzip2:a,b\n")
       # when registry cleared, bzip2 is no longer available
-      KiCommand::CommandRegistry.clear
+      KiCommand::KiExtensions.clear
       lambda {KiCommand.new.execute(%W(-u ki/zip bzip2 a b -h #{@source}))}.should raise_error("No commands match: bzip2")
       # zip is available
       @tester.catch_stdio do

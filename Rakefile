@@ -36,7 +36,7 @@ Jeweler::Tasks.new do |gem|
 #  gem.email = "mikko.apo@reaktor.fi"
   gem.authors = ["Mikko Apo"]
   # dependencies defined in Gemfile
-  gem.files = FileList["lib/**/*.rb", "docs/**/*", "README.md"].to_a
+  gem.files = FileList["lib/**/*.rb", "docs/**/*", "README.md", "LICENSE.txt", "VERSION"].to_a
 end
 Jeweler::RubygemsDotOrgTasks.new
 
@@ -54,9 +54,10 @@ task "ki:generate_doc" do
   include Ki
   pwd = File.dirname(File.expand_path(__FILE__))
   File.safe_write(File.join(pwd, "docs", "ki_commands.md")) do |f|
+    f.puts "# @title Ki: Command line utilities"
     f.puts "# Command line utilities for Ki Repository v#{KiHome.ki_version}"
     f.puts KiCommand.new.help
-    commands = KiCommand::CommandRegistry.find(KiCommand::CommandPrefix[0..-2])
+    commands = KiCommand::KiExtensions.find(KiCommand::CommandPrefix[0..-2])
     commands.each do |id, clazz|
       f.puts
       cmd = clazz.new

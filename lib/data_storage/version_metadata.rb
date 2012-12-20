@@ -49,7 +49,7 @@ module Ki
       if dep_hash["internal"]
         dep_hash["internal"]=true
       end
-      dep_hash.extend(Dependency)
+      dep_hash.extend(DependencyMethods)
       dependencies << dep_hash
       dep_hash
     end
@@ -61,7 +61,7 @@ module Ki
     def VersionMetadataFile.calculate_hashes(full_path, digester_ids)
       digesters = {}
       digester_ids.each do |h|
-        digesters[h] = KiCommand::CommandRegistry.find!(File.join("/hashing", h)).digest
+        digesters[h] = KiCommand::KiExtensions.find!(File.join("/hashing", h)).digest
       end
       algos = digesters.values
       File.open(full_path, "r") do |io|
@@ -121,7 +121,7 @@ module Ki
     end
   end
 
-  module Dependency
+  module DependencyMethods
     attr_chain :operations, -> { Array.new }, :accessor => AttrChain::HashAccess
 
     def add_operation(args)
