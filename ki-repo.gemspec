@@ -25,7 +25,6 @@ Gem::Specification.new do |s|
     "docs/development_setup.md",
     "docs/images/for_git.txt",
     "docs/ki_commands.md",
-    "docs/reddit.txt",
     "docs/repository_basics.md",
     "docs/writing_extensions.md",
     "lib/cmd/cmd.rb",
