@@ -172,27 +172,27 @@ Status order is used to determine which statuses match version queries:
 Sets user preferences
 Syntax: ki pref prefix|use parameters...
 
-Examples for command prefixes:
-  ki pref prefix
-  - shows command prefixes, when a "ki command" is executed ki looks for the command with all prefix combinations
-  ki pref prefix version package
-  - sets two command prefixes, looks for "command", "version-command" and "package-command"
-  ki pref prefix + foo
-  - adds one command prefix to existing ones, looks for "command", "version-command", "package-command", "foo-command"
-  ki pref prefix - package foo
-  - removes two command prefixes from list
-  ki pref prefix -c
-  - clears command prefix list
+### Examples for command prefixes:
+    ki pref prefix
+    - shows command prefixes, when a "ki command" is executed ki looks for the command with all prefix combinations
+    ki pref prefix version package
+    - sets two command prefixes, looks for "command", "version-command" and "package-command"
+    ki pref prefix + foo
+    - adds one command prefix to existing ones, looks for "command", "version-command", "package-command", "foo-command"
+    ki pref prefix - package foo
+    - removes two command prefixes from list
+    ki pref prefix -c
+    - clears command prefix list
 
-Examples for automatic script loading:
-  ki pref use
-  - shows list of automatically loading scripts. when ki starts up, it looks for all defined versions and loads all files tagged with ki-cmd
-  ki pref use ki/http ki/ftp/123:ki-extra
-  - scripts are loaded from two different version. ki/http uses latest available version and files tagged with "ki-cmd", ki/ftp uses specific version and files tagged with "ki-extra"
-  ki pref use + ki/scp
-  - adds one more script package version
-  ki pref use - ki/scp ki/ftp/123:ki-extra
-  - removes two configurations
-  ki pref use -c
-  - clear use list
+### Examples for automatic script loading:
+    ki pref use
+    - shows list of automatically loading scripts. when ki starts up, it looks for all defined versions and loads all files tagged with ki-cmd
+    ki pref use ki/http ki/ftp/123:ki-extra
+    - scripts are loaded from two different version. ki/http uses latest available version and files tagged with "ki-cmd", ki/ftp uses specific version and files tagged with "ki-extra"
+    ki pref use + ki/scp
+    - adds one more script package version
+    ki pref use - ki/scp ki/ftp/123:ki-extra
+    - removes two configurations
+    ki pref use -c
+    - clear use list
 

@@ -36,29 +36,29 @@ module Ki
 #{summary}
 Syntax: #{shell_command} prefix|use parameters...
 
-Examples for command prefixes:
-  #{shell_command} prefix
-  - shows command prefixes, when a "ki command" is executed ki looks for the command with all prefix combinations
-  #{shell_command} prefix version package
-  - sets two command prefixes, looks for "command", "version-command" and "package-command"
-  #{shell_command} prefix + foo
-  - adds one command prefix to existing ones, looks for "command", "version-command", "package-command", "foo-command"
-  #{shell_command} prefix - package foo
-  - removes two command prefixes from list
-  #{shell_command} prefix -c
-  - clears command prefix list
+### Examples for command prefixes:
+    #{shell_command} prefix
+    - shows command prefixes, when a "ki command" is executed ki looks for the command with all prefix combinations
+    #{shell_command} prefix version package
+    - sets two command prefixes, looks for "command", "version-command" and "package-command"
+    #{shell_command} prefix + foo
+    - adds one command prefix to existing ones, looks for "command", "version-command", "package-command", "foo-command"
+    #{shell_command} prefix - package foo
+    - removes two command prefixes from list
+    #{shell_command} prefix -c
+    - clears command prefix list
 
-Examples for automatic script loading:
-  #{shell_command} use
-  - shows list of automatically loading scripts. when ki starts up, it looks for all defined versions and loads all files tagged with ki-cmd
-  #{shell_command} use ki/http ki/ftp/123:ki-extra
-  - scripts are loaded from two different version. ki/http uses latest available version and files tagged with "ki-cmd", ki/ftp uses specific version and files tagged with "ki-extra"
-  #{shell_command} use + ki/scp
-  - adds one more script package version
-  #{shell_command} use - ki/scp ki/ftp/123:ki-extra
-  - removes two configurations
-  #{shell_command} use -c
-  - clear use list
+### Examples for automatic script loading:
+    #{shell_command} use
+    - shows list of automatically loading scripts. when ki starts up, it looks for all defined versions and loads all files tagged with ki-cmd
+    #{shell_command} use ki/http ki/ftp/123:ki-extra
+    - scripts are loaded from two different version. ki/http uses latest available version and files tagged with "ki-cmd", ki/ftp uses specific version and files tagged with "ki-extra"
+    #{shell_command} use + ki/scp
+    - adds one more script package version
+    #{shell_command} use - ki/scp ki/ftp/123:ki-extra
+    - removes two configurations
+    #{shell_command} use -c
+    - clear use list
 
 EOF
     end
