@@ -1,5 +1,5 @@
 # @title Ki: Command line utilities
-# Command line utilities for Ki Repository v0.1.0
+# Command line utilities for Ki Repository v0.1.1
 "ki" is the main command line tool that starts all other Ki processes. Whenever ki command line tools
 are executed, ki goes through the following startup process
 
@@ -29,7 +29,6 @@ Common parameters:
 
     ki help
     ki help version-build
-
 
 ## ki-info: Show information about Ki
 

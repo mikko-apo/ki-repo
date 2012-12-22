@@ -7,7 +7,6 @@
 * create release notes
 
 # 0.3
-* cleanup and removal operations
 * version() returns sometime nil, sometimes Version
 * version!()
 * fix Version.exists? - there should be a better way to check if version exists
@@ -16,14 +15,16 @@
 * website command
 * daemon: long running processes, web site monitoring
 * multiple local repositories: command line tools and helpers
-* support for separate binaries directory
 * pref: define repository lookup order
+* support for separate binaries directory
+* cleanup and removal operations
 
 # Future releases
 * Digital signing
 * Encrypted/packed packages
 * Support for using files from other repositories
 * when building version create file operations based on user's changes
+* version retention strategy visible from source
 
 # Maybe at some point...
 * replace popen4.spawn with Kernel.spawn

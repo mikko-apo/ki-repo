@@ -52,28 +52,8 @@ desc "Generates documentation from code"
 task "ki:generate_doc" do
   require_relative 'lib/ki_repo_all'
   include Ki
-  pwd = File.dirname(File.expand_path(__FILE__))
-  File.safe_write(File.join(pwd, "docs", "ki_commands.md")) do |f|
-    f.puts "# @title Ki: Command line utilities"
-    f.puts "# Command line utilities for Ki Repository v#{KiHome.ki_version}"
-    f.puts KiCommand.new.help
-    commands = KiCommand::KiExtensions.find(KiCommand::CommandPrefix[0..-2])
-    commands.each do |id, clazz|
-      f.puts
-      cmd = clazz.new
-      name = id[KiCommand::CommandPrefix.size..-1]
-      if cmd.respond_to?(:shell_command=)
-        cmd.shell_command="ki #{name}"
-      end
-      f.puts "## #{name}: #{cmd.summary}"
-      f.puts
-      help = cmd.help
-      f.write help
-      if !help.end_with?("\n")
-        f.puts
-      end
-    end
-  end
+  require_relative 'lib-generate/generate'
+  FileGenerator.new.build_ki_commands_doc
 end
 
 task :default => :spec
