@@ -39,6 +39,30 @@ module Ki
       KiExtensions.register(name, clazz)
     end
 
+    # bin/kaiju command line tool calls this method, which finds the correct class to manage the execution
+    def execute(args)
+      @use = []
+      my_args = opts.parse(args.dup)
+      load_scripts
+      if my_args.empty?
+        KiCommandHelp.new.shell_command("#{0} help").execute(self, [])
+      else
+        find_cmd(my_args.delete_at(0)).execute(self, my_args)
+      end
+    end
+
+    def opts
+      o = SimpleOptionParser.new do |opts|
+        opts.on("-h", "--home HOME-PATH", "Path to Ki root directory") do |v|
+          ki_home(KiHome.new(v))
+        end
+        opts.on("-u", "--use VER", "Use defined scripts") do |v|
+          @use << v
+        end
+      end
+      o
+    end
+
     def load_scripts
       # load all script files defined in UserPrefFile uses
       uses = @use.empty? ? user_pref.uses : @use
@@ -79,30 +103,6 @@ module Ki
       cmd
     end
 
-    # bin/kaiju command line tool calls this method, which finds the correct class to manage the execution
-    def execute(args)
-      @use = []
-      my_args = opts.parse(args.dup)
-      load_scripts
-      if my_args.empty?
-        KiCommandHelp.new.shell_command("#{0} help").execute(self, [])
-      else
-        find_cmd(my_args.delete_at(0)).execute(self, my_args)
-      end
-    end
-
-    def opts
-      o = SimpleOptionParser.new do |opts|
-        opts.on("-h", "--home HOME-PATH", "Path to Ki root directory") do |v|
-          ki_home(KiHome.new(v))
-        end
-        opts.on("-u", "--use VER", "Use defined scripts") do |v|
-          @use << v
-        end
-      end
-      o
-    end
-
     def help
 <<EOF
 "ki" is the main command line tool that starts all other Ki processes. Whenever ki command line tools
@@ -134,17 +134,6 @@ EOF
     attr_chain :summary, -> { "Displays help for given Ki command" }
     attr_chain :shell_command, :require
 
-    def help
-<<EOF
-"#{shell_command}" shows information Ki and its commands.
-
-### Examples
-
-    #{shell_command}
-    #{shell_command} version-build
-EOF
-    end
-
     # Finds matching command and displays its help
     def execute(ctx, args)
       if args.size == 1
@@ -169,6 +158,17 @@ EOF
         puts "\nRun '#{$0} help COMMAND' for more information about that command."
       end
     end
+
+    def help
+<<EOF
+"#{shell_command}" shows information Ki and its commands.
+
+### Examples
+
+    #{shell_command}
+    #{shell_command} version-build
+EOF
+    end
   end
 
 # Lists available Ki commands
@@ -182,22 +182,8 @@ EOF
       opts.parse(args.empty? ? ["-c"] : args)
     end
 
-    def help
-      <<EOF
-"#{shell_command}" shows information about Ki.
-
-### Examples
-
-    #{shell_command} -c
-    #{shell_command} -r
-
-### Parameters
-#{opts}
-EOF
-    end
-
     def opts
-      o = SimpleOptionParser.new do |opts|
+      SimpleOptionParser.new do |opts|
         opts.on("-c", "--commands", "List commands") do |v|
           commands = KiCommand::KiExtensions.find(KiCommand::CommandPrefix[0..-2])
           commands.each do |id, service_class|
@@ -214,7 +200,20 @@ EOF
           end
         end
       end
-      o
+    end
+
+    def help
+      <<EOF
+"#{shell_command}" shows information about Ki.
+
+### Examples
+
+    #{shell_command} -c
+    #{shell_command} -r
+
+### Parameters
+#{opts}
+EOF
     end
   end
 

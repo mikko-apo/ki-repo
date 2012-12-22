@@ -37,34 +37,6 @@ module Ki
       metadata_file.save
     end
 
-    def help
-      <<EOF
-"#{shell_command}" can be used to generate version metadata files. Version metadata files
-contain information about files (size, permission bits, hash checksums), version origins
-and dependencies.
-
-After version metadata file is ready, it can be imported to repository using version-import.
-
-### Usage
-
-    #{shell_command} <parameters> file_pattern1*.* file_pattern2*.*
-
-### Examples
-
-    #{shell_command} test.sh
-    #{shell_command} readme* -t doc
-    #{shell_command} -d my/component/1,name=comp,path=doc,internal -O "mv doc/test.sh helloworld.sh"
-    ki version-import
-
-### Parameters
-#{opts}
-EOF
-    end
-
-    def summary
-      "Create version metadata file"
-    end
-
     def opts
       OptionParser.new do |opts|
         opts.banner = ""
@@ -104,6 +76,34 @@ EOF
         end
       end
     end
+
+    def summary
+      "Create version metadata file"
+    end
+
+    def help
+      <<EOF
+"#{shell_command}" can be used to generate version metadata files. Version metadata files
+contain information about files (size, permission bits, hash checksums), version origins
+and dependencies.
+
+After version metadata file is ready, it can be imported to repository using version-import.
+
+### Usage
+
+    #{shell_command} <parameters> file_pattern1*.* file_pattern2*.*
+
+### Examples
+
+    #{shell_command} test.sh
+    #{shell_command} readme* -t doc
+    #{shell_command} -d my/component/1,name=comp,path=doc,internal -O "mv doc/test.sh helloworld.sh"
+    ki version-import
+
+### Parameters
+#{opts}
+EOF
+    end
   end
 
   # Tests version from repository or metadata file
@@ -132,24 +132,6 @@ EOF
       end
     end
 
-    def help
-      <<EOF
-"#{shell_command}" tests versions, their files and their dependencies. Can also test version that has not been imported yet.
-
-### Examples
-
-    #{shell_command} -r my/product other/product
-    #{shell_command} -f ki-version.json -i file-directory
-
-### Parameters
-#{opts}
-EOF
-    end
-
-    def summary
-      "Tests versions and their dependencies"
-    end
-
     def opts
       OptionParser.new do |opts|
         opts.banner = ""
@@ -168,6 +150,24 @@ EOF
         end
       end
     end
+
+    def summary
+      "Tests versions and their dependencies"
+    end
+
+    def help
+      <<EOF
+"#{shell_command}" tests versions, their files and their dependencies. Can also test version that has not been imported yet.
+
+### Examples
+
+    #{shell_command} -r my/product other/product
+    #{shell_command} -f ki-version.json -i file-directory
+
+### Parameters
+#{opts}
+EOF
+    end
   end
 
   # Imports version and its files to repository
@@ -182,28 +182,6 @@ EOF
       @importer = VersionImporter.new
       opts.parse(args)
       @importer.ki_home(ctx.ki_home).import(file, input_dir)
-    end
-
-    def help
-      <<EOF
-"#{shell_command}" imports version and its files to repository.
-
-Version name can be defined either during "version-build",
-or generated automatically for component at import (with -c my/component) or defined to be a specific version (-v).
-Can also move files (-m), test dependencies before import (-t).
-
-### Examples
-
-    #{shell_command} -m -t -c my/product
-    #{shell_command} -f ki-version.json -i file-directory
-
-### Parameters
-#{opts}
-EOF
-    end
-
-    def summary
-      "Imports version metadata and files to repository"
     end
 
     def opts
@@ -232,6 +210,28 @@ EOF
         end
       end
     end
+
+    def summary
+      "Imports version metadata and files to repository"
+    end
+
+    def help
+      <<EOF
+"#{shell_command}" imports version and its files to repository.
+
+Version name can be defined either during "version-build",
+or generated automatically for component at import (with -c my/component) or defined to be a specific version (-v).
+Can also move files (-m), test dependencies before import (-t).
+
+### Examples
+
+    #{shell_command} -m -t -c my/product
+    #{shell_command} -f ki-version.json -i file-directory
+
+### Parameters
+#{opts}
+EOF
+    end
   end
 
   # Exports version from repository to target directory
@@ -246,28 +246,6 @@ EOF
       version = file_patterns.delete_at(0)
       @exporter.find_files.files(file_patterns)
       @exporter.ki_home(ctx.ki_home).export(version, out)
-    end
-
-    def help
-      <<EOF
-"#{shell_command}" exports version and its dependencies to target directory.
-
-### Usage
-
-    #{shell_command} <parameters> <file_export_pattern*.*>
-
-### Examples
-
-    #{shell_command} -o export-dir --tags -c bin my/product
-    #{shell_command} -o scripts -c -t my/admin-tools '*.sh'
-
-### Parameters
-#{opts}
-EOF
-    end
-
-    def summary
-      "Export version to a directory"
     end
 
     def opts
@@ -286,6 +264,28 @@ EOF
           @exporter.copy=true
         end
       end
+    end
+
+    def summary
+      "Export version to a directory"
+    end
+
+    def help
+      <<EOF
+"#{shell_command}" exports version and its dependencies to target directory.
+
+### Usage
+
+    #{shell_command} <parameters> <file_export_pattern*.*>
+
+### Examples
+
+    #{shell_command} -o export-dir --tags -c bin my/product
+    #{shell_command} -o scripts -c -t my/admin-tools '*.sh'
+
+### Parameters
+#{opts}
+EOF
     end
   end
 
@@ -314,6 +314,10 @@ EOF
       end
     end
 
+    def summary
+      "Add status values to version"
+    end
+
     def help
       <<EOF
 "#{shell_command}" sets status values to versions and sets status value order to component.
@@ -327,10 +331,6 @@ Status value order is used to determine which statuses match version queries:
     #{shell_command} add my/component/1.2.3 Smoke=Green action=path/123
     #{shell_command} order my/component maturity alpha,beta,gamma
 EOF
-    end
-
-    def summary
-      "Add status values to version"
     end
   end
 
@@ -392,21 +392,6 @@ EOF
       map.sort.map { |k, v| "#{k}=#{Array.wrap(v).join(",")}" }.join(", ")
     end
 
-    def help
-      <<EOF
-"#{shell_command}" prints information about version or versions and their dependencies
-
-### Examples
-
-    #{shell_command} -r -d my/component/23 my/product/127
-    #{shell_command} -f ki-version.json -i binary-dir
-EOF
-    end
-
-    def summary
-      "Prints information about version or versions"
-    end
-
     def opts
       OptionParser.new do |opts|
         opts.banner = ""
@@ -427,6 +412,21 @@ EOF
           @input_dir = v
         end
       end
+    end
+
+    def summary
+      "Prints information about version or versions"
+    end
+
+    def help
+      <<EOF
+"#{shell_command}" prints information about version or versions and their dependencies
+
+### Examples
+
+    #{shell_command} -r -d my/component/23 my/product/127
+    #{shell_command} -f ki-version.json -i binary-dir
+EOF
     end
   end
 
@@ -453,6 +453,10 @@ EOF
       end
     end
 
+    def summary
+      "Searches for versions and components"
+    end
+
     def help
 <<EOF
 "#{shell_command}" searches for versions and components.
@@ -462,10 +466,6 @@ EOF
     #{shell_command} my/component
     #{shell_command} my/*
 EOF
-    end
-
-    def summary
-      "Searches for versions and components"
     end
   end
 
