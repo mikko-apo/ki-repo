@@ -416,14 +416,14 @@ readme.txt - size: 2, sha1=e0c9035898dd52fc65c41454cec9c4d2611bfb37, tags=bar
 Version operations(1):
 cp readme.txt README
 "
-    product_dirs = "Version directories: #{@source}/repositories/local/my/product/2, #{@source}/repositories/local/my/product/2\n"
+    product_dirs = "Version directories: #{@source}/repositories/local/my/product/2\n"
     product_local_dir = "Version directories: #{Dir.pwd}\n"
     component_str = "Version: my/component/23
 Source: author=john, repotype=git, tag-url=http://test.repo/tags/23, url=http://test.repo/repo@21331
 Files(1):
 test.sh - size: 2, sha1=9a900f538965a426994e1e90600920aff0b4e8d2, tags=foo
 "
-    component_dirs = "Version directories: #{@source}/repositories/local/my/component/23, #{@source}/repositories/local/my/component/23\n"
+    component_dirs = "Version directories: #{@source}/repositories/local/my/component/23\n"
     @tester.catch_stdio do
       KiCommand.new.execute(%W(version-show -h #{@home.path} my/product))
     end.stdout.join.should eq(product_txt)

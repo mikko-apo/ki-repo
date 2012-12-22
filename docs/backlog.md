@@ -2,7 +2,6 @@
 
 # Backlog for 0.2
 * fix defined? checks
-* fix double repository entries in finder.all_repositories "should show imported version"
 * cleanup gem
 * create release notes
 

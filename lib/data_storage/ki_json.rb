@@ -71,7 +71,9 @@ module Ki
 
     def add_item(obj)
       edit_data do
-        @cached_data << obj
+        if !@cached_data.include?(obj)
+          @cached_data << obj
+        end
       end
       create_list_item(obj)
     end
