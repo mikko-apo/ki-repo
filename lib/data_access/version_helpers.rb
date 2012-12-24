@@ -104,14 +104,14 @@ module Ki
     end
 
     def import_from_metadata(metadata, source=nil)
-      if defined?(@specific_version_id) && defined?(@create_new_version)
+      if specific_version_id && create_new_version
         raise "Can't define both specific_version_id '#{specific_version_id}' and create_new_version '#{create_new_version}'!"
       end
 
-      if defined?(@specific_version_id)
-        version_id = @specific_version_id
-      elsif defined? @create_new_version
-        component_id = @create_new_version
+      if specific_version_id
+        version_id = specific_version_id
+      elsif create_new_version
+        component_id = create_new_version
         version = finder.version(component_id)
         if version
           id = version.version_id.split("/").last
@@ -140,7 +140,7 @@ module Ki
       metadata_dir.metadata.cached_data = metadata.cached_data
       metadata_dir.metadata.version_id = version_id
       metadata_dir.metadata.save
-      if defined? @move_files
+      if move_files
         FileUtils.rm(metadata.path)
       end
       source_dirs = []
@@ -158,7 +158,7 @@ module Ki
 
 
     def delete_empty_source_dirs(source, source_dirs)
-      if defined? @move_files
+      if move_files
         expanded_source_dirs = {}
         source_dirs.each do |d|
           dir_entries(d).each do |expanded|
@@ -179,7 +179,7 @@ module Ki
       arr = str.split("/")
       ret = []
       c = arr.size
-      while (c > 0)
+      while c > 0
         ret << File.join(arr[0..c])
         c-=1
       end
@@ -187,7 +187,7 @@ module Ki
     end
 
     def to_repo(src, dest)
-      if defined? @move_files
+      if move_files
         FileUtils.mv(src, dest)
       else
         FileUtils.cp(src, dest)
@@ -223,7 +223,7 @@ module Ki
         if dir != "."
           FileUtils.mkdir_p File.join(out, dir)
         end
-        if defined? @copy
+        if copy
           FileUtils.cp(full_path, File.join(out, file_path))
         else
           FileUtils.ln_sf(full_path, File.join(out, file_path))

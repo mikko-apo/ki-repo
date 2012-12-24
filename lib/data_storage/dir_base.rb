@@ -15,8 +15,24 @@
 # limitations under the License.
 
 module Ki
-  module DirectoryBaseModule
+
+  class DirectoryBase
     attr_chain :parent, :require
+
+    def initialize(path)
+      init_from_path(path)
+    end
+
+    def self.find!(path, *locations)
+      locations.each do |loc|
+        dest = loc.go(path)
+        if dest.exists?
+          return dest
+        end
+      end
+      raise "Could not find '#{path}' from '#{locations.map { |l| l.path }.join("', '")}'"
+    end
+
 
     def init_from_path(path)
       @path = path
@@ -83,24 +99,6 @@ module Ki
 
     def child(name)
       DirectoryBase.new(name)
-    end
-  end
-
-  class DirectoryBase
-    include DirectoryBaseModule
-
-    def initialize(path)
-      init_from_path(path)
-    end
-
-    def self.find!(path, *locations)
-      locations.each do |loc|
-        dest = loc.go(path)
-        if dest.exists?
-          return dest
-        end
-      end
-      raise "Could not find '#{path}' from '#{locations.map { |l| l.path }.join("', '")}'"
     end
   end
 end
