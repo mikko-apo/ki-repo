@@ -27,7 +27,17 @@ Ki's extension mechanism makes it easy to manage different scenarios:
 * use different versions of those utilities at the same time on the same machine (backwards compatability)
 * add new features to existing utilities: hashing algorithms, integrations to different tools like git, mercurial and svn
 
-# Command line utility
+# Extension points
+
+{Ki::KiCommand} stores all registered extensions to its class variable {Ki::KiCommand::KiExtensions} ({Ki::ServiceRegistry}).
+
+Currently used extension points are:
+
+* /commands/
+* /hashing/
+* /web/
+
+## Command line utility - /commands/
 
 Command classes are registered with KiCommand.register_cmd
 
@@ -40,11 +50,18 @@ They should implement following methods:
 
 For more information, see {Ki::ImportVersion}
 
-# Extension points
+## Cryptographic hash functions - /hashing/
 
-{Ki::KiCommand} stores all registered extensions to its class variable {Ki::KiCommand::KiExtensions} ({Ki::ServiceRegistry}).
+Classes used for hashing must implement class method digest which returns a class extending Digest::Class
 
-Currently used extension points are:
+For more information, see {Ki::SHA2} and {Digest::SHA2}
 
-* /commands/
-* /hashing/
+## Web classes - /web/
+
+Ki-repo includes support for running web applications. Web applications are created by creating Rack application classes
+and tagging each file containing classes with "ki-cmd". That way "ki" command loads files and {Ki::RackCommand} starts
+web application from classes that were loaded. Each class is registered to the path remaining from registration key:
+
+    KiCommand.register("/web/test", MyApp2)
+
+For more information, see {Ki::RackCommand}

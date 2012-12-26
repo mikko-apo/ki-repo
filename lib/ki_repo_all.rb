@@ -40,3 +40,6 @@ require_relative 'data_access/version_iterators'
 require_relative 'cmd/cmd'
 require_relative 'cmd/version_cmd'
 require_relative 'cmd/user_pref_cmd'
+
+require_relative 'web/default_rack_handler'
+require_relative 'web/rack_cmd'

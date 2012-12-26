@@ -16,6 +16,7 @@ Follow the instructions here: {file:docs/development_setup.md}
 * {Ki::KiCommandHelp}, {Ki::KiInfoCommand} - help, ki-info
 * {Ki::UserPrefCommand} - Stored preferences
 * {Ki::BuildVersionMetadataFile}, {Ki::TestVersion}, {Ki::ImportVersion}, {Ki::ExportVersion}, {Ki::VersionStatus}, {Ki::ShowVersion}, {Ki::VersionSearch} - repository management
+* {Ki::RackCommand} - Starts up web application
 
 ## Data storage - files and directories
 

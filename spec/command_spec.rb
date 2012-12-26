@@ -62,11 +62,7 @@ describe KiCommand do
   end
 
   it "should support pluggable commands" do
-    original_commands = KiCommand::KiExtensions.dup
-    @tester.cleaners << lambda do
-      KiCommand::KiExtensions.clear
-      KiCommand::KiExtensions.register(original_commands)
-    end
+    restore_extensions
     class TestCommand
 
     end
@@ -80,11 +76,7 @@ describe KiCommand do
   end
 
   it "should list available commands" do
-    original_commands = KiCommand::KiExtensions.dup
-    @tester.cleaners << lambda do
-      KiCommand::KiExtensions.clear
-      KiCommand::KiExtensions.register(original_commands)
-    end
+    restore_extensions
     class TestCommand
 
     end

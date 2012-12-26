@@ -199,3 +199,8 @@ Syntax: ki pref prefix|use parameters...
     ki pref use -c
     - clear use list
 
+
+## web: Starts Ki web server and uses code from Ki packages
+
+ki-repo has a built in web server. It can be controlled with following commands
+  ki web start - starts web server

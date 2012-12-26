@@ -19,11 +19,7 @@ require 'spec_helper'
 describe "User prefs" do
   before do
     @tester = Tester.new(example.metadata[:full_description])
-    original_commands = KiCommand::KiExtensions.dup
-    @tester.cleaners << lambda do
-      KiCommand::KiExtensions.clear
-      KiCommand::KiExtensions.register(original_commands)
-    end
+    restore_extensions
   end
 
   after do

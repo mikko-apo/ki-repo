@@ -1,22 +1,20 @@
-# @title Ki: Backlog
+# @title ki-repo: Backlog
 
-# Backlog for 0.2
+# Next release
+* website command - log directory
+* ki cmd --require
 * fix defined? checks
-* cleanup gem
-* create release notes
-
-# 0.3
 * version() returns sometime nil, sometimes Version
 * version!()
 * fix Version.exists? - there should be a better way to check if version exists
 * VersionTester should support test_version(metadata, source)
 * Download & replication
-* website command
 * daemon: long running processes, web site monitoring
 * multiple local repositories: command line tools and helpers
 * pref: define repository lookup order
 * support for separate binaries directory
 * cleanup and removal operations
+* create release notes
 
 # Future releases
 * Digital signing
