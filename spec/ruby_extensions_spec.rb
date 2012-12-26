@@ -34,10 +34,6 @@ describe Array do
 end
 
 describe Hash do
-  it "[] should resolve default values if value not given" do
-    h = {}
-    h["a", 1].should eq(1)
-  end
   it "require should warn if value not defined" do
     {"a" => 1}.require("a").should eq(1)
     lambda { {}.require("a") }.should raise_error("'a' is not defined!")

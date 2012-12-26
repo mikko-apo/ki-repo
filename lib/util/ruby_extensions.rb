@@ -117,17 +117,6 @@ class File
 end
 
 class Hash
-  original_get = self.instance_method(:[])
-
-  define_method(:[]) do |key, default=nil|
-    value = original_get.bind(self).call(key)
-    if value || include?(key)
-      value
-    else
-      default
-    end
-  end
-
   def require(key)
     if !include?(key)
       raise "'#{key}' is not defined!"
