@@ -8,6 +8,7 @@ note: Currently Ki is not ready for any kind of use.
 
 * Rubygem: https://rubygems.org/gems/ki-repo
 * Documentation for latest released version is available at http://rubydoc.info/gems/ki-repo
+* See also ki-flow, the advanced CI system: https://github.com/mikko-apo/ki-flow
 
 # Documentation
 
