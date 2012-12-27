@@ -41,7 +41,7 @@ Ki-Repo is a repository for storing file packages and metadata about those packa
 An example repository has following structure:
 
 * Repository has three components: `"my/componentA"`, `"my/componentB"`, `"my/product"`.
-* Each component maintains a chronological list of versions. For example, `"my/component"` has versions `"3"`, `"2"` and `"1"`.
+* Each component maintains a chronological list of versions. For example, `"my/component"` has versions `"23"`, `"22"` and `"21"`.
 * Component's name should be a unique identifier and it can include any number of identifiers. Valid component names include `"ki/repo"`, `"ki-repo"` or `"my/test/builds/ki/repo/"`.
 * Version contains a set of files. Version can also define dependencies and other metadata.
 
@@ -144,6 +144,15 @@ File operations are defined for "version-build" with -o and -O parameters
     ki version-build -d my/tests/a/123,name=tests -o "rm *.txt"
     ki version-build -O "cp scripts/start.sh start.sh"
 
+### Status information
+
+Each version can have status values. Status values can be used to tag certain kind of versions (released),
+or find latest version that has a specific status value:
+
+    my/component:released
+    my/component:IntegrationTest=green
+
+
 ## Component
 
 Component has only a two responsibilities:
@@ -154,6 +163,8 @@ Component has only a two responsibilities:
 Status value order is used to determine which statuses match version queries:
 
     my/component:maturity>alpha
+
+"maturity" order could be "alpha,beta,gamma" and latest version that has either beta or gamma would get chosen.
 
 ## Repository
 

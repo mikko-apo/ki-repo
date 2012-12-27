@@ -1,7 +1,6 @@
 # @title ki-repo: Backlog
 
 # Next release
-* document version status operations
 * web cmd store handler to prefs
 * /web/ is not registered correctly
 * ki pref --require
