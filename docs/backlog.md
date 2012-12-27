@@ -1,8 +1,10 @@
 # @title ki-repo: Backlog
 
 # Next release
-* website command - log directory
-* ki cmd --require
+* web cmd store handler to prefs
+* web cmd - ctrl-c -> exit
+* /web/ is not registered correctly
+* ki pref --require
 * fix defined? checks
 * version() returns sometime nil, sometimes Version
 * version!()
