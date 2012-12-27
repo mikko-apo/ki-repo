@@ -1,9 +1,7 @@
 # @title ki-repo: Backlog
 
 # Next release
-* web cmd store handler to prefs
 * /web/ is not registered correctly
-* ki pref --require
 * fix defined? checks
 * version() returns sometime nil, sometimes Version
 * version!()
@@ -16,6 +14,7 @@
 * support for separate binaries directory
 * cleanup and removal operations
 * create release notes
+* web cmd store handler to prefs
 
 # Future releases
 * Digital signing

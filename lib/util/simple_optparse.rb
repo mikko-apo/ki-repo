@@ -36,12 +36,14 @@ module Ki
       if block.nil?
         raise "Option without parser block: " + args.join(", ")
       end
-      if args.size == 3
-        short = args.delete_at(0)
+      if args.size == 2 || args.size == 3
+        short = args.size == 3 ? args.delete_at(0) : nil
         long, *params = args.delete_at(0).split(" ")
         comment = args.delete_at(0)
         options_for_to_s << {short: short, long: long, comment: comment, params: params, block: block }
-        options << {opt: short, comment: comment, params: params, block: block }
+        if short
+          options << {opt: short, comment: comment, params: params, block: block }
+        end
         options << {opt: long, comment: comment, params: params, block: block }
       else
         raise "unsupported option configuration size: " + args.join(", ")

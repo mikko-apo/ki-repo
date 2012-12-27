@@ -20,6 +20,8 @@ module Ki
   class UserPrefFile < KiJSONHashFile
     attr_chain :uses, -> { Array.new }, :accessor => CachedData
     attr_chain :prefixes, -> { Array.new }, :accessor => CachedData
+    attr_chain :requires, -> { Array.new }, :accessor => CachedData
+    attr_chain :loads, -> { Array.new }, :accessor => CachedData
 
     def initialize
       super("ki-user-pref.json")
@@ -40,6 +42,12 @@ module Ki
       elsif pref == "use"
         arr = user_pref.uses
         str = "Use"
+      elsif pref == "require"
+        arr = user_pref.requires
+        str = "Require"
+      elsif pref == "load"
+        arr = user_pref.loads
+        str = "Load"
       elsif pref.nil?
         puts "User preferences:"
         user_pref.cached_data.each_pair do |key, values|
@@ -102,7 +110,7 @@ Syntax: #{shell_command} prefix|use parameters...
     #{shell_command} prefix -c
     - clears command prefix list
 
-### Examples for automatic script loading:
+### Examples for default script loading:
     #{shell_command} use
     - shows list of automatically loading scripts. when ki starts up, it looks for all defined versions and loads all files tagged with ki-cmd
     #{shell_command} use ki/http ki/ftp/123:ki-extra
@@ -114,6 +122,19 @@ Syntax: #{shell_command} prefix|use parameters...
     #{shell_command} use -c
     - clear use list
 
+### Examples for default Ruby file requiring:
+    #{shell_command} require
+    #{shell_command} require hooves/default
+    #{shell_command} require + hooves/default
+    #{shell_command} require - hooves/default
+    #{shell_command} require -c
+
+### Examples for default Ruby file loading:
+    #{shell_command} load
+    #{shell_command} load test.rb
+    #{shell_command} load + test.rb
+    #{shell_command} load - test.rb
+    #{shell_command} load -c
 EOF
     end
   end

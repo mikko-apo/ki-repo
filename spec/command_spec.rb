@@ -45,7 +45,7 @@ describe KiCommand do
   end
 
   it "should warn about unknown command" do
-    lambda { KiCommand.new.execute(["unknown-command"]) }.should raise_error("No commands match: unknown-command")
+    lambda { KiCommand.new.execute(%W(unknown-command)) }.should raise_error("No commands match: unknown-command")
   end
 
   it "should have default location for KiHome" do
@@ -69,9 +69,9 @@ describe KiCommand do
     TestCommand.any_instance.expects(:execute).with { |ki_command, params| params.should eq(["123", "456"]) }
     TestCommand.any_instance.expects(:help).returns("Help")
     KiCommand.register_cmd("test-command", TestCommand)
-    KiCommand.new.execute(["test-command", "123", "456"])
+    KiCommand.new.execute(%W(test-command 123 456))
     @tester.catch_stdio do
-      KiCommand.new.execute(["help", "test-command"])
+      KiCommand.new.execute(%W(help test-command))
     end.stdout.join.should =~ /Help/
   end
 

@@ -42,7 +42,11 @@ module Ki
     # bin/kaiju command line tool calls this method, which finds the correct class to manage the execution
     def execute(args)
       @use = []
+      @require = []
+      @load = []
       my_args = opts.parse(args.dup)
+      require_files
+      load_files
       load_scripts
       if my_args.empty?
         KiCommandHelp.new.shell_command("#{0} help").execute(self, [])
@@ -57,14 +61,38 @@ module Ki
           ki_home(KiHome.new(v))
         end
         opts.on("-u", "--use VER", "Use defined scripts") do |v|
-          @use << v
+          @use << v.split(",")
         end
+        opts.on("--require RB", "Require Ruby files") do |v|
+          @require << v.split(",")
+        end
+        opts.on("--load RB", "Load Ruby files") do |v|
+          @load << v.split(",")
+        end
+
       end
       o
     end
 
+    def require_files
+      @require.flatten!
+      requires = @require.empty? ? user_pref.requires : @require
+      requires.each do |req|
+        require req
+      end
+    end
+
+    def load_files
+      @load.flatten!
+      loads = @load.empty? ? user_pref.loads : @load
+      loads.each do |req|
+        load req
+      end
+    end
+
     def load_scripts
       # load all script files defined in UserPrefFile uses
+      @use.flatten!
       uses = @use.empty? ? user_pref.uses : @use
       uses.each do |use_str|
         ver, tags_str = use_str.split(":")
