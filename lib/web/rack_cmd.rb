@@ -47,7 +47,9 @@ module Ki
     end
 
     def start_server
-      handler.new.run(ki_app, :Port => (@port || 8290) )
+      server = handler.new
+      [:INT, :TERM].each { |sig| trap(sig) { server.stop } }
+      server.run(ki_app, :Port => (@port || 8290) )
     end
 
     def execute(ctx, args)
