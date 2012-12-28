@@ -20,6 +20,8 @@ Common parameters:
 
     -h, --home                       Path to Ki root directory
     -u, --use                        Use defined scripts
+        --require                    Require Ruby files
+        --load                       Load Ruby files
 
 ## help: Displays help for given Ki command
 
@@ -187,7 +189,7 @@ Syntax: ki pref prefix|use parameters...
     ki pref prefix -c
     - clears command prefix list
 
-### Examples for automatic script loading:
+### Examples for default script loading:
     ki pref use
     - shows list of automatically loading scripts. when ki starts up, it looks for all defined versions and loads all files tagged with ki-cmd
     ki pref use ki/http ki/ftp/123:ki-extra
@@ -199,8 +201,21 @@ Syntax: ki pref prefix|use parameters...
     ki pref use -c
     - clear use list
 
+### Examples for default Ruby file requiring:
+    ki pref require
+    ki pref require hooves/default
+    ki pref require + hooves/default
+    ki pref require - hooves/default
+    ki pref require -c
+
+### Examples for default Ruby file loading:
+    ki pref load
+    ki pref load test.rb
+    ki pref load + test.rb
+    ki pref load - test.rb
+    ki pref load -c
 
 ## web: Starts Ki web server and uses code from Ki packages
 
 ki-repo has a built in web server. It can be controlled with following commands
-  ki web start - starts web server
+  ki web
