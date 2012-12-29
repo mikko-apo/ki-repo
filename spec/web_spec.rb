@@ -80,6 +80,7 @@ describe RackCommand do
       true
     end
     KiCommand.new.execute(%W(web -p #{port}))
+    RackCommand.web_ki_home.path.should eq Dir.pwd
     KiCommand.new.execute(%W(web -p #{port} --handler DefaultRackHandler))
   end
 

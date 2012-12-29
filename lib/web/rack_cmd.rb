@@ -28,6 +28,8 @@ module Ki
   #
   # @see DefaultRackHandler
   class RackCommand
+    @@web_ki_home = nil
+
     attr_chain :shell_command, :require
     attr_chain :handler, -> { DefaultRackHandler }
 
@@ -53,6 +55,7 @@ module Ki
     end
 
     def execute(ctx, args)
+      RackCommand.web_ki_home=ctx.ki_home
       @port = nil
       opts.parse(args)
       start_server
@@ -68,6 +71,14 @@ module Ki
           @port = Integer(v)
         end
       end
+    end
+
+    def self.web_ki_home=(ki_home)
+      @@web_ki_home = ki_home
+    end
+
+    def self.web_ki_home
+      @@web_ki_home
     end
 
     attr_chain :summary, -> { "Starts Ki web server and uses code from Ki packages" }
