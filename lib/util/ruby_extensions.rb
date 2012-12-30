@@ -124,3 +124,36 @@ class Hash
     self[key]
   end
 end
+
+class Object
+  # if block raises an exception outputs the error message. returns block's exit value or reraises the exception
+  def show_errors(&block)
+    begin
+      block.call
+    rescue Exception => e
+      puts "Exception '#{e.message}':\n#{e.backtrace.join("\n")}"
+      raise
+    end
+  end
+
+  # Resolves fully qualified class named including modules: Ki::KiCommand
+  def Object.const_get_full(full_class_name)
+    class_or_module = self
+    full_class_name.split("::").each do |name|
+      class_or_module = class_or_module.const_get(name)
+    end
+    class_or_module
+  end
+end
+
+module ObjectSpace
+  def ObjectSpace.all_classes
+    arr = []
+    each_object do |o|
+      if o.kind_of?(Class)
+        arr << o
+      end
+    end
+    arr
+  end
+end

@@ -56,7 +56,7 @@ module Ki
     end
 
     def opts
-      o = SimpleOptionParser.new do |opts|
+      SimpleOptionParser.new do |opts|
         opts.on("-h", "--home HOME-PATH", "Path to Ki root directory") do |v|
           ki_home(KiHome.new(v))
         end
@@ -69,9 +69,7 @@ module Ki
         opts.on("--load RB", "Load Ruby files") do |v|
           @load << v.split(",")
         end
-
       end
-      o
     end
 
     def require_files
@@ -85,8 +83,8 @@ module Ki
     def load_files
       @load.flatten!
       loads = @load.empty? ? user_pref.loads : @load
-      loads.each do |req|
-        load req
+      loads.each do |full_path|
+        load full_path
       end
     end
 

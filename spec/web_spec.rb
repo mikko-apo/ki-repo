@@ -80,8 +80,15 @@ describe RackCommand do
       true
     end
     KiCommand.new.execute(%W(web -p #{port}))
-    RackCommand.web_ki_home.path.should eq Dir.pwd
     KiCommand.new.execute(%W(web -p #{port} --handler DefaultRackHandler))
+  end
+
+  it "KiWebBase should provide helper methods" do
+    a = "testObject"
+    a.extend KiWebBase
+    a.ki_home.path.should eq Dir.pwd
+    a.res_url("foo.scss").should eq "/file/web/String:foo.scss"
+    lambda{a.res_url("../foo.scss")}.should raise_error("File '../foo.scss' cannot reference parent directories with '..'!")
   end
 
   it "should warn if no web extensions registered" do

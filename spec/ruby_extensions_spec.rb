@@ -85,3 +85,30 @@ describe Enumerable do
     ["a=1", "b"].to_h { |i| i.split("=") }.should eq({"a" => "1", "b" => nil})
   end
 end
+
+describe ObjectSpace do
+  it "should iterate all classes" do
+    ObjectSpace.all_classes
+  end
+end
+
+describe Object do
+  before do
+    @tester = Tester.new(example.metadata[:full_description])
+  end
+
+  after do
+    @tester.after
+  end
+
+  it "should have show_errors" do
+    lambda {
+    @tester.catch_stdio do
+      show_errors do
+        raise "foo"
+      end
+    end
+    }.should raise_error("foo")
+    @tester.stdout.join.should =~ /Exception 'foo'/
+  end
+end

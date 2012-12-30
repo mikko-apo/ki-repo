@@ -15,8 +15,33 @@
 # limitations under the License.
 
 require 'sinatra/base'
+require 'sass'
+require 'coffee-script'
 
 module Ki
+
+  class WebContext
+    def ki_home=(ki_home)
+      @ki_home = ki_home
+    end
+
+    def ki_home
+      @ki_home
+    end
+  end
+
+  module KiWebBase
+    def ki_home
+      RackCommand.web_ctx.ki_home
+    end
+
+    def res_url(path)
+      if path.include?("..")
+        raise "File '#{path}' cannot reference parent directories with '..'!"
+      end
+      "/file/web/#{self.class.name}:#{path}"
+    end
+  end
 
   # When starting up, looks for /web extension classes loaded from ki-scripts and starts up a web site
   #    class MyApp2 < Sinatra::Base
@@ -28,7 +53,7 @@ module Ki
   #
   # @see DefaultRackHandler
   class RackCommand
-    @@web_ki_home = nil
+    @@web_ctx = WebContext.new
 
     attr_chain :shell_command, :require
     attr_chain :handler, -> { DefaultRackHandler }
@@ -39,7 +64,7 @@ module Ki
         raise "No /web extensions defined!"
       end
       Rack::Builder.new do
-        extensions.each do |path, clazz |
+        extensions.each do |path, clazz|
           web_path = path[4..-1]
           map(web_path) do
             run(clazz)
@@ -51,11 +76,11 @@ module Ki
     def start_server
       server = handler.new
       [:INT, :TERM].each { |sig| trap(sig) { server.stop } }
-      server.run(ki_app, :Port => (@port || 8290) )
+      server.run(ki_app, :Port => (@port || 8290))
     end
 
     def execute(ctx, args)
-      RackCommand.web_ki_home=ctx.ki_home
+      RackCommand.web_ctx.ki_home=ctx.ki_home
       @port = nil
       opts.parse(args)
       start_server
@@ -65,7 +90,7 @@ module Ki
       OptionParser.new do |opts|
         opts.banner = ""
         opts.on("--handler HANDLER", "Use specified Rack Handler") do |v|
-          handler(Object.const_get(v.to_sym))
+          handler(Object.const_get_full(v))
         end
         opts.on("-p", "--port PORT", "Use specified port") do |v|
           @port = Integer(v)
@@ -73,20 +98,22 @@ module Ki
       end
     end
 
-    def self.web_ki_home=(ki_home)
-      @@web_ki_home = ki_home
-    end
-
-    def self.web_ki_home
-      @@web_ki_home
+    def self.web_ctx
+      @@web_ctx
     end
 
     attr_chain :summary, -> { "Starts Ki web server and uses code from Ki packages" }
 
     def help
-<<EOF
-ki-repo has a built in web server. It can be controlled with following commands
-  #{shell_command}
+      <<EOF
+ki-repo has a built in web server.
+
+### Usage
+
+    #{shell_command} - Starts Ki web server
+
+### Parameters
+#{opts}
 EOF
     end
   end
