@@ -84,15 +84,21 @@ module Ki
         Dir.glob(File.join(source, pattern))
       end.flatten
 
-      files = files_or_dirs.map do |file_or_dir|
-        if File.directory?(file_or_dir)
-          Dir.glob(File.join(file_or_dir, "**/*"))
-        else
-          file_or_dir
-        end
-      end.flatten.sort
+      files = []
 
-      files.each do |file|
+      files_or_dirs.each do |file_or_dir|
+        if File.file?(file_or_dir)
+          files << file_or_dir
+        else
+          Dir.glob(File.join(file_or_dir, "**/*")).each do |file|
+            if File.file?(file)
+              files << file
+            end
+          end
+        end
+      end
+
+      files.sort.each do |file|
         add_file(source, file, default_parameters)
       end
       self

@@ -16,75 +16,79 @@
 
 require 'spec_helper'
 
-describe KiCommand do
+describe "version-build" do
   before do
     @tester = Tester.new(example.metadata[:full_description])
   end
+
   after do
     @tester.after
   end
 
-  it "version-build" do
-    @tester.chdir(source = @tester.tmpdir) do
-      Tester.write_files(source,
-                         "dir/test.txt" => "aa",
-                         "foo.txt" => "f",
-                         "zap.zip" => "ff",
-                         "script.sh" => "shell script",
-                         "not-included/bar.zip" => "f")
-      system("chmod u+x script.sh")
-      KiCommand.new.execute(
-          ["version-build",
-           "--version-id", "my/component/23",
-           "--hashes", "sha1,md5,sha2",
-           "*.sh",
-           "-t", "tests,bar",
-           "-d", "my/tests/a/123,path=test,name=tests,internal",
-           "-o", "rm *.info",
-           "-d", "my/docs/4411",
-           "-O", "cp foo.txt foo2.txt"
-          ]
-      )
-      KiCommand.new.execute(%W(version-build *.zip dir -t tests,bar --hashes sha1,md5,sha2))
-      KiCommand.new.execute(
-          ["version-build",
-           "--source-url", "https://foo.fi/repo1",
-           "--source-tag-url", "https://foo.fi/repo1",
-           "--source-repotype", "git",
-           "--source-author", "apo",
-          ]
-      )
-      file = VersionMetadataFile.new("ki-version.json")
-      file.load_data_from_file.should eq({
-                                             "version_id" => "my/component/23",
-                                             "source" => {
-                                                 "url" => "https://foo.fi/repo1",
-                                                 "tag-url" => "https://foo.fi/repo1",
-                                                 "repotype" => "git", "author" => "apo"
-                                             },
-                                             "files" => [
-                                                 {"path" => "script.sh", "size" => 12, "executable" => true, "tags" => ["bar", "tests"],
-                                                  "md5" => "257c560384c287268c6d5096f827b9ba", "sha1" => "6347583f73bdb545b8dad745124cf62421d7aa3c",
-                                                  "sha2" => "3d71079cbf751bb3e1b725aac4db9cbd73352f8773d5f66ddd5bd0bac8cba77c"},
-                                                 {"path" => "dir/test.txt", "size" => 2, "tags" => ["bar", "tests"],
-                                                  "md5" => "4124bc0a9335c27f086f24ba207a4912", "sha1" => "e0c9035898dd52fc65c41454cec9c4d2611bfb37",
-                                                  "sha2" => "961b6dd3ede3cb8ecbaacbd68de040cd78eb2ed5889130cceb4c49268ea4d506"},
-                                                 {"path" => "zap.zip", "size" => 2, "tags" => ["bar", "tests"],
-                                                  "md5" => "633de4b0c14ca52ea2432a3c8a5c4c31", "sha1" => "ed70c57d7564e994e7d5f6fd6967cea8b347efbc",
-                                                  "sha2" => "05a9bf223fedf80a9d0da5f73f5c191a665bf4a0a4a3e608f2f9e7d5ff23959c"}
-                                             ],
-                                             "operations" => [
-                                                 ["cp", "foo.txt", "foo2.txt"]
-                                             ],
-                                             "dependencies" => [
-                                                 {"version_id" => "my/tests/a/123",
-                                                  "path" => "test", "name" => "tests",
-                                                  "internal" => true,
-                                                  "operations" => [["rm", "*.info"]]},
-                                                 {"version_id" => "my/docs/4411"}
-                                             ]
-                                         })
-    end
+  it "should build ki-version.json from files" do
+    @tester.chdir(source = @tester.tmpdir)
+    Tester.write_files(source,
+                       "dir/test.txt" => "aa",
+                       "dir/lots/of/subdirs/test.txt" => "aa",
+                       "foo.txt" => "f",
+                       "zap.zip" => "ff",
+                       "script.sh" => "shell script",
+                       "not-included/bar.zip" => "f")
+    system("chmod u+x script.sh")
+    KiCommand.new.execute(
+        ["version-build",
+         "--version-id", "my/component/23",
+         "--hashes", "sha1,md5,sha2",
+         "*.sh",
+         "-t", "tests,bar",
+         "-d", "my/tests/a/123,path=test,name=tests,internal",
+         "-o", "rm *.info",
+         "-d", "my/docs/4411",
+         "-O", "cp foo.txt foo2.txt"
+        ]
+    )
+    KiCommand.new.execute(%W(version-build *.zip dir -t tests,bar --hashes sha1,md5,sha2))
+    KiCommand.new.execute(
+        ["version-build",
+         "--source-url", "https://foo.fi/repo1",
+         "--source-tag-url", "https://foo.fi/repo1",
+         "--source-repotype", "git",
+         "--source-author", "apo",
+        ]
+    )
+    file = VersionMetadataFile.new("ki-version.json")
+    file.load_data_from_file.should eq({
+                                           "version_id" => "my/component/23",
+                                           "source" => {
+                                               "url" => "https://foo.fi/repo1",
+                                               "tag-url" => "https://foo.fi/repo1",
+                                               "repotype" => "git", "author" => "apo"
+                                           },
+                                           "files" => [
+                                               {"path" => "script.sh", "size" => 12, "executable" => true, "tags" => ["bar", "tests"],
+                                                "md5" => "257c560384c287268c6d5096f827b9ba", "sha1" => "6347583f73bdb545b8dad745124cf62421d7aa3c",
+                                                "sha2" => "3d71079cbf751bb3e1b725aac4db9cbd73352f8773d5f66ddd5bd0bac8cba77c"},
+                                               {"path"=>"dir/lots/of/subdirs/test.txt", "size"=>2, "tags"=>["bar", "tests"],
+                                                "md5"=>"4124bc0a9335c27f086f24ba207a4912", "sha1"=>"e0c9035898dd52fc65c41454cec9c4d2611bfb37",
+                                                "sha2"=>"961b6dd3ede3cb8ecbaacbd68de040cd78eb2ed5889130cceb4c49268ea4d506"},
+                                               {"path" => "dir/test.txt", "size" => 2, "tags" => ["bar", "tests"],
+                                                "md5" => "4124bc0a9335c27f086f24ba207a4912", "sha1" => "e0c9035898dd52fc65c41454cec9c4d2611bfb37",
+                                                "sha2" => "961b6dd3ede3cb8ecbaacbd68de040cd78eb2ed5889130cceb4c49268ea4d506"},
+                                               {"path" => "zap.zip", "size" => 2, "tags" => ["bar", "tests"],
+                                                "md5" => "633de4b0c14ca52ea2432a3c8a5c4c31", "sha1" => "ed70c57d7564e994e7d5f6fd6967cea8b347efbc",
+                                                "sha2" => "05a9bf223fedf80a9d0da5f73f5c191a665bf4a0a4a3e608f2f9e7d5ff23959c"}
+                                           ],
+                                           "operations" => [
+                                               ["cp", "foo.txt", "foo2.txt"]
+                                           ],
+                                           "dependencies" => [
+                                               {"version_id" => "my/tests/a/123",
+                                                "path" => "test", "name" => "tests",
+                                                "internal" => true,
+                                                "operations" => [["rm", "*.info"]]},
+                                               {"version_id" => "my/docs/4411"}
+                                           ]
+                                       })
   end
 
   it "version-build should support destination file and separate output dir" do
