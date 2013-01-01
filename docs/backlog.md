@@ -1,6 +1,7 @@
 # @title ki-repo: Backlog
 
 # Next release
+* if there is a file ki-version.json under ki-repo directory, many tests fail
 * /web/ is not registered correctly
 * fix defined? checks
 * version() returns sometime nil, sometimes Version

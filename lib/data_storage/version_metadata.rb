@@ -29,16 +29,6 @@ module Ki
     attr_chain :operations, -> { Array.new }, :accessor => CachedData
     attr_chain :dependencies, -> { Array.new }, :accessor => CachedData
 
-    def add_file_info(name, size, *args)
-      extra = (args.select { |arg| arg.kind_of?(Hash) }.size!(0..1).first or {})
-      tags = (args - [extra]).flatten.uniq
-      file_hash = {"path" => name, "size" => size}.merge(extra)
-      if tags.size > 0
-        file_hash["tags"]=tags
-      end
-      files << file_hash
-    end
-
     # Comma separated list of dependency arguments
     # * dependency parameters can be given in the hash
     # TODO: version_id should be resolved through Version
@@ -56,26 +46,6 @@ module Ki
 
     def add_operation(args)
       operations << args
-    end
-
-    def VersionMetadataFile.calculate_hashes(full_path, digester_ids)
-      digesters = {}
-      digester_ids.each do |h|
-        digesters[h] = KiCommand::KiExtensions.find!(File.join("/hashing", h)).digest
-      end
-      algos = digesters.values
-      File.open(full_path, "r") do |io|
-        while (!io.eof)
-          buf = io.readpartial(1024)
-          algos.each do |digester|
-            digester.update(buf)
-          end
-        end
-      end
-      digesters.each_pair do |h, digester|
-        digesters[h]=digester.hexdigest
-      end
-      digesters
     end
 
     # Processes all files from source that match patterns and for each file calculates hashes and stores tags based on default_parameters
@@ -124,6 +94,45 @@ module Ki
         extra.merge!(VersionMetadataFile.calculate_hashes(full_path, parameters["hashes"]))
       end
       add_file_info(full_path[root.size+1..-1], size, extra)
+    end
+
+    def add_file_info(name, size, *args)
+      extra = (args.select { |arg| arg.kind_of?(Hash) }.size!(0..1).first or {})
+      tags = (args - [extra]).flatten.uniq
+      file_hash = {"path" => name, "size" => size}.merge(extra)
+      if tags.size > 0
+        file_hash["tags"]=tags
+      end
+      files.each do |f|
+        if f["path"] == name
+          if f == file_hash
+            return
+          else
+            raise "'#{name}' has already been added to version, but with different attributes:\n- old: #{f.inspect}\n- new: #{file_hash.inspect}"
+          end
+        end
+      end
+      files << file_hash
+    end
+
+    def VersionMetadataFile.calculate_hashes(full_path, digester_ids)
+      digesters = {}
+      digester_ids.each do |h|
+        digesters[h] = KiCommand::KiExtensions.find!(File.join("/hashing", h)).digest
+      end
+      algos = digesters.values
+      File.open(full_path, "r") do |io|
+        while (!io.eof)
+          buf = io.readpartial(1024)
+          algos.each do |digester|
+            digester.update(buf)
+          end
+        end
+      end
+      digesters.each_pair do |h, digester|
+        digesters[h]=digester.hexdigest
+      end
+      digesters
     end
   end
 

@@ -48,6 +48,8 @@ describe "version-build" do
         ]
     )
     KiCommand.new.execute(%W(version-build *.zip dir -t tests,bar --hashes sha1,md5,sha2))
+    KiCommand.new.execute(%W(version-build *.zip dir -t tests,bar --hashes sha1,md5,sha2))
+    lambda{KiCommand.new.execute(%W(version-build *.zip dir))}.should raise_error(/'dir\/lots\/of\/subdirs\/test.txt' has already been added to version/)
     KiCommand.new.execute(
         ["version-build",
          "--source-url", "https://foo.fi/repo1",
