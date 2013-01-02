@@ -16,6 +16,7 @@
 * cleanup and removal operations
 * create release notes
 * web cmd store handler to prefs
+* version-build can use .ki.yml to build version
 
 # Future releases
 * Digital signing
