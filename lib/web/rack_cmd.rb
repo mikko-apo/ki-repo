@@ -35,11 +35,12 @@ module Ki
       RackCommand.web_ctx.ki_home
     end
 
+    attr_chain :started, -> { Time.now.to_i }
     def res_url(path)
       if path.include?("..")
         raise "File '#{path}' cannot reference parent directories with '..'!"
       end
-      "/file/web/#{self.class.name}:#{path}"
+      "/file/web/#{started}/#{self.class.name}:#{path}"
     end
   end
 

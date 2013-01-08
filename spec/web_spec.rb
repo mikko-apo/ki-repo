@@ -87,7 +87,8 @@ describe RackCommand do
     a = "testObject"
     a.extend KiWebBase
     a.ki_home.path.should eq Dir.pwd
-    a.res_url("foo.scss").should eq "/file/web/String:foo.scss"
+    Time.expects(:now).returns 123
+    a.res_url("foo.scss").should eq "/file/web/123/String:foo.scss"
     lambda{a.res_url("../foo.scss")}.should raise_error("File '../foo.scss' cannot reference parent directories with '..'!")
   end
 
