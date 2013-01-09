@@ -64,13 +64,26 @@ module Ki
       if extensions.nil? || extensions.empty?
         raise "No /web extensions defined!"
       end
+      RackCommand.build_app(extensions.map{|p,c| [p[4..-1], c]})
+    end
+
+    def RackCommand.build_app(path_class_list)
       Rack::Builder.new do
-        extensions.each do |path, clazz|
-          web_path = path[4..-1]
-          map(web_path) do
+        path_class_list.each do |path, clazz|
+          map(path) do
             run(clazz)
           end
         end
+      end
+    end
+
+    def RackCommand.find_free_tcp_port
+      socket = Socket.new(:INET, :STREAM, 0)
+      socket.bind(Addrinfo.tcp("127.0.0.1", 0))
+      begin
+        socket.local_address.ip_port
+      ensure
+        socket.close
       end
     end
 

@@ -63,3 +63,8 @@ def restore_extensions
     KiCommand::KiExtensions.register(original_commands)
   end
 end
+
+require 'net/http'
+def http_get(url)
+  Net::HTTP.get_response(URI(url))
+end

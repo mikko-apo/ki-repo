@@ -34,4 +34,5 @@ group :development do
   gem "rdiscount"
   gem "mocha"
   gem "rack-test"
+  gem "selenium-webdriver"
 end

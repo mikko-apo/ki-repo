@@ -19,12 +19,7 @@ module Ki
   # Tries to launch Rack handlers in default order
   # @see RackCommand
   class DefaultRackHandler
-    def run(app, config={})
-      rack_app = Rack::Builder.new do
-        map "/" do
-          run app
-        end
-      end
+    def run(rack_app, config={})
       detect_rack_handler.run(rack_app, config) do |server|
         @server = server
       end

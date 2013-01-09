@@ -22,20 +22,10 @@ class MyApp2 < Sinatra::Base
   end
 end
 
-require 'socket'
-def find_free_tcp_port
-  socket = Socket.new(:INET, :STREAM, 0)
-  socket.bind(Addrinfo.tcp("127.0.0.1", 0))
-  begin
-    socket.local_address.ip_port
-  ensure
-    socket.close
+class BrokenJsApp < Sinatra::Base
+  get "/" do
+    '<html><body>BrokenJsApp.txt<script type="text/javascript">al();</script></body></html>'
   end
-end
-
-require 'net/http'
-def http_get(url)
-  Net::HTTP.get_response(URI(url))
 end
 
 require 'spec_helper'
@@ -50,18 +40,18 @@ describe RackCommand do
   end
 
   it "DefaultRackHandler should create rack handler" do
-    port = find_free_tcp_port
+    port = RackCommand.find_free_tcp_port
     rack = DefaultRackHandler.new
-    Thread.new do
-      rack.run(MyApp2, :Port => port)
-    end
     @tester.catch_stdio do
+      Thread.new do
+        rack.run(MyApp2, :Port => port)
+      end
       try(20, 0.1) do
-        response = http_get(File.join("http://localhost:#{port}"))
+        response = http_get("http://localhost:#{port}")
         [response.code, response.body].should eq ["200", "MyApp2"]
       end
+      rack.stop
     end.stderr.join("\n").should =~/#{port}/
-    rack.stop
   end
 
   it "DefaultRackHandler should warn if no handlers found" do
@@ -72,11 +62,12 @@ describe RackCommand do
   it "should start web app with registered classes" do
     restore_extensions
     KiCommand.register("/web/test", MyApp2)
-    port = find_free_tcp_port
+    port = RackCommand.find_free_tcp_port
+    # mocking run prevents web app from blocking
     DefaultRackHandler.any_instance.expects(:run).times(2).with do |app, config|
       config.should eq({:Port => port})
       code, headers, html = app.call("PATH_INFO" => "/test", "SCRIPT_NAME" => "test", "rack.input" => "1", "REQUEST_METHOD" => "GET")
-      [code, html.first].should eq [200, "MyApp2"]
+      [code, html.body.first].should eq [200, "MyApp2"]
       true
     end
     KiCommand.new.execute(%W(web -p #{port}))
@@ -89,7 +80,7 @@ describe RackCommand do
     a.ki_home.path.should eq Dir.pwd
     Time.expects(:now).returns 123
     a.res_url("foo.scss").should eq "/file/web/123/String:foo.scss"
-    lambda{a.res_url("../foo.scss")}.should raise_error("File '../foo.scss' cannot reference parent directories with '..'!")
+    lambda { a.res_url("../foo.scss") }.should raise_error("File '../foo.scss' cannot reference parent directories with '..'!")
   end
 
   it "should warn if no web extensions registered" do
@@ -101,4 +92,47 @@ describe RackCommand do
       KiCommand.new.execute(["help", "web"])
     end.stdout.join.should =~ /web server/
   end
+end
+
+describe TestBrowser do
+  before do
+    @browser = TestBrowser.new
+  end
+
+  after do
+    @browser.quit
+  end
+
+  before do
+    @tester = Tester.new(example.metadata[:full_description])
+  end
+
+  after do
+    @tester.after
+  end
+
+  it "should open browser and collect js errors" do
+    port = RackCommand.find_free_tcp_port
+    rack = DefaultRackHandler.new
+
+    @tester.catch_stdio do
+      Thread.new do
+        rack.run(BrokenJsApp, :Port => port)
+      end
+      driver = @browser.driver
+      url = "http://localhost:#{port}"
+      try(20, 0.1) do
+        response = http_get(url)
+        response.code.should eq "200"
+        response.body.should =~ /BrokenJsApp.txt/
+      end
+      driver.navigate.to url
+    end.stderr.join("\n").should =~/#{port}/
+
+    @browser.driver.find_element(:tag_name => "body").text.should eq "BrokenJsApp.txt"
+    @browser.errors.should eq [{"errorMessage"=>"ReferenceError: al is not defined", "sourceName"=>"http://localhost:#{port}/", "lineNumber"=>1, "__fxdriver_unwrapped"=>true}]
+
+    rack.stop
+  end
+
 end

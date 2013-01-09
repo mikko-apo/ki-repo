@@ -43,3 +43,4 @@ require_relative 'cmd/user_pref_cmd'
 
 require_relative 'web/default_rack_handler'
 require_relative 'web/rack_cmd'
+require_relative 'web/test_browser'
