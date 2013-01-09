@@ -36,6 +36,7 @@ describe RackCommand do
   end
 
   after do
+    RackCommand.web_ctx.development=nil
     @tester.after
   end
 
@@ -71,15 +72,25 @@ describe RackCommand do
       true
     end
     KiCommand.new.execute(%W(web -p #{port}))
-    KiCommand.new.execute(%W(web -p #{port} --handler DefaultRackHandler))
+    KiCommand.new.execute(%W(web -p #{port} --handler DefaultRackHandler --development))
   end
 
   it "KiWebBase should provide helper methods" do
     a = "testObject"
     a.extend KiWebBase
     a.ki_home.path.should eq Dir.pwd
+
+    # production mode caches time
     Time.expects(:now).returns 123
-    a.res_url("foo.scss").should eq "/file/web/123/String:foo.scss"
+    a.res_url("foo.scss").should eq "/file/web/7b/String:foo.scss"
+    a.res_url("foo.scss").should eq "/file/web/7b/String:foo.scss"
+
+    # development mode generates new urls
+    RackCommand.web_ctx.development=true
+    Time.expects(:now).returns 124
+    a.res_url("foo.scss").should eq "/file/web/7c/String:foo.scss"
+    Time.expects(:now).returns 125
+    a.res_url("foo.scss").should eq "/file/web/7d/String:foo.scss"
     lambda { a.res_url("../foo.scss") }.should raise_error("File '../foo.scss' cannot reference parent directories with '..'!")
   end
 

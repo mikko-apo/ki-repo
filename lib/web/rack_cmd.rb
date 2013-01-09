@@ -21,13 +21,9 @@ require 'coffee-script'
 module Ki
 
   class WebContext
-    def ki_home=(ki_home)
-      @ki_home = ki_home
-    end
-
-    def ki_home
-      @ki_home
-    end
+    attr_accessor :ki_home
+    attr_accessor :development
+    attr_chain :started, -> { Time.now.to_i }
   end
 
   module KiWebBase
@@ -35,12 +31,12 @@ module Ki
       RackCommand.web_ctx.ki_home
     end
 
-    attr_chain :started, -> { Time.now.to_i }
     def res_url(path)
       if path.include?("..")
         raise "File '#{path}' cannot reference parent directories with '..'!"
       end
-      "/file/web/#{started}/#{self.class.name}:#{path}"
+      time = RackCommand.web_ctx.development ? Time.now.to_i : RackCommand.web_ctx.started
+      "/file/web/#{time.to_s(16)}/#{self.class.name}:#{path}"
     end
   end
 
@@ -105,6 +101,9 @@ module Ki
         opts.banner = ""
         opts.on("--handler HANDLER", "Use specified Rack Handler") do |v|
           handler(Object.const_get_full(v))
+        end
+        opts.on("--development", "Development mode, resource urls are reloaded") do |v|
+          RackCommand.web_ctx.development=true
         end
         opts.on("-p", "--port PORT", "Use specified port") do |v|
           @port = Integer(v)
