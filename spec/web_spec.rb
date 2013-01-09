@@ -94,15 +94,7 @@ describe RackCommand do
   end
 end
 
-describe TestBrowser do
-  before do
-    @browser = TestBrowser.new
-  end
-
-  after do
-    @browser.quit
-  end
-
+describe WebDriverDelegator do
   before do
     @tester = Tester.new(example.metadata[:full_description])
   end
@@ -114,25 +106,37 @@ describe TestBrowser do
   it "should open browser and collect js errors" do
     port = RackCommand.find_free_tcp_port
     rack = DefaultRackHandler.new
+    @tester.cleaners << -> {rack.stop}
 
+    firefox = FirefoxDelegator.init
+    @tester.cleaners << -> {firefox.quit}
+
+    chrome = ChromeDelegator.init
+    @tester.cleaners << -> {chrome.quit}
+
+    url = "http://localhost:#{port}"
     @tester.catch_stdio do
       Thread.new do
         rack.run(BrokenJsApp, :Port => port)
       end
-      driver = @browser.driver
-      url = "http://localhost:#{port}"
       try(20, 0.1) do
         response = http_get(url)
         response.code.should eq "200"
         response.body.should =~ /BrokenJsApp.txt/
       end
-      driver.navigate.to url
     end.stderr.join("\n").should =~/#{port}/
 
-    @browser.driver.find_element(:tag_name => "body").text.should eq "BrokenJsApp.txt"
-    @browser.errors.should eq [{"errorMessage"=>"ReferenceError: al is not defined", "sourceName"=>"http://localhost:#{port}/", "lineNumber"=>1, "__fxdriver_unwrapped"=>true}]
+    firefox.navigate.to url
+    firefox.find_element(:tag_name => "body").text.should eq "BrokenJsApp.txt"
+    firefox.errors.should eq [{"errorMessage"=>"ReferenceError: al is not defined", "sourceName"=>"http://localhost:#{port}/", "lineNumber"=>1, "__fxdriver_unwrapped"=>true}]
+    firefox.reset
+    firefox.current_url.should eq "about:blank"
 
-    rack.stop
+    chrome.navigate.to url
+    chrome.find_element(:tag_name => "body").text.should eq "BrokenJsApp.txt"
+    chrome.errors.should eq []
+    chrome.reset
+    chrome.current_url.should eq "about:blank"
   end
 
 end

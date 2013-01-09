@@ -17,30 +17,38 @@
 # Uses JSErrorCollector by mguillem from https://github.com/mguillem/JSErrorCollector
 # Uses code by Gabe Kopley from https://gist.github.com/1371962
 
-module Ki
-  class TestBrowser
-    attr_reader :driver
-    @driver = nil
+require 'delegate'
 
-    def initialize
-      require "selenium-webdriver"
+module Ki
+
+  class WebDriverDelegator < SimpleDelegator
+    def errors
+      []
     end
 
-    def driver
-      if @driver.nil?
-        profile = Selenium::WebDriver::Firefox::Profile.new
-        profile.add_extension File.join(File.dirname(__FILE__), "JSErrorCollector-0.4.xpi")
-        @driver = Selenium::WebDriver.for :firefox, :profile => profile
-      end
-      @driver
+    def reset
+      navigate.to "about:blank"
+      manage.delete_all_cookies
+    end
+  end
+
+  class FirefoxDelegator < WebDriverDelegator
+    def FirefoxDelegator.init
+      require "selenium-webdriver"
+      profile = Selenium::WebDriver::Firefox::Profile.new
+      profile.add_extension File.join(File.dirname(__FILE__), "JSErrorCollector-0.4.xpi")
+      FirefoxDelegator.new(Selenium::WebDriver.for(:firefox, :profile => profile))
     end
 
     def errors
-      @driver.execute_script("return window.JSErrorCollector_errors.pump()")
+      execute_script("return window.JSErrorCollector_errors.pump()")
     end
+  end
 
-    def quit
-      @driver.quit
+  class ChromeDelegator < WebDriverDelegator
+    def ChromeDelegator.init
+      require "selenium-webdriver"
+      ChromeDelegator.new(Selenium::WebDriver.for(:chrome, :switches => %w[--ignore-certificate-errors --disable-popup-blocking --disable-translate]))
     end
   end
 end
