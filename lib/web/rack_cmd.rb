@@ -27,8 +27,12 @@ module Ki
   end
 
   module KiWebBase
+    def web_ctx
+      RackCommand.web_ctx
+    end
+
     def ki_home
-      RackCommand.web_ctx.ki_home
+      web_ctx.ki_home
     end
 
     def res_url(path)
