@@ -27,6 +27,26 @@ note: Currently Ki is not ready for any kind of use.
 Once these features are implemented Ki is ready for use on local server. In the future, the goal is to provide tools
 to manage distributed repositories: downloads and replication.
 
+# Tech stack
+
+* http://www.ruby-lang.org/en/
+
+## Testing and documentation
+
+* http://rspec.info/ - Test framework
+* http://gofreerange.com/mocha - Ruby test mocking
+* https://github.com/colszowka/simplecov - Test coverage
+* http://yardoc.org/ - Yard documentation
+* https://github.com/rtomayko/rdiscount - Markdown
+
+## Web
+
+* http://rack.github.com/ - Ruby web server support
+* http://www.sinatrarb.com/ - Simple web application framework
+* http://coffeescript.org/
+* http://sass-lang.com/
+* http://code.google.com/p/selenium/wiki/RubyBindings - Selenium WebDriver
+
 # Copyright
 
 Copyright (c) 2012 Mikko Apo. See {file:LICENSE.txt} for further details.
