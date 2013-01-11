@@ -36,10 +36,3 @@ include Ki
 
 # Override user's own ki-repository settings
 ENV["KIHOME"]=File.dirname(File.dirname(File.expand_path(__FILE__)))
-
-# common helper methods
-
-require 'net/http'
-def http_get(url)
-  Net::HTTP.get_response(URI(url))
-end

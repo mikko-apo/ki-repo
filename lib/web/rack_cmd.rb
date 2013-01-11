@@ -14,6 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require 'socket'
+require 'net/http'
+
 require 'sinatra/base'
 require 'sass'
 require 'coffee-script'
@@ -103,9 +106,13 @@ module Ki
     end
 
     def start_server
-      server = handler.new
-      [:INT, :TERM].each { |sig| trap(sig) { server.stop } }
-      server.run(ki_app, :Port => (@port || 8290))
+      @server = handler.new
+      [:INT, :TERM].each { |sig| trap(sig) { @server.stop } }
+      @server.run(ki_app, :Port => (@port || 8290))
+    end
+
+    def stop_server
+      @server.stop
     end
 
     def execute(ctx, args)

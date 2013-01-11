@@ -144,8 +144,7 @@ describe WebDriverDelegator do
       Thread.new do
         rack.run(BrokenJsApp, :Port => port)
       end
-      try(20, 0.1) do
-        response = http_get(url)
+      RackCommand.wait_until_url_responds(url) do |response|
         response.code.should eq "200"
         response.body.should =~ /BrokenJsApp.txt/
       end
