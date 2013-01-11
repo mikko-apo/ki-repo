@@ -33,11 +33,18 @@ module Ki
   end
 
   class FirefoxDelegator < WebDriverDelegator
+    @@firefox = nil
     def FirefoxDelegator.init
-      require "selenium-webdriver"
-      profile = Selenium::WebDriver::Firefox::Profile.new
-      profile.add_extension File.join(File.dirname(__FILE__), "JSErrorCollector-0.4.xpi")
-      FirefoxDelegator.new(Selenium::WebDriver.for(:firefox, :profile => profile))
+      if @@firefox.nil?
+        require "selenium-webdriver"
+        profile = Selenium::WebDriver::Firefox::Profile.new
+        profile.add_extension File.join(File.dirname(__FILE__), "JSErrorCollector-0.4.xpi")
+        @@firefox = FirefoxDelegator.new(Selenium::WebDriver.for(:firefox, :profile => profile))
+        at_exit do
+          @@firefox.quit
+        end
+      end
+      @@firefox
     end
 
     def errors
@@ -46,9 +53,16 @@ module Ki
   end
 
   class ChromeDelegator < WebDriverDelegator
+    @@chrome = nil
     def ChromeDelegator.init
-      require "selenium-webdriver"
-      ChromeDelegator.new(Selenium::WebDriver.for(:chrome, :switches => %w[--ignore-certificate-errors --disable-popup-blocking --disable-translate]))
+      if @@chrome.nil?
+        require "selenium-webdriver"
+        @@chrome = ChromeDelegator.new(Selenium::WebDriver.for(:chrome, :switches => %w[--ignore-certificate-errors --disable-popup-blocking --disable-translate]))
+        at_exit do
+          @@chrome.quit
+        end
+      end
+      @@chrome
     end
   end
 end

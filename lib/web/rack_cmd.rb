@@ -27,6 +27,7 @@ module Ki
     attr_accessor :ki_home
     attr_accessor :development
     attr_chain :started, -> { Time.now.to_i }
+    attr_chain :resource_hash, -> { started.to_s(16) }
   end
 
   module KiWebBase
@@ -42,8 +43,7 @@ module Ki
       if path.include?("..")
         raise "File '#{path}' cannot reference parent directories with '..'!"
       end
-      time = RackCommand.web_ctx.development ? Time.now.to_i : RackCommand.web_ctx.started
-      "/file/web/#{time.to_s(16)}/#{self.class.name}:#{path}"
+      "/file/web/#{ RackCommand.web_ctx.resource_hash}/#{self.class.name}:#{path}"
     end
   end
 

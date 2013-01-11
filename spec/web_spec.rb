@@ -83,13 +83,8 @@ describe RackCommand do
     Time.expects(:now).returns 123
     a.res_url("foo.scss").should eq "/file/web/7b/String:foo.scss"
     a.res_url("foo.scss").should eq "/file/web/7b/String:foo.scss"
-
-    # development mode generates new urls
     RackCommand.web_ctx.development=true
-    Time.expects(:now).returns 124
-    a.res_url("foo.scss").should eq "/file/web/7c/String:foo.scss"
-    Time.expects(:now).returns 125
-    a.res_url("foo.scss").should eq "/file/web/7d/String:foo.scss"
+    a.res_url("foo.scss").should eq "/file/web/7b/String:foo.scss"
     lambda { a.res_url("../foo.scss") }.should raise_error("File '../foo.scss' cannot reference parent directories with '..'!")
   end
 
@@ -153,10 +148,8 @@ describe WebDriverDelegator do
     @tester.cleaners << -> {rack.stop}
 
     firefox = FirefoxDelegator.init
-    @tester.cleaners << -> {firefox.quit}
 
     chrome = ChromeDelegator.init
-    @tester.cleaners << -> {chrome.quit}
 
     url = "http://localhost:#{port}"
     @tester.catch_stdio do
