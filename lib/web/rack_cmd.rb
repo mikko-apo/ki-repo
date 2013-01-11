@@ -107,7 +107,7 @@ module Ki
 
     def start_server
       @server = handler.new
-      [:INT, :TERM].each { |sig| trap(sig) { @server.stop } }
+      [:INT, :TERM].each { |sig| trap(sig) { stop_server } }
       @server.run(ki_app, :Port => (@port || 8290))
     end
 

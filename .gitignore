@@ -32,3 +32,6 @@ spec/coverage
 
 # osx
 .DS_Store
+
+.sass-cache
+chromedriver.log

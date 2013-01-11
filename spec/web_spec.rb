@@ -103,6 +103,25 @@ describe RackCommand do
     end.stdout.join.should =~ /web server/
   end
 
+  it "supports launching web site from tests" do
+    @tester.restore_extensions
+    KiCommand.register("/web/test", MyApp2)
+
+    RackCommand.web_ctx.ki_home=KiHome.new(@tester.tmpdir)
+    port = RackCommand.find_free_tcp_port
+    rack_command = RackCommand.new
+    url = "http://localhost:#{port}/test"
+    @tester.cleaners << -> {rack_command.stop_server}
+    @tester.catch_stdio do
+      Thread.new do
+        rack_command.execute(RackCommand.web_ctx, %W(-p #{port}))
+      end
+      RackCommand.wait_until_url_responds(url) do |response|
+        [response.code, response.body].should eq ["200", "MyApp2"]
+      end
+    end
+  end
+
   describe "helper method wait_until_url_responds" do
     it "should return when socket responds" do
       url = "foo"
