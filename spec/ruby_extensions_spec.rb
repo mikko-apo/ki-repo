@@ -111,4 +111,9 @@ describe Object do
     }.should raise_error("foo")
     @tester.stdout.join.should =~ /Exception 'foo'/
   end
+
+  it "should have try" do
+    try(2, 0.0001) {1}.should eq 1
+    lambda{try(2, 0.0001) {raise "fails"}}.should raise_error(/fails \(tried 2 times/)
+  end
 end

@@ -19,7 +19,7 @@ require 'spec_helper'
 describe "User prefs" do
   before do
     @tester = Tester.new(example.metadata[:full_description])
-    restore_extensions
+    @tester.restore_extensions
   end
 
   after do

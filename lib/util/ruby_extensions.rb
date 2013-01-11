@@ -144,6 +144,23 @@ class Object
     end
     class_or_module
   end
+
+  def try(retries, retry_sleep, &block)
+    c = 0
+    start = Time.now
+    while c < retries
+      begin
+        return block.call(c+1)
+      rescue Exception => e
+        c += 1
+        if c < retries
+          sleep retry_sleep
+        else
+          raise e.class, e.message + " (tried #{c} times, waited #{sprintf("%.2f", Time.now - start)} seconds)", e.backtrace
+        end
+      end
+    end
+  end
 end
 
 module ObjectSpace

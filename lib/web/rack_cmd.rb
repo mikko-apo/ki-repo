@@ -87,6 +87,21 @@ module Ki
       end
     end
 
+    def RackCommand.wait_until_url_responds(url, &block)
+      try(20, 0.1) do
+        response = Net::HTTP.get_response(URI(url))
+        if block
+          block.call(response)
+        else
+          if (code = response.code) == 200
+            return response
+          else
+            raise "Response code from #{url} was #{code}"
+          end
+        end
+      end
+    end
+
     def start_server
       server = handler.new
       [:INT, :TERM].each { |sig| trap(sig) { server.stop } }

@@ -62,7 +62,7 @@ describe KiCommand do
   end
 
   it "should support pluggable commands" do
-    restore_extensions
+    @tester.restore_extensions
     class TestCommand
 
     end
@@ -76,7 +76,7 @@ describe KiCommand do
   end
 
   it "should list available commands" do
-    restore_extensions
+    @tester.restore_extensions
     class TestCommand
 
     end

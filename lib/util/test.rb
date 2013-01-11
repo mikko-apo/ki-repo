@@ -322,5 +322,14 @@ module Ki
 
       end
     end
+
+    def restore_extensions
+      original_commands = KiCommand::KiExtensions.dup
+      cleaners << lambda do
+        KiCommand::KiExtensions.clear
+        KiCommand::KiExtensions.register(original_commands)
+      end
+    end
+
   end
 end

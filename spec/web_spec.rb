@@ -47,8 +47,7 @@ describe RackCommand do
       Thread.new do
         rack.run(MyApp2, :Port => port)
       end
-      try(20, 0.1) do
-        response = http_get("http://localhost:#{port}")
+      RackCommand.wait_until_url_responds("http://localhost:#{port}") do |response|
         [response.code, response.body].should eq ["200", "MyApp2"]
       end
       rack.stop
@@ -61,7 +60,7 @@ describe RackCommand do
   end
 
   it "should start web app with registered classes" do
-    restore_extensions
+    @tester.restore_extensions
     KiCommand.register("/web/test", MyApp2)
     port = RackCommand.find_free_tcp_port
     # mocking run prevents web app from blocking
@@ -102,6 +101,21 @@ describe RackCommand do
     @tester.catch_stdio do
       KiCommand.new.execute(["help", "web"])
     end.stdout.join.should =~ /web server/
+  end
+
+  describe "helper method wait_until_url_responds" do
+    it "should return when socket responds" do
+      url = "foo"
+      seq = sequence('requests')
+      ok = mock
+      ok.expects(:code).returns(200)
+      fail = mock
+      fail.expects(:code).returns(501)
+      Net::HTTP.expects(:get_response).with(URI(url)).raises("error").in_sequence(seq)
+      Net::HTTP.expects(:get_response).with(URI(url)).returns(fail).in_sequence(seq)
+      Net::HTTP.expects(:get_response).with(URI(url)).returns(ok).in_sequence(seq)
+      RackCommand.wait_until_url_responds("foo")
+    end
   end
 end
 
