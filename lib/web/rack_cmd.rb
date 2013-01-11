@@ -96,7 +96,7 @@ module Ki
         if block
           block.call(response)
         else
-          if (code = response.code) == 200
+          if (code = response.code) == "200"
             return response
           else
             raise "Response code from #{url} was #{code}"

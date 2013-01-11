@@ -108,9 +108,9 @@ describe RackCommand do
       url = "foo"
       seq = sequence('requests')
       ok = mock
-      ok.expects(:code).returns(200)
+      ok.expects(:code).returns("200")
       fail = mock
-      fail.expects(:code).returns(501)
+      fail.expects(:code).returns("501")
       Net::HTTP.expects(:get_response).with(URI(url)).raises("error").in_sequence(seq)
       Net::HTTP.expects(:get_response).with(URI(url)).returns(fail).in_sequence(seq)
       Net::HTTP.expects(:get_response).with(URI(url)).returns(ok).in_sequence(seq)
