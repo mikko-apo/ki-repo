@@ -122,7 +122,7 @@ EOF
           end
           Tester.write_files(dir, file => file_source)
           metadata = VersionMetadataFile.new(File.join(dir, "metadata.json"))
-          metadata.add_files(dir, "*", "tags" => "ki-cmd")
+          metadata.add_files(dir, "*", "tags" => "ki")
           metadata.version_id=ver
           metadata.save
           VersionImporter.new.ki_home(home).import(metadata.path, dir)

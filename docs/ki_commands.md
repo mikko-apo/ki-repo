@@ -14,7 +14,7 @@ Examples
     ki -u my/tools compile
     ki -u my/tools:scripts,tools compile
 
-note: By default only files with tag "ki-cmd" are used. Use the 'my/tools:scripts,tools' to define additional tags.
+note: By default only files with tag "ki" are used. Use the 'my/tools:scripts,tools' to define additional tags.
 
 Common parameters:
 
@@ -191,9 +191,9 @@ Syntax: ki pref prefix|use parameters...
 
 ### Examples for default script loading:
     ki pref use
-    - shows list of automatically loading scripts. when ki starts up, it looks for all defined versions and loads all files tagged with ki-cmd
+    - shows list of automatically loading scripts. when ki starts up, it looks for all defined versions and loads all files tagged with "ki"
     ki pref use ki/http ki/ftp/123:ki-extra
-    - scripts are loaded from two different version. ki/http uses latest available version and files tagged with "ki-cmd", ki/ftp uses specific version and files tagged with "ki-extra"
+    - scripts are loaded from two different version. ki/http uses latest available version and files tagged with "ki", ki/ftp uses specific version and files tagged with "ki-extra"
     ki pref use + ki/scp
     - adds one more script package version
     ki pref use - ki/scp ki/ftp/123:ki-extra
@@ -217,5 +217,15 @@ Syntax: ki pref prefix|use parameters...
 
 ## web: Starts Ki web server and uses code from Ki packages
 
-ki-repo has a built in web server. It can be controlled with following commands
-  ki web
+ki-repo has a built in web server.
+
+### Usage
+
+    ki web - Starts Ki web server
+
+### Parameters
+
+        --handler HANDLER            Use specified Rack Handler
+        --development                Development mode, resource urls are reloaded
+    -p, --port PORT                  Use specified port
+

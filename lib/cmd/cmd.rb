@@ -94,7 +94,7 @@ module Ki
       uses = @use.empty? ? user_pref.uses : @use
       uses.each do |use_str|
         ver, tags_str = use_str.split(":")
-        tags = tags_str ? tags_str.split(",") : "ki-cmd"
+        tags = tags_str ? tags_str.split(",") : "ki"
         version = ki_home.version(ver)
         version.find_files.tags(tags).file_list.each do |full_path|
           load full_path
@@ -145,7 +145,7 @@ Examples
     ki -u my/tools compile
     ki -u my/tools:scripts,tools compile
 
-note: By default only files with tag "ki-cmd" are used. Use the 'my/tools:scripts,tools' to define additional tags.
+note: By default only files with tag "ki" are used. Use the 'my/tools:scripts,tools' to define additional tags.
 
 Common parameters:
 

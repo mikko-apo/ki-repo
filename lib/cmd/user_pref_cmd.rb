@@ -112,9 +112,9 @@ Syntax: #{shell_command} prefix|use parameters...
 
 ### Examples for default script loading:
     #{shell_command} use
-    - shows list of automatically loading scripts. when ki starts up, it looks for all defined versions and loads all files tagged with ki-cmd
+    - shows list of automatically loading scripts. when ki starts up, it looks for all defined versions and loads all files tagged with "ki"
     #{shell_command} use ki/http ki/ftp/123:ki-extra
-    - scripts are loaded from two different version. ki/http uses latest available version and files tagged with "ki-cmd", ki/ftp uses specific version and files tagged with "ki-extra"
+    - scripts are loaded from two different version. ki/http uses latest available version and files tagged with "ki", ki/ftp uses specific version and files tagged with "ki-extra"
     #{shell_command} use + ki/scp
     - adds one more script package version
     #{shell_command} use - ki/scp ki/ftp/123:ki-extra

@@ -20,7 +20,7 @@ Examples
     ki -u my/tools compile
     ki -u my/tools:scripts,tools compile
 
-note: By default only files with tag "ki-cmd" are used. Use the 'my/tools:scripts,tools' to define additional tags.
+note: By default only files with tag "ki" are used. Use the 'my/tools:scripts,tools' to define additional tags.
 
 Ki's extension mechanism makes it easy to manage different scenarios:
 * write and distribute command line utilities
@@ -59,7 +59,7 @@ For more information, see {Ki::SHA2} and {Digest::SHA2}
 ## Web classes - /web/
 
 Ki-repo includes support for running web applications. Web applications are created by creating Rack application classes
-and tagging each file containing classes with "ki-cmd". That way "ki" command loads files and {Ki::RackCommand} starts
+and tagging each file containing classes with "ki". That way "ki" command loads files and {Ki::RackCommand} starts
 web application from classes that were loaded. Each class is registered to the path remaining from registration key:
 
     KiCommand.register("/web/test", MyApp2)
