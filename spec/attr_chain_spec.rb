@@ -95,7 +95,7 @@ describe "attr_chain" do
     f.bar("test").bar.should eq("test")
     Foo.new.bar(f.bar(1)).bar.bar.should eq(1)
     lambda { Foo.new.bar(f.bar("a")) }.should raise_error("invalid value for 'bar'")
-    lambda { Foo.new.bar(2) }.should raise_error("undefined method `bar' for 2:Fixnum")
+    lambda { Foo.new.bar(2) }.should raise_error("undefined method 'bar' for 2:Fixnum")
   end
 
   it "should accept long configuration syntax" do

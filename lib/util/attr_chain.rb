@@ -45,7 +45,7 @@
 # * :default makes it easy to isolate functionality to a default value while still making it easy to override the default behaviour
 # * :default adds easy lazy evalution and memoization to the attribute, default value is evaluated only if needed
 # * Testing becomes easier when objects have more exposed fields
-# * :require converts tricky nil exceptions in to useful errors. Instead of the "undefined method `bar' for nil:NilClass" you get a good error message that states which field was not defined
+# * :require converts tricky nil exceptions in to useful errors. Instead of the "undefined method 'bar' for nil:NilClass" you get a good error message that states which field was not defined
 #      foo.name.bar # if name has not been defined, raises "'name' has not been set" exception
 # * :immutable, :valid and :convert make complex validations and converts easy
 #
