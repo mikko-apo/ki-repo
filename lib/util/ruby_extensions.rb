@@ -109,7 +109,7 @@ class File
         end
       end
       FileUtils.mv(tmp, dest)
-    rescue Exception => e
+    rescue Exception
       FileUtils.remove_entry_secure(tmp)
       raise
     end

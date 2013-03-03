@@ -67,7 +67,7 @@ describe RackCommand do
     DefaultRackHandler.any_instance.expects(:run).times(2).with do |app, config|
       config.should eq({:Port => port})
       code, headers, html = app.call("PATH_INFO" => "/test", "SCRIPT_NAME" => "test", "rack.input" => "1", "REQUEST_METHOD" => "GET")
-      [code, html.body.first].should eq [200, "MyApp2"]
+      [code, headers["Content-Length"], html.first].should eq [200, "6", "MyApp2"]
       true
     end
     KiCommand.new.execute(%W(web -p #{port}))

@@ -53,7 +53,7 @@ describe SimpleOptionParser do
   it "should provide to_s" do
     SimpleOptionParser.new do |opt|
       opt.on("-f", "--file FILE", "read file") do |file|
-        f = file
+        file.to_s
       end
     end.to_s.should eq("    -f, --file                       read file")
   end
