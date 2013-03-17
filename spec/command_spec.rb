@@ -25,7 +25,7 @@ describe KiCommand do
     @tester.after
   end
 
-  it "should display ki help if no parameters" do
+  it "should display ki help and repository summary if there are no command line parameters" do
     @tester.chdir(@source = @tester.tmpdir)
     @home = KiHome.new(@source)
     Tester.write_files(@source, "readme.txt" => "aa", "test.sh" => "bb")
