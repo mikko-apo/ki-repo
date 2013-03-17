@@ -21,7 +21,6 @@ module Ki
     attr_chain :uses, -> { Array.new }, :accessor => CachedData
     attr_chain :prefixes, -> { Array.new }, :accessor => CachedData
     attr_chain :requires, -> { Array.new }, :accessor => CachedData
-    attr_chain :loads, -> { Array.new }, :accessor => CachedData
 
     def initialize
       super("ki-user-pref.json")
@@ -45,9 +44,6 @@ module Ki
       elsif pref == "require"
         arr = user_pref.requires
         str = "Require"
-      elsif pref == "load"
-        arr = user_pref.loads
-        str = "Load"
       elsif pref.nil?
         puts "User preferences:"
         user_pref.cached_data.each_pair do |key, values|
@@ -128,13 +124,6 @@ Syntax: #{shell_command} prefix|use parameters...
     #{shell_command} require + hooves/default
     #{shell_command} require - hooves/default
     #{shell_command} require -c
-
-### Examples for default Ruby file loading:
-    #{shell_command} load
-    #{shell_command} load test.rb
-    #{shell_command} load + test.rb
-    #{shell_command} load - test.rb
-    #{shell_command} load -c
 EOF
     end
   end

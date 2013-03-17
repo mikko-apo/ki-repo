@@ -192,16 +192,5 @@ EOF
         KiCommand.new.execute(%W(pref require --require net/http -h #{@source}))
       end.stdout.join.should eq("Require: net/http\n")
     end
-
-    it "should support --require" do
-      test = File.join(@source, "test.rb")
-      File.safe_write(test, "")
-      @tester.catch_stdio do
-        KiCommand.new.execute(%W(pref load #{test} -h #{@source}))
-      end.stdout.join.should eq("Load: #{test}\n")
-      @tester.catch_stdio do
-        KiCommand.new.execute(%W(pref load --load #{test} -h #{@source}))
-      end.stdout.join.should eq("Load: #{test}\n")
-    end
   end
 end

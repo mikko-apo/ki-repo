@@ -39,14 +39,13 @@ module Ki
       KiExtensions.register(name, clazz)
     end
 
-    # bin/kaiju command line tool calls this method, which finds the correct class to manage the execution
+    # bin/ki command line tool calls this method, which finds the correct class to manage the execution
     def execute(args)
       @use = []
       @require = []
       @load = []
       my_args = opts.parse(args.dup)
       require_files
-      load_files
       load_scripts
       if my_args.empty?
         KiCommandHelp.new.shell_command("#{0} help").execute(self, [])
@@ -63,11 +62,8 @@ module Ki
         opts.on("-u", "--use VER", "Use defined scripts") do |v|
           @use << v.split(",")
         end
-        opts.on("--require RB", "Require Ruby files") do |v|
+        opts.on("--require RUBYFILE", "Require Ruby files, comma separated list") do |v|
           @require << v.split(",")
-        end
-        opts.on("--load RB", "Load Ruby files") do |v|
-          @load << v.split(",")
         end
       end
     end
@@ -76,15 +72,9 @@ module Ki
       @require.flatten!
       requires = @require.empty? ? user_pref.requires : @require
       requires.each do |req|
-        require req
-      end
-    end
-
-    def load_files
-      @load.flatten!
-      loads = @load.empty? ? user_pref.loads : @load
-      loads.each do |full_path|
-        load full_path
+        Dir.glob(req).each do |path|
+          require path
+        end
       end
     end
 
