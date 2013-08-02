@@ -44,6 +44,7 @@ Command classes are registered with KiCommand.register_cmd
     KiCommand.register_cmd("version-build", BuildVersionMetadataFile)
 
 They should implement following methods:
+
 * execute(ctx, args)
 * help, summary
 * attr_chain :shell_command, :require is optional but help method can use it to generate more useful help texts
