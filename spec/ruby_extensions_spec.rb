@@ -117,3 +117,10 @@ describe Object do
     lambda{try(2, 0.0001) {raise "fails"}}.should raise_error(/fails \(tried 2 times/)
   end
 end
+
+describe String do
+  it "should split strip" do
+    " foo bar ".split_strip.should eq(["foo bar"])
+    " foo , bar, baz ,zap ".split_strip.should eq(["foo", "bar", "baz", "zap"])
+  end
+end

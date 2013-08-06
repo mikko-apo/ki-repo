@@ -163,6 +163,12 @@ class Object
   end
 end
 
+class String
+  def split_strip(separator=",")
+    split(separator).map{|s| s.strip}
+  end
+end
+
 module ObjectSpace
   def ObjectSpace.all_classes
     arr = []
