@@ -23,6 +23,7 @@ require_relative 'util/test'
 require_relative 'util/service_registry'
 require_relative 'util/hash'
 require_relative 'util/hash_cache'
+require_relative 'util/hash_log'
 require_relative 'util/simple_optparse'
 
 require_relative 'data_storage/dir_base'
