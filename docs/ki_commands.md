@@ -20,8 +20,7 @@ Common parameters:
 
     -h, --home                       Path to Ki root directory
     -u, --use                        Use defined scripts
-        --require                    Require Ruby files
-        --load                       Load Ruby files
+        --require                    Require Ruby files, comma separated list
 
 ## help: Displays help for given Ki command
 
@@ -163,6 +162,14 @@ Status value order is used to determine which statuses match version queries:
     ki version-show -r -d my/component/23 my/product/127
     ki version-show -f ki-version.json -i binary-dir
 
+### Parameters
+
+    -r, --recursive                  Shows version's dependencies.
+    -d, --dirs                       Shows version's directories.
+    -f, --file FILE                  Version source file. By default uses file's directory as source for binary files.
+    -i, --input-directory INPUT-DIR  Binary file input directory
+
+
 ## version-search: Searches for versions and components
 
 "ki version-search" searches for versions and components.
@@ -207,13 +214,6 @@ Syntax: ki pref prefix|use parameters...
     ki pref require + hooves/default
     ki pref require - hooves/default
     ki pref require -c
-
-### Examples for default Ruby file loading:
-    ki pref load
-    ki pref load test.rb
-    ki pref load + test.rb
-    ki pref load - test.rb
-    ki pref load -c
 
 ## web: Starts Ki web server and uses code from Ki packages
 

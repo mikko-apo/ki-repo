@@ -426,6 +426,9 @@ EOF
 
     #{shell_command} -r -d my/component/23 my/product/127
     #{shell_command} -f ki-version.json -i binary-dir
+
+### Parameters
+#{opts}
 EOF
     end
   end
