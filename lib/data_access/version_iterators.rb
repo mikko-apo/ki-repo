@@ -25,7 +25,7 @@ module Ki
     attr_chain :finder, -> { version.component.finder }
     attr_chain :block
     attr_chain :internals
-    attr_chain :exclude_dependencies, -> { [] }, :convert => lambda { |list| Array.wrap(list).map { |s| /#{s}/ } }
+    attr_chain :exclude_dependencies, -> { [] }, :convert => lambda { |list| Array(list).map { |s| /#{s}/ } }
 
     def iterate_versions(&block)
       start_iteration do |version_iterator|
@@ -80,10 +80,10 @@ module Ki
   end
 
   class FileFinder < VersionIterator
-    attr_chain :files, -> { [] }, :convert => lambda { |list| Array.wrap(list).map { |s| FileRegexp.matcher(s) } }
-    attr_chain :exclude_files, -> { [] }, :convert => lambda { |list| Array.wrap(list).map { |s| FileRegexp.matcher(s) } }
-    attr_chain :tags, -> { [] }, :convert => lambda { |list| Array.wrap(list)}
-    attr_chain :exclude_tags, -> { [] }, :convert => lambda { |list| Array.wrap(list)}
+    attr_chain :files, -> { [] }, :convert => lambda { |list| Array(list).map { |s| FileRegexp.matcher(s) } }
+    attr_chain :exclude_files, -> { [] }, :convert => lambda { |list| Array(list).map { |s| FileRegexp.matcher(s) } }
+    attr_chain :tags, -> { [] }, :convert => lambda { |list| Array(list)}
+    attr_chain :exclude_tags, -> { [] }, :convert => lambda { |list| Array(list)}
 
     def file_map
       start_iteration do |ver_iterator|

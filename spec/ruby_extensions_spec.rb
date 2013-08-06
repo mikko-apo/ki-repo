@@ -22,8 +22,8 @@ describe Array do
     lambda { [].size!(1, 2..3) }.should raise_error("size 0 does not match '1', '2..3'")
   end
   it "wrap should wrap anything other than array to an array" do
-    Array.wrap(Object).should eq([Object])
-    Array.wrap([Object]).should eq([Object])
+    Array(Object).should eq([Object])
+    Array([Object]).should eq([Object])
   end
   it "find_first should support block selection" do
     [1, 2].find_first.should eq(1)

@@ -389,7 +389,7 @@ EOF
     end
 
     def map_to_csl(map)
-      map.sort.map { |k, v| "#{k}=#{Array.wrap(v).join(",")}" }.join(", ")
+      map.sort.map { |k, v| "#{k}=#{Array(v).join(",")}" }.join(", ")
     end
 
     def opts

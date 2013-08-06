@@ -50,7 +50,7 @@ module Ki
 
     # Processes all files from source that match patterns and for each file calculates hashes and stores tags based on default_parameters
     def add_files(source, patterns, default_parameters={})
-      files_or_dirs = Array.wrap(patterns).map do |pattern|
+      files_or_dirs = Array(patterns).map do |pattern|
         Dir.glob(File.join(source, pattern))
       end.flatten
 
@@ -82,7 +82,7 @@ module Ki
         extra["executable"]=true
       end
       if parameters["tags"]
-        tags = Array.wrap(parameters["tags"])
+        tags = Array(parameters["tags"])
         if tags && tags.size > 0
           extra["tags"]= tags
         end

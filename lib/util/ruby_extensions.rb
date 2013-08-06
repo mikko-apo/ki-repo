@@ -82,14 +82,6 @@ end
 
 class Array
   include Ki::KiEnumerable
-
-  def Array.wrap(maybe_arr)
-    if maybe_arr.kind_of?(Array)
-      maybe_arr
-    else
-      [maybe_arr]
-    end
-  end
 end
 
 module Enumerable
