@@ -111,13 +111,13 @@ describe HashLog do
       root_log = l
       a = Thread.new do
         latch.wait(:b_ready)
-        f.thread_log_root(l)
+        f.set_hash_log_root_for_thread(l)
         f.log("a") do
         end
         latch.tick(:a_ready)
       end
       b = Thread.new do
-        f.thread_log_root(l)
+        f.set_hash_log_root_for_thread(l)
         f.log("b") do
           latch.tick(:b_ready)
           latch.wait(:a_ready)

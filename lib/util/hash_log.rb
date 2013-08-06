@@ -15,51 +15,79 @@
 # limitations under the License.
 
 module Ki
+  # Generate hash object based log entries.
+  # @see log
   module HashLog
-    ThreadCurrentHashLogKey = :hash_log
+    HashLogThreadCurrentKey = :hash_log
+    HashLogMutex = Mutex.new
 
+    # Create a hash log entry or return current hash log entry
+    # * Supports hierarchic logs, where log entry can contain any number of sub entries
+    # * Supports parallel execution, threads can log in to one log structure
+    # * Logs start and stop time of execution
+    #
+    # Hierarchic logging works by keeping a stack of log entries in Thread local store
+    #
+    # @see set_hash_log_root_for_thread
+    # @see hash_log_current
     def log(*args, &block)
-      current_log_entry = current_log
+      current_log_entry = hash_log_current
+      # return
       if args.empty? && block.nil?
         current_log_entry
       else
-        # there were parameters, create a new log entry
-        if current_log_entry
-          log_list = current_log_entry["logs"] ||= []
-        else
-          log_list = Thread.current[ThreadCurrentHashLogKey]
-        end
-        log_list << new_l = {"start" => Time.now}
+        new_entry = {"start" => Time.now}
         if args.first.kind_of?(String)
-          new_l["name"] = args.delete_at(0)
+          new_entry["name"] = args.delete_at(0)
         end
         if args.first.kind_of?(Hash)
-          new_l.merge!(args.first)
+          new_entry.merge!(args.first)
         end
-        if block
-          Thread.current[ThreadCurrentHashLogKey] << new_l
-          begin
-            block.call new_l
-          rescue Exception => e
-            new_l["exception"] = e.message
-            new_l["backtrace"] = e.backtrace.join("\n")
-            raise
-          ensure
-            Thread.current[ThreadCurrentHashLogKey].delete(new_l)
-            new_l["end"] = Time.now
+        log_list = nil
+        if current_log_entry
+          # there is current log entry, create a new sub log entry
+          HashLogMutex.synchronize do
+            log_list = current_log_entry["logs"] ||= []
           end
         else
-          new_l
+          # append new_entry to end of log list
+          log_list = Thread.current[HashLogThreadCurrentKey]
+        end
+        HashLogMutex.synchronize do
+          log_list << new_entry
+        end
+        if block
+          HashLogMutex.synchronize do
+            Thread.current[HashLogThreadCurrentKey] << new_entry
+          end
+          begin
+            block.call new_entry
+          rescue Exception => e
+            new_entry["exception"] = e.message
+            new_entry["backtrace"] = e.backtrace.join("\n")
+            raise
+          ensure
+            HashLogMutex.synchronize do
+              Thread.current[HashLogThreadCurrentKey].delete(new_entry)
+            end
+            new_entry["end"] = Time.now
+          end
+        else
+          new_entry
         end
       end
     end
 
-    def thread_log_root(root)
-      (Thread.current[ThreadCurrentHashLogKey] ||= []) << root
+    def set_hash_log_root_for_thread(root)
+      HashLogMutex.synchronize do
+        (Thread.current[HashLogThreadCurrentKey] ||= []) << root
+      end
     end
 
-    def current_log
-      (Thread.current[ThreadCurrentHashLogKey] ||= []).last
+    def hash_log_current
+      HashLogMutex.synchronize do
+        (Thread.current[HashLogThreadCurrentKey] ||= []).last
+      end
     end
   end
 end

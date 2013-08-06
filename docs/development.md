@@ -44,3 +44,4 @@ Follow the instructions here: {file:docs/development_setup.md}
 * {ExceptionCatcher} - Execute multiple blocks and process exceptions in the end
 * {Ki::ServiceRegistry} - Class for storing all Ki extensions
 * {Ki::SimpleOptionParser} - Simplified OptionParser
+* {Ki::HashLog} - Hash based logging
