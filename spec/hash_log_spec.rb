@@ -109,6 +109,7 @@ describe HashLog do
     root_log = nil
     f.log("root") do |l|
       root_log = l
+      f.log.should eq(l)
       a = Thread.new do
         latch.wait(:b_ready)
         f.set_hash_log_root_for_thread(l)
@@ -127,5 +128,29 @@ describe HashLog do
       b.join
     end
     root_log.should == {"start" => 11, "name" => "root", "logs" => [{"start" => 22, "name" => "b", "end" => 55}, {"start" => 33, "name" => "a", "end" => 44}], "end" => 66}
+  end
+
+  it "should log exception" do
+    class Foo
+      include HashLog
+    end
+    f = Foo.new
+    root_log = nil
+    lambda{
+      f.log("root") do |l|
+        root_log = l
+        raise "foo"
+      end
+    }.should raise_error("foo")
+    root_log["exception"].should eq("foo")
+  end
+
+  it "should generate a simple log object" do
+    class Foo
+      include HashLog
+    end
+    f = Foo.new
+    l = f.log("root")
+    l["start"].should be_true
   end
 end
