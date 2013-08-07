@@ -100,5 +100,9 @@ module Ki
     def child(name)
       DirectoryBase.new(name)
     end
+
+    def empty?(*sub_path)
+      Dir.entries(go(*sub_path).path).size == 2
+    end
   end
 end

@@ -38,7 +38,7 @@ module Ki
       if @@firefox.nil?
         require "selenium-webdriver"
         profile = Selenium::WebDriver::Firefox::Profile.new
-        profile.add_extension File.join(File.dirname(__FILE__), "JSErrorCollector-0.4.xpi")
+        profile.add_extension File.join(File.dirname(__FILE__), "JSErrorCollector-0.5.xpi")
         @@firefox = FirefoxDelegator.new(Selenium::WebDriver.for(:firefox, :profile => profile))
         at_exit do
           @@firefox.quit
@@ -48,7 +48,8 @@ module Ki
     end
 
     def errors
-      execute_script("return window.JSErrorCollector_errors.pump()")
+# FF23 fails
+#      execute_script("return window.JSErrorCollector_errors.pump()")
     end
   end
 

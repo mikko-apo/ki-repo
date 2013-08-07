@@ -39,4 +39,11 @@ describe DirectoryBase do
     b = DirectoryBase.new("b").parent(a)
     b.root.should eq a
   end
+
+  it "should support empty?" do
+    root = DirectoryBase.new(@tester.tmpdir)
+    root.empty?.should be_true
+    FileUtils.touch(root.path("foo.txt"))
+    root.empty?.should be_false
+  end
 end
