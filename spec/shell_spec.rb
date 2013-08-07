@@ -26,4 +26,7 @@ describe HashLogShell do
     }.should raise_error("Shell command 'false' failed with exit code 1")
     HashLogShell.new.ignore_error(true).spawn("false")
   end
+  it "should catch output" do
+    HashLogShell.new.spawn("echo foo").out.should eq("foo\n")
+  end
 end

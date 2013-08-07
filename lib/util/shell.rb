@@ -22,6 +22,8 @@ module Ki
     attr_chain :pid, :require
     attr_chain :env, :require
     attr_chain :options, :require
+    attr_chain :out, :require
+    attr_chain :err, :require
   end
   class DummyHashLog
     def log(*arr, &block)
@@ -33,21 +35,31 @@ module Ki
     attr_chain :chdir
     attr_chain :ignore_error
     attr_reader :previous
-    attr_chain :root_log, -> {DummyHashLog.new}
+    attr_chain :root_log, -> { DummyHashLog.new }
+
     def spawn(*arr)
       run_env = {}
       run_options = {}
-      if(env)
+      if (env)
         run_env.merge!(env)
       end
-      if(arr.first.kind_of?(Hash))
+      if (arr.first.kind_of?(Hash))
         run_env.merge!(arr.delete_at(0))
       end
-      if(arr.last.kind_of?(Hash))
+      if (arr.last.kind_of?(Hash))
         run_options.merge!(arr.delete_at(-1))
       end
-      if(chdir && !run_options[:chdir])
+      if (chdir && !run_options[:chdir])
         run_options[:chdir] = chdir
+      end
+      rout = wout = rerr = werr = nil
+      if (!run_options[:out])
+        rout, wout = IO.pipe
+        run_options[:out]=wout
+      end
+      if (!run_options[:err])
+        rerr, werr = IO.pipe
+        run_options[:err]=werr
       end
       cmd = arr.first
       root_log.log("Shell command '#{cmd}'") do
@@ -60,7 +72,17 @@ module Ki
             pid(pid).
             env(run_env).
             options(run_options)
-        if(exitstatus != 0 && !ignore_error)
+        if rout
+          wout.close
+          @previous.out(rout.readlines.join("\n"))
+          rout.close
+        end
+        if rerr
+          werr.close
+          @previous.err(rerr.readlines.join("\n"))
+          rerr.close
+        end
+        if (exitstatus != 0 && !ignore_error)
           raise "Shell command '#{cmd}' failed with exit code #{exitstatus}"
         end
         @previous
