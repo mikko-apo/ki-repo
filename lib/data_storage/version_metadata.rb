@@ -20,7 +20,7 @@ module Ki
 # * build_info Hash. keys: source, tag, commiter. values=Strings
 # * filesets Hash. keys: Sorted array of tags. values: List of File info Hash.
 #   * File info Hash. keys: path, size, executable, sha-1
-# * dependencies List. values: Dependency Hash. keys: dependency_id, path, internal, dependency_operations
+# * dependencies List. values: Dependency Hash. keys: name, dependency_id, path, internal, dependency_operations
 # * fileoperations
   class VersionMetadataFile < KiJSONHashFile
     attr_chain :version_id, :require, :accessor => CachedData
