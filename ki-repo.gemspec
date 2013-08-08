@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "ki-repo"
-  s.version = "0.1.1"
+  s.version = "0.1.2"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Mikko Apo"]
-  s.date = "2012-12-20"
+  s.date = "2013-08-08"
   s.description = "A generic repository for storing packages and metadata related to the packages."
   s.executables = ["ki"]
   s.extra_rdoc_files = [
@@ -45,21 +45,29 @@ Gem::Specification.new do |s|
     "lib/util/exception_catcher.rb",
     "lib/util/hash.rb",
     "lib/util/hash_cache.rb",
+    "lib/util/hash_log.rb",
     "lib/util/ruby_extensions.rb",
     "lib/util/service_registry.rb",
+    "lib/util/shell.rb",
     "lib/util/simple_optparse.rb",
-    "lib/util/test.rb"
+    "lib/util/test.rb",
+    "lib/web/default_rack_handler.rb",
+    "lib/web/rack_cmd.rb",
+    "lib/web/test_browser.rb"
   ]
   s.homepage = "http://github.com/mikko-apo/ki-repo"
   s.licenses = ["Apache License, Version 2.0"]
   s.require_paths = ["lib"]
-  s.rubygems_version = "1.8.24"
+  s.rubygems_version = "2.0.6"
   s.summary = "Repository for storing packages and metadata - note: not ready for any kind of use"
 
   if s.respond_to? :specification_version then
-    s.specification_version = 3
+    s.specification_version = 4
 
     if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
+      s.add_runtime_dependency(%q<sinatra>, [">= 0"])
+      s.add_runtime_dependency(%q<sass>, [">= 0"])
+      s.add_runtime_dependency(%q<coffee-script>, [">= 0"])
       s.add_development_dependency(%q<rspec>, [">= 0"])
       s.add_development_dependency(%q<yard>, [">= 0"])
       s.add_development_dependency(%q<bundler>, [">= 0"])
@@ -67,7 +75,12 @@ Gem::Specification.new do |s|
       s.add_development_dependency(%q<simplecov>, [">= 0"])
       s.add_development_dependency(%q<rdiscount>, [">= 0"])
       s.add_development_dependency(%q<mocha>, [">= 0"])
+      s.add_development_dependency(%q<rack-test>, [">= 0"])
+      s.add_development_dependency(%q<selenium-webdriver>, [">= 0"])
     else
+      s.add_dependency(%q<sinatra>, [">= 0"])
+      s.add_dependency(%q<sass>, [">= 0"])
+      s.add_dependency(%q<coffee-script>, [">= 0"])
       s.add_dependency(%q<rspec>, [">= 0"])
       s.add_dependency(%q<yard>, [">= 0"])
       s.add_dependency(%q<bundler>, [">= 0"])
@@ -75,8 +88,13 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<simplecov>, [">= 0"])
       s.add_dependency(%q<rdiscount>, [">= 0"])
       s.add_dependency(%q<mocha>, [">= 0"])
+      s.add_dependency(%q<rack-test>, [">= 0"])
+      s.add_dependency(%q<selenium-webdriver>, [">= 0"])
     end
   else
+    s.add_dependency(%q<sinatra>, [">= 0"])
+    s.add_dependency(%q<sass>, [">= 0"])
+    s.add_dependency(%q<coffee-script>, [">= 0"])
     s.add_dependency(%q<rspec>, [">= 0"])
     s.add_dependency(%q<yard>, [">= 0"])
     s.add_dependency(%q<bundler>, [">= 0"])
@@ -84,6 +102,8 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<simplecov>, [">= 0"])
     s.add_dependency(%q<rdiscount>, [">= 0"])
     s.add_dependency(%q<mocha>, [">= 0"])
+    s.add_dependency(%q<rack-test>, [">= 0"])
+    s.add_dependency(%q<selenium-webdriver>, [">= 0"])
   end
 end
 
