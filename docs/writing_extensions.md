@@ -55,7 +55,7 @@ For more information, see {Ki::ImportVersion}
 
 Classes used for hashing must implement class method digest which returns a class extending Digest::Class
 
-For more information, see {Ki::SHA2} and {Digest::SHA2}
+For more information, see {Ki::SHA2} and {Ki::SHA2}
 
 ## Web classes - /web/
 

@@ -21,7 +21,7 @@ Follow the instructions here: {file:docs/development_setup.md}
 ## Data storage - files and directories
 
 * {Ki::KiHome}, {Ki::Repository::Repository}, {Ki::Repository::Component}, {Ki::Repository::Version} - Repository directory objects
-* {Ki::VersionMetadataFile}, {Ki::Dependency}, {Ki::VersionStatusFile} - Version metadata and statuses
+* {Ki::VersionMetadataFile}, {Ki::VersionStatusFile} - Version metadata and statuses
 * {Ki::DirectoryBase} - Base class for file and directory management
 * {Ki::KiJSONFile}, {Ki::KiJSONListFile}, {Ki::KiJSONHashFile}, {Ki::KiJSONHashFile::CachedMapDataAccessor} - Base classes for JSON files
 * {Ki::DirectoryWithChildrenInListFile} - Helper to generate list file class and related methods for a repository object
