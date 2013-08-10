@@ -1,11 +1,17 @@
 # @title ki-repo: Backlog
 
 # Features
-* Download & replication
-* daemon / supervisor: long running processes, web site monitoring
+* daemon / supervisor
+** launches new processes
+** monitors processes
+** check if new builds are needed
+** web site process
+** common state for processes: which components are being built
 * cleanup and removal operations
+* Download & replication
 
 # Bugs
+* Lock JSON file for editing
 * if there is a file ki-version.json under ki-repo directory, many tests fail
 * /web/ is not registered correctly
 * fix defined? checks
