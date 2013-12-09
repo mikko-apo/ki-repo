@@ -18,15 +18,15 @@ require 'spec_helper'
 
 describe HashLogShell do
   it "should execute simple command succesfully" do
-    HashLogShell.new.chdir(Dir.pwd).env({}).spawn({}, "true", {})
+    HashLogShell.new.chdir(Dir.pwd).env({}).root_log(DummyHashLog.new).spawn({}, "true", {})
   end
   it "should notice failed commands" do
     lambda {
-      HashLogShell.new.spawn("false")
+      HashLogShell.new.root_log(DummyHashLog.new).spawn("false")
     }.should raise_error("Shell command 'false' failed with exit code 1")
-    HashLogShell.new.ignore_error(true).spawn("false")
+    HashLogShell.new.ignore_error(true).root_log(DummyHashLog.new).spawn("false")
   end
   it "should catch output" do
-    HashLogShell.new.spawn("echo foo").out.should eq("foo\n")
+    HashLogShell.new.root_log(DummyHashLog.new).spawn("echo foo").out.should eq("foo\n")
   end
 end

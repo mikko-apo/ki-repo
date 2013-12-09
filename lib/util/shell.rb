@@ -25,9 +25,9 @@ module Ki
     attr_chain :out, :require
     attr_chain :err, :require
   end
-  class DummyHashLog
+  class DummyHashLog < Hash
     def log(*arr, &block)
-      block.call
+      block.call(self)
     end
   end
   class HashLogShell
@@ -35,7 +35,7 @@ module Ki
     attr_chain :chdir
     attr_chain :ignore_error
     attr_reader :previous
-    attr_chain :root_log, -> { DummyHashLog.new }
+    attr_chain :root_log, :require
 
     def spawn(*arr)
       run_env = {}
@@ -62,7 +62,8 @@ module Ki
         run_options[:err]=werr
       end
       cmd = arr.first
-      root_log.log("Shell command '#{cmd}'") do
+      root_log.log(cmd.split(" ")[0]) do |l|
+        l["cmd"]=cmd
         pid = system_spawn(run_env, cmd, run_options)
         pid, status = Process.waitpid2(pid)
         exitstatus = status.exitstatus
@@ -75,11 +76,13 @@ module Ki
         if rout
           wout.close
           @previous.out(rout.readlines.join("\n"))
+          l["stdout"]=@previous.out
           rout.close
         end
         if rerr
           werr.close
           @previous.err(rerr.readlines.join("\n"))
+          l["stderr"]=@previous.err
           rerr.close
         end
         if (exitstatus != 0 && !ignore_error)
