@@ -24,6 +24,10 @@ module Ki
 
     def initialize(source)
       @source = source
+      reload
+    end
+
+    def reload
       @components = load_all_components
       @versions = HashCache.new
     end

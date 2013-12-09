@@ -87,6 +87,7 @@ module Ki
     attr_chain :move_files
     attr_chain :create_new_version
     attr_chain :specific_version_id
+    attr_chain :repository_id, -> {"local"}
 
     # Imports a version to KiHome
     # * import(file, binary_directory) expects two String parameters defining version file location and directory base for binaries
@@ -101,6 +102,13 @@ module Ki
       test_version(file, input)
 
       import_from_metadata(metadata, source)
+    end
+
+    # Shortcut to create a version under a repository.
+    # @return Repository::Version
+    def VersionImporter.create_version_dir(ki_home, repository_id, component_id, version_number)
+      components_dir = ki_home.repositories.add_item(repository_id).mkdir.components
+      components_dir.add_item(component_id).mkdir.versions.add_version(version_number).mkdir
     end
 
     def import_from_metadata(metadata, source=nil)
@@ -134,8 +142,7 @@ module Ki
       end
 
       # creates directories
-      components_dir = ki_home.repositories.add_item("local").mkdir.components
-      binary_dest = metadata_dir = components_dir.add_item(component_id).mkdir.versions.add_version(version_number).mkdir
+      binary_dest = metadata_dir = VersionImporter.create_version_dir(ki_home, repository_id, component_id, version_number)
 
       metadata_dir.metadata.cached_data = metadata.cached_data
       metadata_dir.metadata.version_id = version_id
@@ -154,6 +161,8 @@ module Ki
         to_repo(source.path(file_path), binary_dest.path(file_path))
       end
       delete_empty_source_dirs(source, source_dirs)
+      finder.reload
+      finder.version(version_id)
     end
 
 
