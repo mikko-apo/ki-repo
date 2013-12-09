@@ -221,6 +221,7 @@ module Ki
     attr_chain :copy
 
     # Exports a version to directory
+    # @return Ki::Version
     def export(version, out)
       ver = finder.version(version)
       if test_dependencies
@@ -238,6 +239,7 @@ module Ki
           FileUtils.ln_sf(full_path, File.join(out, file_path))
         end
       end
+      ver
     end
 
     def test_version(version)
