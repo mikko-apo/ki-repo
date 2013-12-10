@@ -25,6 +25,8 @@ module Ki
     class Version < DirectoryBase
       attr_chain :version_id, :require
       attr_chain :metadata, -> {VersionMetadataFile.new("ki-version.json").json_default("version_id" => version_id).parent(self)}
+      attr_chain :build_info, -> {VersionBuildInfo.new("ki-build-info.json").parent(self)}
+      attr_chain :build_logs, -> {VersionBuildLogs.new("ki-build-logs.json").parent(self)}
 
       def statuses
         VersionStatusFile.new("ki-statuses.json").parent(self)

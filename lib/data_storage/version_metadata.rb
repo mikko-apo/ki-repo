@@ -153,4 +153,12 @@ module Ki
       cached_data.select { |hash| hash["key"].match(key) }
     end
   end
+
+  class VersionBuildInfo < KiJSONHashFile
+
+  end
+
+  class VersionBuildLogs < KiJSONHashFile
+
+  end
 end
