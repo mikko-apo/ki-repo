@@ -36,13 +36,39 @@ module Ki
 
     # finds first Repository::Version directory for this version that contains binaries
     def find_binaries
-      finder.all_repositories.each do |package_root|
-        binary_dir = package_root.go(version_id)
+      all_repository_versions do |binary_dir|
         if binary_dir.exists?
           return binary_dir
         end
       end
+    end
+
+    def all_repository_versions(&block)
+      finder.all_repositories.each do |package_root|
+        block.call(package_root.version(version_id))
+      end
       nil
+    end
+
+    def find_from_all_repository_versions(&block)
+      all_repository_versions do |version|
+        file = block.call(version)
+        if file.exists?
+          return file
+        end
+      end
+    end
+
+    def build_logs
+      find_from_all_repository_versions do |version|
+        version.build_logs
+      end
+    end
+
+    def build_info
+      find_from_all_repository_versions do |version|
+        version.build_info
+      end
     end
 
     # finds first Repository::Version directory that contains metadata
