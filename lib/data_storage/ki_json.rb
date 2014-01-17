@@ -146,7 +146,16 @@ module Ki
         return c
       end
     end
-    raise "#{class_name} '\#{#{name}_id}' not found"
+    nil
+  end
+
+  def #{name}!(#{name}_id, #{pluralized_name}_list=#{pluralized_name})
+     ret = #{name}(#{name}_id, #{pluralized_name}_list)
+     if ret
+       ret
+     else
+      raise "#{class_name} '\#{#{name}_id}' not found"
+     end
   end
 METHODS
       obj.class_eval(new_methods, __FILE__, (__LINE__ - new_methods.split("\n").size - 1))

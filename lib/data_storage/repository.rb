@@ -84,10 +84,8 @@ module Ki
 
       # finds version matching the last part of version string, for example: my/component/1 looks for version named 1
       # @see Component#version
-      def version(str)
-        args = str.split("/")
-        args.delete_at(-1)
-        component(args.join("/")).version(str)
+      def version!(str)
+        component!(Ki::Component.component_from_version(str)).version!(str)
       end
     end
   end

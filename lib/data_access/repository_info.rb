@@ -45,7 +45,20 @@ module Ki
 
     def all_repository_versions(&block)
       finder.all_repositories.each do |package_root|
-        block.call(package_root.version(version_id))
+        if component = package_root.component(Ki::Component.component_from_version(version_id))
+          if version = component.version(version_id)
+            block.call(version)
+          end
+        end
+      end
+      nil
+    end
+
+    def find_component
+      finder.all_repositories.each do |package_root|
+        if component = package_root.component(Ki::Component.component_from_version(version_id))
+          return component
+        end
       end
       nil
     end
@@ -174,6 +187,12 @@ module Ki
         end
       end
       ret
+    end
+
+    def Component.component_from_version(str)
+      args = str.split("/")
+      args.delete_at(-1)
+      args.join("/")
     end
   end
 end

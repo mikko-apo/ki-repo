@@ -302,7 +302,7 @@ EOF
           key, value = key_value.split("=")
           flags = rest.to_h("=")
           repository = ctx.ki_home.repository(@repository)
-          repository.version(version).statuses.add_status(key, value, flags)
+          repository.version!(version).statuses.add_status(key, value, flags)
         when "order"
           component, key, values_str = args
           repository = ctx.ki_home.repository(@repository)
