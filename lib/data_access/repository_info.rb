@@ -44,12 +44,18 @@ module Ki
     end
 
     def all_repository_versions(&block)
-      finder.all_repositories.each do |package_root|
-        if component = package_root.component(Ki::Component.component_from_version(version_id))
-          if version = component.version(version_id)
-            block.call(version)
+      component = find_component
+      if component.version(version_id)
+        finder.all_repositories.each do |package_root|
+          if package_root.exists?(version_id)
+            cid = Ki::Component.component_from_version(version_id)
+            found_component = Ki::Repository::Component.new(cid).component_id(cid).parent(package_root)
+            found_version = Ki::Repository::Version.new(Version.version_id_from_version_str(version_id)).version_id(version_id).parent(found_component)
+            block.call(found_version)
           end
         end
+      else
+        raise "Version not available: " + version_id
       end
       nil
     end
@@ -120,7 +126,11 @@ module Ki
     end
 
     def exists?
-      metadata || binaries
+      begin
+        return metadata || binaries
+      rescue Exception => e
+      end
+      false
     end
 
     # Initializes a Version and Repository::Version for files non-imported files
@@ -138,6 +148,10 @@ module Ki
         version.binaries = DirectoryBase.new(binary_directory)
       end
       version
+    end
+
+    def self.version_id_from_version_str(version_str)
+      version_str.split("/").delete_at(-1)
     end
   end
 
