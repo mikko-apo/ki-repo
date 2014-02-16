@@ -300,7 +300,7 @@ EOF
         when "add"
           version, key_value, *rest = args
           key, value = key_value.split("=")
-          flags = rest.to_h("=")
+          flags = rest.separate_to_hash("=")
           repository = ctx.ki_home.repository(@repository)
           repository.version!(version).statuses.add_status(key, value, flags)
         when "order"

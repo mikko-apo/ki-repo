@@ -35,7 +35,7 @@ module Ki
     def add_dependency(param_str, args={})
       params = param_str.split(",")
       version_id = params.delete_at(0)
-      dep_hash = {"version_id" => version_id}.merge(params.to_h("=")).merge(args)
+      dep_hash = {"version_id" => version_id}.merge(params.separate_to_hash("=")).merge(args)
       if dep_hash["internal"]
         dep_hash["internal"]=true
       end

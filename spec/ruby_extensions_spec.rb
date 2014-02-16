@@ -81,8 +81,8 @@ describe Enumerable do
     Test.new.find_first { |c| c==2 }.should eq(2)
   end
   it "to_h should convert list to hash" do
-    ["a=1", "b", "c="].to_h("=").should eq({"a" => "1", "b" => true, "c" => ""})
-    ["a=1", "b"].to_h { |i| i.split("=") }.should eq({"a" => "1", "b" => nil})
+    ["a=1", "b", "c="].separate_to_hash("=").should eq({"a" => "1", "b" => true, "c" => ""})
+    ["a=1", "b"].separate_to_hash { |i| i.split("=") }.should eq({"a" => "1", "b" => nil})
   end
 end
 

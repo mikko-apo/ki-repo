@@ -59,7 +59,7 @@ module Ki
       end
     end
 
-    def to_h(separator=nil, &block)
+    def separate_to_hash(separator=nil, &block)
       ret = {}
       each do |item|
         if separator
