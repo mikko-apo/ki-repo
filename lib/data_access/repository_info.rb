@@ -128,7 +128,7 @@ module Ki
     def exists?
       begin
         return metadata || binaries
-      rescue Exception => e
+      rescue Exception
       end
       false
     end

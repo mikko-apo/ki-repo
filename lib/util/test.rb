@@ -266,7 +266,7 @@ module Ki
       files.each_pair do |file, contents|
         file_path = File.join(source_root, file)
         is_dir = file.end_with?("/") || contents.nil?
-        if !File.exists?(file_path)
+        if !File.exist?(file_path)
           raise "#{ is_dir ? "Directory" : "File"} '#{file_path}' is missing!"
         end
         if is_dir != File.directory?(file_path)

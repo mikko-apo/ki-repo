@@ -48,7 +48,7 @@ module Ki
     end
 
     def KiJSONFile.load_json(path, default=nil)
-      if File.exists?(path)
+      if File.exist?(path)
         JSON.parse(IO.read(path))
       else
         default

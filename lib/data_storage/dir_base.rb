@@ -57,7 +57,7 @@ module Ki
     end
 
     def exists?(*sub_path)
-      File.exists?(go(*sub_path).path)
+      File.exist?(go(*sub_path).path)
     end
 
     def mkdir(*path)

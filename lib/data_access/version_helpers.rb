@@ -42,7 +42,7 @@ module Ki
           file_path = file_hash["path"]
           full_path = binaries.path(file_path)
           issue = nil
-          if !File.exists?(full_path)
+          if !File.exist?(full_path)
             issue="missing"
           elsif File.size(full_path) != file_hash["size"]
             issue="wrong size"
