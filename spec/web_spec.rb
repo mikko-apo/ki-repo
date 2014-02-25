@@ -41,13 +41,13 @@ describe RackCommand do
   end
 
   it "DefaultRackHandler should create rack handler" do
-    port = RackCommand.find_free_tcp_port
+    port = WebUtil.find_free_tcp_port
     rack = DefaultRackHandler.new
     @tester.catch_stdio do
       Thread.new do
         rack.run(MyApp2, :Port => port)
       end
-      RackCommand.wait_until_url_responds("http://localhost:#{port}") do |response|
+      WebUtil.wait_until_url_responds("http://localhost:#{port}") do |response|
         [response.code, response.body].should eq ["200", "MyApp2"]
       end
       rack.stop
@@ -55,14 +55,14 @@ describe RackCommand do
   end
 
   it "DefaultRackHandler should warn if no handlers found" do
-    Rack::Handler.expects(:get).times(3).raises("foo")
+    Rack::Handler.expects(:pick).once.returns(nil)
     lambda { DefaultRackHandler.new.run(MyApp2, :Port => 12333) }.should raise_error("Could not resolve server handlers for any of 'thin, mongrel, webrick'.")
   end
 
   it "should start web app with registered classes" do
     @tester.restore_extensions
     KiCommand.register("/web/test", MyApp2)
-    port = RackCommand.find_free_tcp_port
+    port = WebUtil.find_free_tcp_port
     # mocking run prevents web app from blocking
     DefaultRackHandler.any_instance.expects(:run).times(2).with do |app, config|
       config.should eq({:Port => port})
@@ -103,7 +103,7 @@ describe RackCommand do
     KiCommand.register("/web/test", MyApp2)
 
     RackCommand.web_ctx.ki_home=KiHome.new(@tester.tmpdir)
-    port = RackCommand.find_free_tcp_port
+    port = WebUtil.find_free_tcp_port
     rack_command = RackCommand.new
     url = "http://localhost:#{port}/test"
     @tester.cleaners << -> {rack_command.stop_server}
@@ -111,7 +111,7 @@ describe RackCommand do
       Thread.new do
         rack_command.execute(RackCommand.web_ctx, %W(-p #{port}))
       end
-      RackCommand.wait_until_url_responds(url) do |response|
+      WebUtil.wait_until_url_responds(url) do |response|
         [response.code, response.body].should eq ["200", "MyApp2"]
       end
     end
@@ -128,7 +128,7 @@ describe RackCommand do
       Net::HTTP.expects(:get_response).with(URI(url)).raises("error").in_sequence(seq)
       Net::HTTP.expects(:get_response).with(URI(url)).returns(fail).in_sequence(seq)
       Net::HTTP.expects(:get_response).with(URI(url)).returns(ok).in_sequence(seq)
-      RackCommand.wait_until_url_responds("foo")
+      WebUtil.wait_until_url_responds("foo")
     end
   end
 end
@@ -143,7 +143,7 @@ describe WebDriverDelegator do
   end
 
   it "should open browser and collect js errors" do
-    port = RackCommand.find_free_tcp_port
+    port = WebUtil.find_free_tcp_port
     rack = DefaultRackHandler.new
     @tester.cleaners << -> {rack.stop}
 
@@ -156,7 +156,7 @@ describe WebDriverDelegator do
       Thread.new do
         rack.run(BrokenJsApp, :Port => port)
       end
-      RackCommand.wait_until_url_responds(url) do |response|
+      WebUtil.wait_until_url_responds(url) do |response|
         response.code.should eq "200"
         response.body.should =~ /BrokenJsApp.txt/
       end

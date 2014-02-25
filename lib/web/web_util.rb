@@ -16,26 +16,34 @@
 
 module Ki
 
-  # Tries to launch Rack handlers in default order
-  # @see RackCommand
-  class DefaultRackHandler
-    def run(rack_app, config={})
-      detect_rack_handler.run(rack_app, config) do |server|
-        @server = server
+  class WebUtil
+    def WebUtil.find_free_tcp_port
+      socket = Socket.new(:INET, :STREAM, 0)
+      socket.bind(Addrinfo.tcp("127.0.0.1", 0))
+      begin
+        socket.local_address.ip_port
+      ensure
+        socket.close
       end
     end
 
-    def stop
-      @server.stop
+    def WebUtil.wait_until_url_responds(url, &block)
+      try(20, 0.1) do
+        response = get(url)
+        if block
+          block.call(response)
+        else
+          if (code = response.code) == "200"
+            return response
+          else
+            raise "Response code from #{url} was #{code}"
+          end
+        end
+      end
     end
 
-    def detect_rack_handler
-      servers = %W(thin mongrel webrick)
-      server = Rack::Handler.pick(servers)
-      if !server
-        fail "Could not resolve server handlers for any of '#{servers.join(', ')}'."
-      end
-      return server
+    def self.get(url)
+      Net::HTTP.get_response(URI(url))
     end
   end
 end

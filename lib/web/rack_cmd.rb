@@ -80,31 +80,6 @@ module Ki
       end
     end
 
-    def RackCommand.find_free_tcp_port
-      socket = Socket.new(:INET, :STREAM, 0)
-      socket.bind(Addrinfo.tcp("127.0.0.1", 0))
-      begin
-        socket.local_address.ip_port
-      ensure
-        socket.close
-      end
-    end
-
-    def RackCommand.wait_until_url_responds(url, &block)
-      try(20, 0.1) do
-        response = Net::HTTP.get_response(URI(url))
-        if block
-          block.call(response)
-        else
-          if (code = response.code) == "200"
-            return response
-          else
-            raise "Response code from #{url} was #{code}"
-          end
-        end
-      end
-    end
-
     def start_server
       @server = handler.new
       [:INT, :TERM].each { |sig| trap(sig) { stop_server } }
