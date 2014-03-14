@@ -46,4 +46,27 @@ describe DirectoryBase do
     FileUtils.touch(root.path("foo.txt"))
     root.empty?.should be_false
   end
+
+  it "should support lock" do
+    file_path = File.join(@tester.tmpdir, "test.json")
+    fileA = KiJSONHashFile.new(file_path)
+    fileB = KiJSONHashFile.new(file_path)
+    latch = ThreadLatch.new
+#    latch.debug = true
+
+    Thread.new do
+      latch.wait(:a)
+      fileB.edit_data do |o|
+        o.cached_data["edit"] = "b"
+      end
+      latch.tick(:b)
+    end
+    fileA.edit_data do |o|
+      o.cached_data["edit"] = "a"
+      latch.tick(:a)
+      sleep 0.1
+    end
+    latch.wait(:b)
+    fileA.load_data_from_file.should eq("edit" => "b")
+  end
 end

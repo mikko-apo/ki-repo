@@ -14,6 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require 'lockfile'
+
 module Ki
 
   class DirectoryBase
@@ -103,6 +105,21 @@ module Ki
 
     def empty?(*sub_path)
       Dir.entries(go(*sub_path).path).size == 2
+    end
+
+    def lock(&block)
+      p = path
+      dir_path = File.dirname(p)
+      if !File.exist?(dir_path)
+        File.mkdir(dir_path)
+      end
+      lockfile = Lockfile.new(p + ".ki-lock")
+      begin
+        lockfile.lock
+        return block.call
+      ensure
+        lockfile.unlock
+      end
     end
   end
 end

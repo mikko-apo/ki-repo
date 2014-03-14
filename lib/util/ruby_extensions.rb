@@ -91,7 +91,7 @@ end
 require 'fileutils'
 class File
   def File.safe_write(dest, txt=nil, &block)
-    tmp = dest + "-" + rand(9999).to_s
+    tmp = dest + "-" + rand(99999).to_s
     begin
       File.open(tmp, "w") do |file|
         if block
@@ -140,16 +140,15 @@ class Object
   def try(retries, retry_sleep, &block)
     c = 0
     start = Time.now
-    while c < retries
-      begin
-        return block.call(c+1)
-      rescue Exception => e
-        c += 1
-        if c < retries
-          sleep retry_sleep
-        else
-          raise e.class, e.message + " (tried #{c} times, waited #{sprintf("%.2f", Time.now - start)} seconds)", e.backtrace
-        end
+    begin
+      block.call(c+1)
+    rescue Exception => e
+      c += 1
+      if c < retries
+        sleep retry_sleep
+        retry
+      else
+        raise e.class, e.message + " (tried #{c} times, waited #{sprintf("%.2f", Time.now - start)} seconds)", e.backtrace
       end
     end
   end
@@ -157,7 +156,7 @@ end
 
 class String
   def split_strip(separator=",")
-    split(separator).map{|s| s.strip}
+    split(separator).map { |s| s.strip }
   end
 end
 

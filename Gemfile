@@ -22,6 +22,7 @@ source "http://rubygems.org"
 gem "sinatra"
 gem "sass"
 gem "coffee-script"
+gem "lockfile"
 
 # Add dependencies to develop your gem here.
 # Include everything needed to run rake, tests, features, etc.

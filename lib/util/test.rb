@@ -330,6 +330,71 @@ module Ki
         KiCommand::KiExtensions.register(original_commands)
       end
     end
+  end
 
+# Helper class for testing functionality that uses threads
+# @example
+#    l = ThreadLatch.new
+#    thread {l.wait(:b); puts "b";l.tick(:c)}
+#    thread {l.wait(:a); puts "a";l.tick(:b);l.tick(:c)}
+#    l.tick(:a)
+#    l.wait(:c, 2)
+#    puts "c"
+  class ThreadLatch
+    # Turns on debug printing
+    attr_accessor :debug
+
+    def initialize
+      @lock = Mutex.new
+      @cvs = {}
+    end
+
+    # Increments counter
+    def tick(id=nil)
+      @lock.synchronize do
+        params = (@cvs[id] ||= [ConditionVariable.new, 0])
+        params[1] = params.last + 1
+
+        if @debug
+          $stdout.flush
+          puts "#{id} tick #{Thread.current.object_id} (count = #{params.last})"
+          $stdout.flush
+        end
+
+        params.first.broadcast
+      end
+    end
+
+    # Waits until counter reaches defined value
+    # * value can be defined with constructor
+    # @param [Object, nil] to To defines target count for wait. If nil and no to values has been given with constructor, to is set to 1
+    # @param [Integer, nil] to To defines target count for wait. If nil and no to values has been given with constructor, to is set to 1
+    def wait(id=nil, dest=nil)
+      @lock.synchronize do
+        if dest
+          dest = dest.to_i
+          raise ArgumentError, "cannot count down from negative integer #{dest}" if dest < 0
+        else
+          dest=1
+        end
+        loop = true
+        while loop
+          cv, count = (@cvs[id] ||= [ConditionVariable.new, 0])
+          if count >= dest
+            loop = false
+            if @debug
+              puts "#{id}.released #{Thread.current.object_id} (count = #{count}, dest = #{dest})"
+            end
+          else
+            if @debug
+              $stdout.flush
+              puts "#{id}.wait #{Thread.current.object_id} (count = #{count}, dest = #{dest})"
+              $stdout.flush
+            end
+            cv.wait(@lock)
+          end
+        end
+      end
+    end
   end
 end

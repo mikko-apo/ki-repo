@@ -32,15 +32,19 @@ module Ki
 
     # Loads data from file path, makes it editable and saves data
     def edit_data(&block)
-      @cached_data = load_data_from_file
-      block.call(self)
-      File.safe_write(path, JSON.pretty_generate(@cached_data))
-      @cached_data
+      lock do
+        @cached_data = load_data_from_file
+        block.call(self)
+        File.safe_write(path, JSON.pretty_generate(@cached_data))
+        @cached_data
+      end
     end
 
     # Saves data to file path. Does not update cached_data
     def save(data=cached_data)
-      File.safe_write(path, JSON.pretty_generate(data))
+      lock do
+        File.safe_write(path, JSON.pretty_generate(data))
+      end
     end
 
     def size
