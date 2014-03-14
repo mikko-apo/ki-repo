@@ -318,6 +318,11 @@ module Ki
       def write(s)
         self.<< s
       end
+
+      def puts(s)
+        self.<< s + "\n"
+      end
+
       def flush
 
       end
