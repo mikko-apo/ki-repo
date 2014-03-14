@@ -37,5 +37,9 @@ module Ki
       end
       return server
     end
+
+    def register_shutdown_hooks
+      [:INT, :TERM].each { |sig| trap(sig) { stop_server } }
+    end
   end
 end

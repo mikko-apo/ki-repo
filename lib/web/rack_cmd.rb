@@ -82,7 +82,7 @@ module Ki
 
     def start_server
       @server = handler.new
-      [:INT, :TERM].each { |sig| trap(sig) { stop_server } }
+      @server.register_shutdown_hooks
       @server.run(ki_app, :Port => (@port || 8290))
     end
 
