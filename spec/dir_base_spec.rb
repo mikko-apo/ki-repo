@@ -48,7 +48,7 @@ describe DirectoryBase do
   end
 
   it "should support lock" do
-    file_path = File.join(@tester.tmpdir, "test.json")
+    file_path = File.join(@tester.tmpdir, "foo", "test.json")
     fileA = KiJSONHashFile.new(file_path)
     fileB = KiJSONHashFile.new(file_path)
     latch = ThreadLatch.new

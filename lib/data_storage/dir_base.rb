@@ -111,7 +111,7 @@ module Ki
       p = path
       dir_path = File.dirname(p)
       if !File.exist?(dir_path)
-        File.mkdir(dir_path)
+        FileUtils.mkdir(dir_path)
       end
       lockfile = Lockfile.new(p + ".ki-lock")
       begin
