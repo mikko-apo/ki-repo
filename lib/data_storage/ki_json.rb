@@ -82,6 +82,14 @@ module Ki
       create_list_item(obj)
     end
 
+    def pop
+      obj = nil
+      edit_data do
+        obj = @cached_data.delete_at(0)
+      end
+      create_list_item(obj)
+    end
+
     def each(&block)
       cached_data.each do |obj|
         block.call(create_list_item(obj))
