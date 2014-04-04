@@ -62,6 +62,13 @@ module Ki
     def reset_cached_data
       remove_instance_variable(:@cached_data)
     end
+
+    def reload(default=json_default)
+      lock do
+        cached_data(load_data_from_file(default))
+      end
+      self
+    end
   end
 
   # Base implementation for Json list file
