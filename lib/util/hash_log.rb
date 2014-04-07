@@ -43,7 +43,7 @@ module Ki
       if args.empty? && block.nil?
         current_log_entry
       else
-        new_entry = {"start" => Time.now}
+        new_entry = {"start" => Time.now.to_f}
         if args.first.kind_of?(String)
           new_entry["name"] = args.delete_at(0)
         end
@@ -80,7 +80,7 @@ module Ki
             HashLogMutex.synchronize do
               Thread.current[HashLogThreadCurrentKey].delete(new_entry)
             end
-            new_entry["end"] = Time.now
+            new_entry["end"] = Time.now.to_f
           end
         else
           new_entry
