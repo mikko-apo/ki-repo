@@ -75,8 +75,8 @@ module Ki
             options(run_options)
         if rout
           wout.close
-          out = rout.readlines.join("\n").strip
-          if out.size == 0
+          out = rout.readlines.join("\n")
+          if out.strip.size == 0
             @previous.out(nil)
           else
             @previous.out(out)
@@ -86,10 +86,11 @@ module Ki
         end
         if rerr
           werr.close
-          err = rerr.readlines.join("\n").strip
-          if err.size == 0
+          err = rerr.readlines.join("\n")
+          if err.strip.size == 0
             @previous.err(nil)
           else
+            @previous.err(err)
             l["stderr"]=@previous.err
           end
           rerr.close
