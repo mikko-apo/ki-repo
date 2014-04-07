@@ -18,6 +18,13 @@ module Ki
   # Generate hash object based log entries.
   # @see log
   module HashLog
+
+    module Logged
+      def logged
+
+      end
+    end
+
     HashLogThreadCurrentKey = :hash_log
     HashLogMutex = Mutex.new
 
@@ -64,7 +71,10 @@ module Ki
             block.call new_entry
           rescue Exception => e
             new_entry["exception"] = e.message
-            new_entry["backtrace"] = e.backtrace.join("\n")
+            if !defined? e.logged
+              new_entry["backtrace"] = e.backtrace.join("\n")
+              e.extend(Logged)
+            end
             raise
           ensure
             HashLogMutex.synchronize do
