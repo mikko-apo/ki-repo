@@ -75,14 +75,23 @@ module Ki
             options(run_options)
         if rout
           wout.close
-          @previous.out(rout.readlines.join("\n"))
-          l["stdout"]=@previous.out
+          out = rout.readlines.join("\n").strip
+          if out.size == 0
+            @previous.out(nil)
+          else
+            @previous.out(out)
+            l["stdout"]=@previous.out
+          end
           rout.close
         end
         if rerr
           werr.close
-          @previous.err(rerr.readlines.join("\n"))
-          l["stderr"]=@previous.err
+          err = rerr.readlines.join("\n").strip
+          if err.size == 0
+            @previous.err(nil)
+          else
+            l["stderr"]=@previous.err
+          end
           rerr.close
         end
         if (exitstatus != 0 && !ignore_error)
