@@ -26,6 +26,7 @@ module Ki
     attr_chain :err, :require
     attr_chain :running
     attr_chain :finished
+    attr_chain :chdir
 
     def finished?
       finished
@@ -114,6 +115,10 @@ module Ki
             options(run_options).
             running(true).
             finished(false)
+        if run_options[:chdir]
+          @previous.chdir(run_options[:chdir])
+          l["chdir"] = run_options[:chdir]
+        end
         pid, status = Process.waitpid2(pid)
         HashLogShell::RunningPids.delete(pid)
         exitstatus = status.exitstatus
