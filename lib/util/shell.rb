@@ -142,8 +142,11 @@ module Ki
           end
           rerr.close
         end
-        if (exitstatus != 0 && !ignore_error)
-          raise "Shell command '#{cmd}' failed with exit code #{exitstatus}"
+        if exitstatus != 0
+          l["exitstatus"] = exitstatus
+          if !ignore_error
+            raise "Shell command '#{cmd}' failed with exit code #{exitstatus}"
+          end
         end
         @previous
       end
