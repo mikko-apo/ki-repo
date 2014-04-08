@@ -20,13 +20,27 @@ describe HashLogShell do
   it "should execute simple command succesfully" do
     HashLogShell.new.chdir(Dir.pwd).env({}).root_log(DummyHashLog.new).spawn({}, "true", {})
   end
+
   it "should notice failed commands" do
     lambda {
       HashLogShell.new.root_log(DummyHashLog.new).spawn("false")
     }.should raise_error("Shell command 'false' failed with exit code 1")
     HashLogShell.new.ignore_error(true).root_log(DummyHashLog.new).spawn("false")
   end
+
   it "should catch output" do
     HashLogShell.new.root_log(DummyHashLog.new).spawn("echo foo").out.should eq("foo\n")
+  end
+
+  it "cleanup should remove dangling processes" do
+    log = DummyHashLog.new
+    sh = HashLogShell.new.root_log(log)
+    Thread.new do
+      sh.spawn("echo 1 && sleep 10 && echo 2")
+    end
+    sleep 0.2
+    HashLogShell::RunningPids.list.size.should eq(1)
+    HashLogShell.cleanup
+    HashLogShell::RunningPids.list.size.should eq(0)
   end
 end

@@ -31,7 +31,7 @@ describe HashLog do
       end
     end
     ret.should == 1
-    root.should == {"start" => 11, "name" => "a", "logs" => [{"start" => 22, "name" => "b", "test" => "bar", "end" => 33}], "end" => 44}
+    root.should == {"start" => 11.0, "name" => "a", "logs" => [{"start" => 22.0, "name" => "b", "test" => "bar", "time" => 11.0}], "time" => 33.0}
   end
   it "should log parallel events" do
     Time.expects(:now).returns(11, 22, 33, 44, 55, 66).times(6)
@@ -61,7 +61,7 @@ describe HashLog do
       a.join
       b.join
     end
-    root_log.should == {"start" => 11, "name" => "root", "logs" => [{"start" => 22, "name" => "b", "end" => 55}, {"start" => 33, "name" => "a", "end" => 44}], "end" => 66}
+    root_log.should == {"start" => 11.0, "name" => "root", "logs" => [{"start" => 22.0, "name" => "b", "time" => 33.0}, {"start" => 33.0, "name" => "a", "time" => 11.0}], "time" => 55.0}
   end
 
   it "should log exception" do

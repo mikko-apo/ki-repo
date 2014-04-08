@@ -24,20 +24,61 @@ module Ki
     attr_chain :options, :require
     attr_chain :out, :require
     attr_chain :err, :require
+    attr_chain :running
+    attr_chain :finished
+
+    def finished?
+      finished
+    end
   end
   class DummyHashLog < Hash
     def log(*arr, &block)
       block.call(self)
     end
   end
+  class SynchronizedList
+    def initialize
+      extend MonitorMixin
+      @list = []
+    end
+
+    def add(item)
+      synchronize do
+        @list << item
+      end
+    end
+
+    def delete(item)
+      synchronize do
+        @list.delete(item)
+      end
+    end
+
+    def list
+      synchronize do
+        @list.dup
+      end
+    end
+
+    def include?(item)
+      synchronize do
+        @list.include?(item)
+      end
+    end
+  end
+
   class HashLogShell
+    RunningPids = SynchronizedList.new
+
     attr_chain :env
     attr_chain :chdir
     attr_chain :ignore_error
     attr_reader :previous
     attr_chain :root_log, :require
+    attr_chain :detach
 
     def spawn(*arr)
+      @finished = false
       run_env = {}
       run_options = {}
       if (env)
@@ -65,14 +106,20 @@ module Ki
       root_log.log(cmd.split(" ")[0]) do |l|
         l["cmd"]=cmd
         pid = system_spawn(run_env, cmd, run_options)
-        pid, status = Process.waitpid2(pid)
-        exitstatus = status.exitstatus
+        HashLogShell::RunningPids.add(pid)
         @previous = ShellCommandExecution.new.
             cmd(cmd).
-            exitstatus(exitstatus).
             pid(pid).
             env(run_env).
-            options(run_options)
+            options(run_options).
+            running(true).
+            finished(false)
+        pid, status = Process.waitpid2(pid)
+        HashLogShell::RunningPids.delete(pid)
+        exitstatus = status.exitstatus
+        @previous.exitstatus(exitstatus).
+          running(false).
+          finished(true)
         if rout
           wout.close
           out = rout.readlines.join("\n")
@@ -104,6 +151,22 @@ module Ki
 
     def system_spawn(run_env, cmd, run_options)
       Process.spawn(run_env, cmd, run_options)
+    end
+
+    def self.cleanup
+      try(10,1) do |c|
+        HashLogShell::RunningPids.list.each do |pid|
+          signal =
+          puts signal
+          Process.kill( c < 2 ? "TERM" : "KILL", pid)
+        end
+        try(30, 0.1) do
+          list = HashLogShell::RunningPids.list
+          if list.size > 0
+            raise "Child processes won't die: #{list.join(", ")}"
+          end
+        end
+      end
     end
   end
 end
