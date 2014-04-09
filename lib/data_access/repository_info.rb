@@ -37,7 +37,7 @@ module Ki
     # finds first Repository::Version directory for this version that contains binaries
     def find_binaries
       all_repository_versions do |binary_dir|
-        if binary_dir.exists?
+        if binary_dir.exist?
           return binary_dir
         end
       end
@@ -47,7 +47,7 @@ module Ki
       component = find_component
       if component.version(version_id)
         finder.all_repositories.each do |package_root|
-          if package_root.exists?(version_id)
+          if package_root.exist?(version_id)
             cid = Ki::Component.component_from_version(version_id)
             found_component = Ki::Repository::Component.new(cid).component_id(cid).parent(package_root)
             found_version = Ki::Repository::Version.new(Version.version_id_from_version_str(version_id)).version_id(version_id).parent(found_component)
@@ -72,7 +72,7 @@ module Ki
     def find_from_all_repository_versions(&block)
       all_repository_versions do |version|
         file = block.call(version)
-        if file.exists?
+        if file.exist?
           return file
         end
       end
@@ -94,7 +94,7 @@ module Ki
     def find_metadata
       versions.each do |v|
         m = v.metadata
-        if m.exists?
+        if m.exist?
           return m
         end
       end
@@ -106,7 +106,7 @@ module Ki
       ret = []
       versions.each do |v|
         s = v.statuses
-        if s.exists?
+        if s.exist?
           v.statuses.each do |status|
             ret << [status["key"], status["value"]]
           end
@@ -125,7 +125,7 @@ module Ki
       FileFinder.new.version(self).files(file_patterns)
     end
 
-    def exists?
+    def exist?
       begin
         return metadata || binaries
       rescue Exception
@@ -170,7 +170,7 @@ module Ki
     def find_versions
       components.each do |c|
         version_list_file = c.versions
-        if version_list_file.exists?
+        if version_list_file.exist?
           return version_list_file
         end
       end
@@ -186,7 +186,7 @@ module Ki
           Repository::Version.new(version_str).version_id(version_id).parent(c)
         end
         existing_versions = info_versions.select do |v|
-          v.exists?
+          v.exist?
         end
         Version.new.component(self).version_id(version_id).name(version_str).versions(existing_versions)
       end
@@ -196,7 +196,7 @@ module Ki
       ret = {}
       components.each do |c|
         si = c.status_info
-        if si.exists?
+        if si.exist?
           ret.merge!(si.cached_data)
         end
       end

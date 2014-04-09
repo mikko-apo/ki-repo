@@ -28,7 +28,7 @@ module Ki
     def self.find!(path, *locations)
       locations.each do |loc|
         dest = loc.go(path)
-        if dest.exists?
+        if dest.exist?
           return dest
         end
       end
@@ -58,13 +58,13 @@ module Ki
       end
     end
 
-    def exists?(*sub_path)
+    def exist?(*sub_path)
       File.exist?(go(*sub_path).path)
     end
 
     def mkdir(*path)
       dest = go(*path)
-      if !dest.exists?
+      if !dest.exist?
         FileUtils.mkdir_p(dest.path)
       end
       dest

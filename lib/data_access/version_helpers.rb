@@ -137,7 +137,7 @@ module Ki
       component_id = version_arr.join("/")
 
       version = finder.version(version_id)
-      if version && version.exists?
+      if version && version.exist?
         raise "'#{version_id}' exists in repository already!"
       end
 

@@ -58,7 +58,7 @@ describe KiCommand do
     path = File.join(tmpdir, "foo")
     @tester.env("KIHOME", path)
     KiCommand.new.ki_home.path.should eq(path)
-    File.exists?(path).should eq(true)
+    File.exist?(path).should eq(true)
   end
 
   it "should support pluggable commands" do

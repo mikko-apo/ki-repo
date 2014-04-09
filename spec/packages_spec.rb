@@ -41,12 +41,12 @@ describe DirectoryBase do
     dest.path("a").should eq("#{tmp}/foo/bar/zop/a")
   end
 
-  it "exists? should test if file exists" do
+  it "exist? should test if file exists" do
     root = DirectoryBase.new(@tester.tmpdir)
-    root.exists?.should eq(true)
-    root.exists?("a").should eq(false)
+    root.exist?.should eq(true)
+    root.exist?("a").should eq(false)
     File.safe_write(root.path("a"),"")
-    root.exists?("a").should eq(true)
+    root.exist?("a").should eq(true)
   end
 end
 

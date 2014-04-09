@@ -31,8 +31,8 @@ describe Tester do
     File.directory?(tmp).should eq(true)
     File.directory?(tmp_2).should eq(true)
     @tester.after
-    File.exists?(tmp).should eq(false)
-    File.exists?(tmp_2).should eq(false)
+    File.exist?(tmp).should eq(false)
+    File.exist?(tmp_2).should eq(false)
   end
 
   it "tmpdir should copy visible files" do
@@ -43,17 +43,17 @@ describe Tester do
     dest = @tester.tmpdir(tmp)
     IO.read(File.join(dest, "foo.txt")).should eq("aa")
     IO.read(File.join(dest, "bar/foo.txt")).should eq("bb")
-    File.exists?(File.join(dest, ".config")).should eq(false)
-    File.exists?(File.join(dest, "bar/.config")).should eq(false)
-    File.exists?(File.join(dest, ".test")).should eq(false)
-    File.exists?(File.join(dest, "bar/.test")).should eq(false)
+    File.exist?(File.join(dest, ".config")).should eq(false)
+    File.exist?(File.join(dest, "bar/.config")).should eq(false)
+    File.exist?(File.join(dest, ".test")).should eq(false)
+    File.exist?(File.join(dest, "bar/.test")).should eq(false)
     block_path = nil
     @tester.tmpdir(tmp) do |path|
        IO.read(File.join(path, "foo.txt")).should eq("aa")
        block_path = path
-       File.exists?(path).should eq(true)
+       File.exist?(path).should eq(true)
     end
-    File.exists?(block_path).should eq(false)
+    File.exist?(block_path).should eq(false)
   end
 
   it "tmpdir should delete target file if there is exception during setup" do
