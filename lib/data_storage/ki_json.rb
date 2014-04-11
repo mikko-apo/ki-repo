@@ -102,6 +102,14 @@ module Ki
         block.call(create_list_item(obj))
       end
     end
+
+    def get(item)
+      if cached_data.include?(item)
+        create_list_item(item)
+      else
+        raise "Could not find #{item} from #{path}"
+      end
+    end
   end
 
   # Base implementation Json hash file
