@@ -39,11 +39,11 @@ module Ki
       web_ctx.ki_home
     end
 
-    def res_url(path)
+    def res_url(path, clazz = self.class)
       if path.include?("..")
         raise "File '#{path}' cannot reference parent directories with '..'!"
       end
-      "/file/web/#{ RackCommand.web_ctx.resource_hash}/#{self.class.name}:#{path}"
+      "/file/web/#{ RackCommand.web_ctx.resource_hash}/#{clazz.name}:#{path}"
     end
   end
 
