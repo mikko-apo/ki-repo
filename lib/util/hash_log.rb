@@ -83,8 +83,8 @@ module Ki
             end
             duration = Time.now.to_f - new_entry["start"]
             duration_s = duration.to_i
-            duration_ms = ((duration - duration_s) * 1000).to_i
-            new_entry["time"] = duration_s + duration_ms / 1000.0
+            duration_ms = ((duration - duration_s) * 1000).round(3).to_i
+            new_entry["time"] = duration_s + (duration_ms / 1000.0).round(3)
           end
         else
           new_entry
