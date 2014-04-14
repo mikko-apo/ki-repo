@@ -110,6 +110,10 @@ module Ki
         raise "Could not find #{item} from #{path}"
       end
     end
+
+    def empty?
+      cached_data.empty?
+    end
   end
 
   # Base implementation Json hash file
