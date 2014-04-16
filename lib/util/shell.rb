@@ -119,12 +119,18 @@ module Ki
           @previous.chdir(run_options[:chdir])
           l["chdir"] = run_options[:chdir]
         end
-        pid, status = Process.waitpid2(pid)
-        HashLogShell::RunningPids.delete(pid)
-        exitstatus = status.exitstatus
-        @previous.exitstatus(exitstatus).
-          running(false).
-          finished(true)
+        if detach
+          Process.detach(pid)
+          exitstatus = 0
+        else
+          pid, status = Process.waitpid2(pid)
+          HashLogShell::RunningPids.delete(pid)
+          exitstatus = status.exitstatus
+          @previous.exitstatus(exitstatus)
+        end
+
+        @previous.running(false).finished(true)
+
         if rout
           wout.close
           out = rout.readlines.join("\n")
