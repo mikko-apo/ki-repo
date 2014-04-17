@@ -26,6 +26,7 @@ module Ki
     attr_chain :err, :require
     attr_chain :running
     attr_chain :finished
+    attr_chain :detached
     attr_chain :chdir
 
     def finished?
@@ -95,13 +96,15 @@ module Ki
         run_options[:chdir] = chdir
       end
       rout = wout = rerr = werr = nil
-      if (!run_options[:out])
-        rout, wout = IO.pipe
-        run_options[:out]=wout
-      end
-      if (!run_options[:err])
-        rerr, werr = IO.pipe
-        run_options[:err]=werr
+      if !detach
+        if (!run_options[:out])
+          rout, wout = IO.pipe
+          run_options[:out]=wout
+        end
+        if (!run_options[:err])
+          rerr, werr = IO.pipe
+          run_options[:err]=werr
+        end
       end
       cmd = arr.first
       root_log.log(cmd.split(" ")[0]) do |l|
@@ -122,6 +125,7 @@ module Ki
         if detach
           Process.detach(pid)
           exitstatus = 0
+          @previous.detached(true)
         else
           pid, status = Process.waitpid2(pid)
           HashLogShell::RunningPids.delete(pid)
