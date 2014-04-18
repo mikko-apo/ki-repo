@@ -43,4 +43,34 @@ describe HashLogShell do
     HashLogShell.cleanup
     HashLogShell::RunningPids.list.size.should eq(0)
   end
+
+  it "should manage timeout" do
+    log = DummyHashLog.new
+    sh = HashLogShell.new.root_log(log)
+    Thread.new do
+      sh.timeout(0.2).spawn("sleep 10")
+    end
+    sleep 0.1
+    HashLogShell::RunningPids.list.size.should eq(1)
+    sleep 0.2
+    HashLogShell::RunningPids.list.size.should eq(0)
+  end
+
+  it "should manage timeout function" do
+    log = DummyHashLog.new
+    a = 0
+    sh = HashLogShell.new.root_log(log).timeout(0.2) do |pid|
+      a = 1
+      Process.kill "KILL", pid
+    end
+    Thread.new do
+      sh.spawn("sleep 10")
+    end
+    sleep 0.1
+    HashLogShell::RunningPids.list.size.should eq(1)
+    a.should eq(0)
+    sleep 0.2
+    HashLogShell::RunningPids.list.size.should eq(0)
+    a.should eq(1)
+  end
 end

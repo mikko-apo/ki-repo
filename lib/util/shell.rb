@@ -78,6 +78,7 @@ module Ki
     attr_reader :previous
     attr_chain :root_log, :require
     attr_chain :detach
+    attr_chain :final_timeout, -> {5}
 
     def spawn(*arr)
       @finished = false
@@ -122,12 +123,36 @@ module Ki
           @previous.chdir(run_options[:chdir])
           l["chdir"] = run_options[:chdir]
         end
+
+        # run process and manage detach and timeout
         if detach
           Process.detach(pid)
           exitstatus = 0
           @previous.detached(true)
         else
-          pid, status = Process.waitpid2(pid)
+          pid2 = status = nil
+          if @timeout
+            begin
+              Timeout.timeout(@timeout) do
+                pid2, status = Process.waitpid2(pid)
+              end
+            rescue Timeout::Error
+              if @timeout_block
+                @timeout_block.call(pid)
+              else
+                Process.kill "KILL", pid
+              end
+              begin
+                Timeout.timeout(final_timeout) do
+                  pid2, status = Process.waitpid2(pid)
+                end
+              rescue Timeout::Error
+                Process.kill "KILL", pid
+              end
+            end
+          else
+            pid2, status = Process.waitpid2(pid)
+          end
           HashLogShell::RunningPids.delete(pid)
           exitstatus = status.exitstatus
           @previous.exitstatus(exitstatus)
@@ -167,16 +192,20 @@ module Ki
       end
     end
 
+    def timeout(time_s, &timeout_block)
+      @timeout = time_s
+      @timeout_block = timeout_block
+      self
+    end
+
     def system_spawn(run_env, cmd, run_options)
       Process.spawn(run_env, cmd, run_options)
     end
 
     def self.cleanup
-      try(10,1) do |c|
+      try(10,0.5) do |c|
         HashLogShell::RunningPids.list.each do |pid|
-          signal =
-          puts signal
-          Process.kill( c < 2 ? "TERM" : "KILL", pid)
+          Process.kill( c < 5 ? "TERM" : "KILL", pid)
         end
         try(30, 0.1) do
           list = HashLogShell::RunningPids.list
