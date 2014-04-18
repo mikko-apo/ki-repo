@@ -54,6 +54,7 @@ describe HashLogShell do
     HashLogShell::RunningPids.list.size.should eq(1)
     sleep 0.2
     HashLogShell::RunningPids.list.size.should eq(0)
+    sh.previous.exitstatus.should eq("Timeout after 0.2 seconds")
   end
 
   it "should manage timeout function" do
@@ -72,5 +73,6 @@ describe HashLogShell do
     sleep 0.2
     HashLogShell::RunningPids.list.size.should eq(0)
     a.should eq(1)
+    sh.previous.exitstatus.should eq("Timeout after 0.2 seconds")
   end
 end

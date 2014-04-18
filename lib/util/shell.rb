@@ -131,12 +131,14 @@ module Ki
           @previous.detached(true)
         else
           pid2 = status = nil
+          timeout_exception = nil
           if @timeout
             begin
               Timeout.timeout(@timeout) do
                 pid2, status = Process.waitpid2(pid)
               end
-            rescue Timeout::Error
+            rescue Timeout::Error => e
+              timeout_exception = "Timeout after #{@timeout} seconds"
               if @timeout_block
                 @timeout_block.call(pid)
               else
@@ -154,7 +156,11 @@ module Ki
             pid2, status = Process.waitpid2(pid)
           end
           HashLogShell::RunningPids.delete(pid)
-          exitstatus = status.exitstatus
+          if timeout_exception
+            exitstatus = timeout_exception
+          else
+            exitstatus = status.exitstatus
+          end
           @previous.exitstatus(exitstatus)
         end
 
