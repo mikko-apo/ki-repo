@@ -78,7 +78,7 @@ module Ki
     attr_reader :previous
     attr_chain :root_log, :require
     attr_chain :detach
-    attr_chain :final_timeout, -> {5}
+    attr_chain :kill_timeout, -> {5}
 
     def spawn(*arr)
       @finished = false
@@ -139,16 +139,20 @@ module Ki
               end
             rescue Timeout::Error => e
               timeout_exception = "Timeout after #{@timeout} seconds"
+              timeout_first = nil
               if @timeout_block
+                timeout_first = "user suplied block"
                 @timeout_block.call(pid)
               else
-                Process.kill "KILL", pid
+                timeout_first = "TERM"
+                Process.kill "TERM", pid
               end
               begin
-                Timeout.timeout(final_timeout) do
+                Timeout.timeout(kill_timeout) do
                   pid2, status = Process.waitpid2(pid)
                 end
               rescue Timeout::Error
+                timeout_exception = "Timeout after #{@timeout} seconds and #{timeout_first} did not stop process after #{kill_timeout} seconds. Sent KILL."
                 Process.kill "KILL", pid
               end
             end

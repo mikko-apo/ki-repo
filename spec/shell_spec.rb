@@ -75,4 +75,22 @@ describe HashLogShell do
     a.should eq(1)
     sh.previous.exitstatus.should eq("Timeout after 0.2 seconds")
   end
+
+  it "should manage timeout function and send KILL eventually" do
+    log = DummyHashLog.new
+    a = 0
+    sh = HashLogShell.new.root_log(log).kill_timeout(0.01).timeout(0.2) do |pid|
+      a = 1
+    end
+    Thread.new do
+      sh.spawn("sleep 10")
+    end
+    sleep 0.1
+    HashLogShell::RunningPids.list.size.should eq(1)
+    a.should eq(0)
+    sleep 0.2
+    HashLogShell::RunningPids.list.size.should eq(0)
+    sh.previous.exitstatus.should eq("Timeout after 0.2 seconds and user suplied block did not stop process after 0.01 seconds. Sent KILL.")
+    a.should eq(1)
+  end
 end
