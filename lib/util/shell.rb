@@ -139,21 +139,38 @@ module Ki
               end
             rescue Timeout::Error => e
               timeout_exception = "Timeout after #{@timeout} seconds"
-              timeout_first = nil
+
               if @timeout_block
-                timeout_first = "user suplied block"
-                @timeout_block.call(pid)
-              else
-                timeout_first = "TERM"
-                Process.kill "TERM", pid
-              end
-              begin
-                Timeout.timeout(kill_timeout) do
-                  pid2, status = Process.waitpid2(pid)
+                begin
+                  Timeout.timeout(kill_timeout) do
+                    begin
+                      @timeout_block.call(pid)
+                    ensure
+                      pid2, status = Process.waitpid2(pid)
+                    end
+                  end
+                rescue Timeout::Error
+                  timeout_exception = "Timeout after #{@timeout} seconds and user suplied block did not stop process after #{kill_timeout} seconds. Sent TERM."
+                  Process.kill "TERM", pid
+                  begin
+                    Timeout.timeout(kill_timeout) do
+                      pid2, status = Process.waitpid2(pid)
+                    end
+                  rescue Timeout::Error
+                    timeout_exception = "Timeout after #{@timeout} seconds and user suplied block did not stop process after #{kill_timeout} seconds. Sent KILL."
+                    Process.kill "KILL", pid
+                  end
                 end
-              rescue Timeout::Error
-                timeout_exception = "Timeout after #{@timeout} seconds and #{timeout_first} did not stop process after #{kill_timeout} seconds. Sent KILL."
-                Process.kill "KILL", pid
+              else
+                Process.kill "TERM", pid
+                begin
+                  Timeout.timeout(kill_timeout) do
+                    pid2, status = Process.waitpid2(pid)
+                  end
+                rescue Timeout::Error
+                  timeout_exception = "Timeout after #{@timeout} seconds and TERM did not stop process after #{kill_timeout} seconds. Sent KILL."
+                  Process.kill "KILL", pid
+                end
               end
             end
           else

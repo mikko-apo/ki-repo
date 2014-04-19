@@ -90,7 +90,7 @@ describe HashLogShell do
     a.should eq(0)
     sleep 0.2
     HashLogShell::RunningPids.list.size.should eq(0)
-    sh.previous.exitstatus.should eq("Timeout after 0.2 seconds and user suplied block did not stop process after 0.01 seconds. Sent KILL.")
+    sh.previous.exitstatus.should eq("Timeout after 0.2 seconds and user suplied block did not stop process after 0.01 seconds. Sent TERM.")
     a.should eq(1)
   end
 end
