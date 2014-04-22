@@ -93,4 +93,17 @@ describe HashLogShell do
     sh.previous.exitstatus.should eq("Timeout after 0.2 seconds and user suplied block did not stop process after 0.01 seconds. Sent TERM.")
     a.should eq(1)
   end
+
+  it "kill_running should kill running process" do
+    log = DummyHashLog.new
+    sh = HashLogShell.new.root_log(log)
+    Thread.new do
+      sh.spawn("sleep 10")
+    end
+    sleep 0.1
+    HashLogShell::RunningPids.list.size.should eq(1)
+    sh.kill_running
+    sleep 0.1
+    HashLogShell::RunningPids.list.size.should eq(0)
+  end
 end

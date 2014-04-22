@@ -229,6 +229,12 @@ module Ki
       Process.spawn(run_env, cmd, run_options)
     end
 
+    def kill_running(signal="KILL")
+      if @previous && @previous.running
+        Process.kill(signal, @previous.pid)
+      end
+    end
+
     def self.cleanup
       try(10,0.5) do |c|
         HashLogShell::RunningPids.list.each do |pid|
