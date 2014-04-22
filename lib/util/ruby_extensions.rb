@@ -137,7 +137,7 @@ class Object
     class_or_module
   end
 
-  def try(retries, retry_sleep, &block)
+  def try(retries=15, retry_sleep=1, &block)
     c = 0
     start = Time.now
     begin
