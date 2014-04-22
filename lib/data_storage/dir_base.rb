@@ -37,7 +37,11 @@ module Ki
 
 
     def init_from_path(path)
-      @path = path
+      if path.kind_of?(DirectoryBase)
+        @path = path.path
+      else
+        @path = path
+      end
     end
 
     def name

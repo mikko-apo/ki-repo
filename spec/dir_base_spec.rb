@@ -69,4 +69,8 @@ describe DirectoryBase do
     latch.wait(:b)
     fileA.load_data_from_file.should eq("edit" => "b")
   end
+
+  it "should handle DirectoryBase constructor" do
+    DirectoryBase.new(DirectoryBase.new("/a")).path.should eq("/a")
+  end
 end
