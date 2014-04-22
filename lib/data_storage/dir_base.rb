@@ -38,8 +38,8 @@ module Ki
 
     def init_from_path(path)
       if path.kind_of?(DirectoryBase)
-        if path.parent
-          parent(path.parent)
+        if path.own_parent
+          parent(path.own_parent)
         end
         @path = path.own_path
       else
@@ -53,6 +53,10 @@ module Ki
 
     def own_path
       @path
+    end
+
+    def own_parent
+      @parent
     end
 
     def go(*path)
