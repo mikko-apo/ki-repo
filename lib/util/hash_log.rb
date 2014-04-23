@@ -43,7 +43,7 @@ module Ki
       if args.empty? && block.nil?
         current_log_entry
       else
-        new_entry = {"start" => Time.now.to_f}
+        new_entry = {"start" => HashLog.round_to_ms(Time.now.to_f)}
         first = args.first
         if first.kind_of?(String) || first.kind_of?(Float) || first.kind_of?(Integer) || first.kind_of?(Symbol)
           new_entry["name"] = args.delete_at(0)
@@ -81,13 +81,16 @@ module Ki
             HashLogMutex.synchronize do
               Thread.current[HashLogThreadCurrentKey].delete(new_entry)
             end
-            duration = Time.now.to_f - new_entry["start"]
-            new_entry["time"] = (duration * 1000).round / 1000.0
+            new_entry["time"] = HashLog.round_to_ms(Time.now.to_f - new_entry["start"])
           end
         else
           new_entry
         end
       end
+    end
+
+    def self.round_to_ms(sec)
+      (sec * 1000).round / 1000.0
     end
 
     def set_hash_log_root_for_thread(root)
