@@ -1,33 +1,33 @@
 module Ki
   class SynchronizedArray
-    attr_reader :list
+    attr_reader :array
 
-    def initialize
+    def initialize(arr = [])
       extend MonitorMixin
-      @list = []
+      @array = arr
     end
 
     def << item
       synchronize do
-        @list << item
+        @array << item
       end
     end
 
     def delete(item)
       synchronize do
-        @list.delete(item)
+        @array.delete(item)
       end
     end
 
     def dup
       synchronize do
-        @list.dup
+        @array.dup
       end
     end
 
     def include?(item)
       synchronize do
-        @list.include?(item)
+        @array.include?(item)
       end
     end
   end
