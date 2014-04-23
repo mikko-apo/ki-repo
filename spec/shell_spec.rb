@@ -106,4 +106,13 @@ describe HashLogShell do
     sleep 0.1
     HashLogShell::RunningPids.list.size.should eq(0)
   end
+
+  it "should get input from /dev/null" do
+    log = DummyHashLog.new
+    sh = HashLogShell.new.root_log(log).timeout(1)
+    lambda{
+      sh.spawn('read -p Do? yn')
+    }.should raise_error("Shell command 'read -p Do? yn' failed with exit code 1")
+
+  end
 end

@@ -107,6 +107,11 @@ module Ki
           run_options[:err]=werr
         end
       end
+      if (!run_options[:in])
+        rd, wr = IO.pipe
+        wr.close
+        run_options[:in]=rd
+      end
       cmd = arr.first
       root_log.log(cmd.split(" ")[0]) do |l|
         l["cmd"]=cmd
