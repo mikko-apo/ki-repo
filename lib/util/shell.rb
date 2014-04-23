@@ -38,39 +38,9 @@ module Ki
       block.call(self)
     end
   end
-  class SynchronizedList
-    def initialize
-      extend MonitorMixin
-      @list = []
-    end
-
-    def add(item)
-      synchronize do
-        @list << item
-      end
-    end
-
-    def delete(item)
-      synchronize do
-        @list.delete(item)
-      end
-    end
-
-    def list
-      synchronize do
-        @list.dup
-      end
-    end
-
-    def include?(item)
-      synchronize do
-        @list.include?(item)
-      end
-    end
-  end
 
   class HashLogShell
-    RunningPids = SynchronizedList.new
+    RunningPids = SynchronizedArray.new
 
     attr_chain :env
     attr_chain :chdir
@@ -116,7 +86,7 @@ module Ki
       root_log.log(cmd.split(" ")[0]) do |l|
         l["cmd"]=cmd
         pid = system_spawn(run_env, cmd, run_options)
-        HashLogShell::RunningPids.add(pid)
+        HashLogShell::RunningPids << pid
         @previous = ShellCommandExecution.new.
             cmd(cmd).
             pid(pid).
@@ -242,11 +212,11 @@ module Ki
 
     def self.cleanup
       try(10,0.5) do |c|
-        HashLogShell::RunningPids.list.each do |pid|
+        HashLogShell::RunningPids.dup.each do |pid|
           Process.kill( c < 5 ? "TERM" : "KILL", pid)
         end
         try(30, 0.1) do
-          list = HashLogShell::RunningPids.list
+          list = HashLogShell::RunningPids.dup
           if list.size > 0
             raise "Child processes won't die: #{list.join(", ")}"
           end

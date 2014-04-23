@@ -39,9 +39,9 @@ describe HashLogShell do
       sh.spawn("echo 1 && sleep 10 && echo 2")
     end
     sleep 0.2
-    HashLogShell::RunningPids.list.size.should eq(1)
+    HashLogShell::RunningPids.dup.size.should eq(1)
     HashLogShell.cleanup
-    HashLogShell::RunningPids.list.size.should eq(0)
+    HashLogShell::RunningPids.dup.size.should eq(0)
   end
 
   it "should manage timeout" do
@@ -51,9 +51,9 @@ describe HashLogShell do
       sh.timeout(0.2).spawn("sleep 10")
     end
     sleep 0.1
-    HashLogShell::RunningPids.list.size.should eq(1)
+    HashLogShell::RunningPids.dup.size.should eq(1)
     sleep 0.2
-    HashLogShell::RunningPids.list.size.should eq(0)
+    HashLogShell::RunningPids.dup.size.should eq(0)
     sh.previous.exitstatus.should eq("Timeout after 0.2 seconds")
   end
 
@@ -68,10 +68,10 @@ describe HashLogShell do
       sh.spawn("sleep 10")
     end
     sleep 0.1
-    HashLogShell::RunningPids.list.size.should eq(1)
+    HashLogShell::RunningPids.dup.size.should eq(1)
     a.should eq(0)
     sleep 0.2
-    HashLogShell::RunningPids.list.size.should eq(0)
+    HashLogShell::RunningPids.dup.size.should eq(0)
     a.should eq(1)
     sh.previous.exitstatus.should eq("Timeout after 0.2 seconds")
   end
@@ -86,10 +86,10 @@ describe HashLogShell do
       sh.spawn("sleep 10")
     end
     sleep 0.1
-    HashLogShell::RunningPids.list.size.should eq(1)
+    HashLogShell::RunningPids.dup.size.should eq(1)
     a.should eq(0)
     sleep 0.2
-    HashLogShell::RunningPids.list.size.should eq(0)
+    HashLogShell::RunningPids.dup.size.should eq(0)
     sh.previous.exitstatus.should eq("Timeout after 0.2 seconds and user suplied block did not stop process after 0.01 seconds. Sent TERM.")
     a.should eq(1)
   end
@@ -101,10 +101,10 @@ describe HashLogShell do
       sh.spawn("sleep 10")
     end
     sleep 0.1
-    HashLogShell::RunningPids.list.size.should eq(1)
+    HashLogShell::RunningPids.dup.size.should eq(1)
     sh.kill_running
     sleep 0.1
-    HashLogShell::RunningPids.list.size.should eq(0)
+    HashLogShell::RunningPids.dup.size.should eq(0)
   end
 
   it "should get input from /dev/null" do
@@ -113,6 +113,12 @@ describe HashLogShell do
     lambda{
       sh.spawn('read -p Do? yn')
     }.should raise_error("Shell command 'read -p Do? yn' failed with exit code 1")
+  end
 
+  it "should collect output" do
+    log = DummyHashLog.new
+    sh = HashLogShell.new.root_log(log)
+    sh.spawn('echo 1')
+    sh.previous.out.should eq("1\n")
   end
 end
