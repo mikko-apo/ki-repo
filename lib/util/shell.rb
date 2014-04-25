@@ -31,6 +31,10 @@ module Ki
     def finished?
       finished
     end
+
+    def stdout
+      output.select {|time, type, log| type == "o"}.map{|time, type, log| log}.join("\n")
+    end
   end
 
   class IOStore
