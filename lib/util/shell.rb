@@ -33,7 +33,7 @@ module Ki
     end
 
     def stdout
-      output.select {|time, type, log| type == "o"}.map{|time, type, log| log}.join("\n")
+      output.select {|time, type, log| type.nil?}.map{|time, type, log| log}.join("\n")
     end
   end
 
@@ -143,7 +143,7 @@ module Ki
                 mutex.synchronize do
                   io_objects[0].each do |io_object|
                     if io_object == rout
-                      handle_input(output, start, "o", out_store)
+                      handle_input(output, start, nil, out_store)
                     end
                     if io_object == rerr
                       handle_input(output, start, "e", err_store)
@@ -174,7 +174,7 @@ module Ki
             end
             logger.join
             if out_store
-              handle_input(output, @start, "o", out_store)
+              handle_input(output, @start, nil, out_store)
               out_store.close
             end
 
@@ -196,6 +196,10 @@ module Ki
           rd.close
         end
 
+        if output.empty?
+          l.delete("output")
+        end
+
         HashLogShell::RunningPids.delete(pid)
 
         @previous.running(false).finished(true)
@@ -212,7 +216,7 @@ module Ki
 
     def handle_input(output, start, type, store)
       store.readlines.each do |line|
-        output << [HashLog.round_to_ms(Time.now.to_f - start), type, line]
+        output << [HashLog.round_to_ms(Time.now.to_f - start), line, type].compact
       end
     end
 

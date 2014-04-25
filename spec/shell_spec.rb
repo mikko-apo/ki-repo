@@ -29,7 +29,7 @@ describe HashLogShell do
   end
 
   it "should catch output" do
-    map_output(HashLogShell.new.logger(TestLogger.new).spawn("echo foo").output).should eq([["o", "foo"]])
+    map_output(HashLogShell.new.logger(TestLogger.new).spawn("echo foo").output).should eq([["foo", nil]])
   end
 
   it "cleanup should remove dangling processes" do
@@ -131,7 +131,7 @@ describe HashLogShell do
     text2 = "Really long stdout that just goes on and on and on and on and on and on and on and on and on and on and on and on"
     err1 = "This message goes to stderr"
     sh.spawn("echo #{text1}; sleep 1; echo #{err1} >&2; echo #{text2}")
-    map_output(sh.previous.output).should eq([["o", "123"], ["e", "This message goes to stderr"], ["o", "Really long stdout that just goes on and on and on and on and on and on and on and on and on and on and on and on"]])
+    map_output(sh.previous.output).should eq([["123", nil], ["This message goes to stderr", "e"], ["Really long stdout that just goes on and on and on and on and on and on and on and on and on and on and on and on", nil]])
   end
 
   def map_output(output)
