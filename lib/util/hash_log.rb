@@ -105,4 +105,9 @@ module Ki
       end
     end
   end
+
+  class TestLogger
+    include HashLog
+  end
+
 end

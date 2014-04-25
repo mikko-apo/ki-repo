@@ -32,11 +32,6 @@ module Ki
       finished
     end
   end
-  class DummyHashLog < Hash
-    def log(*arr, &block)
-      block.call(self)
-    end
-  end
 
   class IOStore
     attr_reader :reader, :writer, :buf

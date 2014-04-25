@@ -18,23 +18,23 @@ require 'spec_helper'
 
 describe HashLogShell do
   it "should execute simple command succesfully" do
-    HashLogShell.new.chdir(Dir.pwd).env({}).root_log(Logger.new).spawn({}, "true", {})
+    HashLogShell.new.chdir(Dir.pwd).env({}).root_log(TestLogger.new).spawn({}, "true", {})
   end
 
   it "should notice failed commands" do
     lambda {
-      HashLogShell.new.root_log(Logger.new).spawn("false")
+      HashLogShell.new.root_log(TestLogger.new).spawn("false")
     }.should raise_error("Shell command 'false' failed with exit code 1")
-    HashLogShell.new.ignore_error(true).root_log(Logger.new).spawn("false")
+    HashLogShell.new.ignore_error(true).root_log(TestLogger.new).spawn("false")
   end
 
   it "should catch output" do
-    map_output(HashLogShell.new.root_log(Logger.new).spawn("echo foo").output).should eq([["o", "foo"]])
+    map_output(HashLogShell.new.root_log(TestLogger.new).spawn("echo foo").output).should eq([["o", "foo"]])
   end
 
   it "cleanup should remove dangling processes" do
     HashLogShell::RunningPids.dup.size.should eq(0)
-    log = Logger.new
+    log = TestLogger.new
     sh = HashLogShell.new.root_log(log)
     Thread.new do
       sh.spawn("echo 1 && sleep 10 && echo 2")
@@ -47,7 +47,7 @@ describe HashLogShell do
 
   it "should manage timeout" do
     HashLogShell::RunningPids.dup.size.should eq(0)
-    log = Logger.new
+    log = TestLogger.new
     sh = HashLogShell.new.root_log(log)
     Thread.new do
       begin
@@ -65,7 +65,7 @@ describe HashLogShell do
 
   it "should manage timeout function" do
     HashLogShell::RunningPids.dup.size.should eq(0)
-    log = Logger.new
+    log = TestLogger.new
     a = 0
     sh = HashLogShell.new.root_log(log).timeout(0.2) do |pid|
       a = 1
@@ -85,7 +85,7 @@ describe HashLogShell do
 
   it "should manage timeout function and send KILL eventually" do
     HashLogShell::RunningPids.dup.size.should eq(0)
-    log = Logger.new
+    log = TestLogger.new
     a = 0
     sh = HashLogShell.new.root_log(log).kill_timeout(0.01).timeout(0.2) do |pid|
       a = 1
@@ -104,7 +104,7 @@ describe HashLogShell do
 
   it "kill_running should kill running process" do
     HashLogShell::RunningPids.dup.size.should eq(0)
-    log = Logger.new
+    log = TestLogger.new
     sh = HashLogShell.new.root_log(log)
     Thread.new do
       sh.spawn("sleep 10")
@@ -117,19 +117,15 @@ describe HashLogShell do
   end
 
   it "should get input from /dev/null" do
-    log = Logger.new
+    log = TestLogger.new
     sh = HashLogShell.new.root_log(log).timeout(1)
     lambda{
       sh.spawn('read -p Do? yn')
     }.should raise_error("Shell command 'read -p Do? yn' failed with exit code 1")
   end
 
-  class Logger
-    include HashLog
-  end
-
   it "should collect output" do
-    log = Logger.new
+    log = TestLogger.new
     sh = HashLogShell.new.root_log(log)
     text1 = "123"
     text2 = "Really long stdout that just goes on and on and on and on and on and on and on and on and on and on and on and on"
