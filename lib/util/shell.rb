@@ -33,7 +33,7 @@ module Ki
     end
 
     def stdout
-      output.select {|time, type, log| type.nil?}.map{|time, type, log| log}.join("\n")
+      output.select {|time, log, type| type.nil?}.map{|time, log, type| log}.join("\n")
     end
   end
 
