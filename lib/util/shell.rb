@@ -89,7 +89,7 @@ module Ki
     attr_chain :chdir
     attr_chain :ignore_error
     attr_reader :previous
-    attr_chain :root_log, :require
+    attr_chain :logger, :require
     attr_chain :detach
     attr_chain :kill_timeout, -> { 5 }
 
@@ -117,7 +117,7 @@ module Ki
         run_options[:in]=rd
       end
       cmd = arr.first
-      root_log.log(cmd.split(" ")[0]) do |l|
+      logger.log(cmd.split(" ")[0]) do |l|
         l["cmd"]=cmd
         pid = system_spawn(run_env, cmd, run_options)
         HashLogShell::RunningPids << pid
