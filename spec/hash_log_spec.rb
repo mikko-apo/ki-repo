@@ -87,4 +87,11 @@ describe HashLog do
     l = f.log("root")
     l["start"].should be_true
   end
+
+  it "TestLogger should work as mock" do
+    logger = TestLogger.new
+    logger.log("foo") do |l|
+      l.fetch("start")
+    end
+  end
 end

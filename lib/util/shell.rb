@@ -174,12 +174,12 @@ module Ki
             end
             logger.join
             if out_store
-              handle_input(output, @start, nil, out_store)
+              handle_input(output, start, nil, out_store)
               out_store.close
             end
 
             if err_store
-              handle_input(output, @start, "e", err_store)
+              handle_input(output, start, "e", err_store)
               err_store.close
             end
           end
