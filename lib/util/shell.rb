@@ -190,14 +190,14 @@ module Ki
             exitstatus = status.exitstatus
           end
           @previous.exitstatus(exitstatus)
+
+          if output.empty?
+            l.delete("output")
+          end
         end
 
         if rd
           rd.close
-        end
-
-        if output.empty?
-          l.delete("output")
         end
 
         HashLogShell::RunningPids.delete(pid)
