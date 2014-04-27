@@ -134,6 +134,13 @@ describe HashLogShell do
     map_output(sh.previous.output).should eq([["123", nil], ["This message goes to stderr", "e"], ["Really long stdout that just goes on and on and on and on and on and on and on and on and on and on and on and on", nil]])
   end
 
+  it "should collect output with last line" do
+    log = TestLogger.new
+    sh = HashLogShell.new.logger(log)
+    sh.spawn("echo -n abc")
+    map_output(sh.previous.output).should eq([["abc", nil]])
+  end
+
   def map_output(output)
     output.map{|time, type, log| [type, log]}
   end

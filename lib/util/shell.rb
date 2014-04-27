@@ -47,12 +47,10 @@ module Ki
       @open = true
     end
 
-    def readlines
+    def readlines(finalize)
       if !@open
         return []
       end
-      ret = []
-      r = nil
 
       begin
         while true
@@ -62,16 +60,13 @@ module Ki
       end
 
       arr = @buf.split("\n")
-      if arr.length == 1 && @buf.end_with?("\n")
-        ret << arr.delete_at(0)
-        @buf = ""
+      if finalize || (arr.length == 1 && @buf.end_with?("\n"))
+        @buf = ''
+        arr
       else
-        while arr.size > 1
-          ret << arr.delete_at(0)
-        end
-        @buf = arr[0]
+        @buf = arr[-1]
+        arr[0..-2]
       end
-      ret
     end
 
     def close
@@ -174,12 +169,12 @@ module Ki
             end
             logger.join
             if out_store
-              handle_input(output, start, nil, out_store)
+              handle_input(output, start, nil, out_store, true)
               out_store.close
             end
 
             if err_store
-              handle_input(output, start, "e", err_store)
+              handle_input(output, start, "e", err_store, true)
               err_store.close
             end
           end
@@ -214,8 +209,8 @@ module Ki
       end
     end
 
-    def handle_input(output, start, type, store)
-      store.readlines.each do |line|
+    def handle_input(output, start, type, store, finalize=false)
+      store.readlines(finalize).each do |line|
         output << [HashLog.round_to_ms(Time.now.to_f - start), line, type].compact
       end
     end
