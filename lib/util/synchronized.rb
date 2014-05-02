@@ -19,6 +19,12 @@ module Ki
       end
     end
 
+    def delete_at(item)
+      synchronize do
+        @array.delete_at(item)
+      end
+    end
+
     def dup
       synchronize do
         @array.dup
@@ -28,6 +34,12 @@ module Ki
     def include?(item)
       synchronize do
         @array.include?(item)
+      end
+    end
+
+    def empty?
+      synchronize do
+        @array.empty?
       end
     end
   end

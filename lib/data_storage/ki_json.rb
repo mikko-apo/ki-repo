@@ -114,6 +114,10 @@ module Ki
     def empty?
       cached_data.empty?
     end
+
+    def include?(key)
+      cached_data.include?(key)
+    end
   end
 
   # Base implementation Json hash file
