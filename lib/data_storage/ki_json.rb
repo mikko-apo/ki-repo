@@ -118,6 +118,14 @@ module Ki
     def include?(key)
       cached_data.include?(key)
     end
+
+    def delete(key)
+      obj = nil
+      edit_data do
+        obj = @cached_data.delete(key)
+      end
+      create_list_item(obj)
+    end
   end
 
   # Base implementation Json hash file
