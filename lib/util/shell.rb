@@ -64,8 +64,13 @@ module Ki
         @buf = ''
         arr
       else
-        @buf = arr[-1]
-        arr[0..-2]
+        if arr.empty?
+          @buf = ''
+          arr
+        else
+          @buf = arr[-1]
+          arr[0..-2]
+        end
       end
     end
 
