@@ -259,6 +259,15 @@ module Ki
     end
 
     def system_spawn(run_env, cmd, run_options)
+      if cd = run_options[:chdir]
+        if cd.kind_of?(DirectoryBase)
+          run_options[:chdir] = cd.path
+        end
+        if !File.exist?(run_options[:chdir])
+          raise "Path '#{cd}' does not exist!"
+        end
+      end
+
       Process.spawn(run_env, cmd, run_options)
     end
 
@@ -279,9 +288,13 @@ module Ki
           running(true).
           finished(false)
 
-      if run_options[:chdir]
-        previous.chdir(run_options[:chdir])
-        log["chdir"] = run_options[:chdir]
+      if cd = run_options[:chdir]
+        previous.chdir(cd)
+        if cd.kind_of?(DirectoryBase)
+          log["chdir"] = cd.path
+        else
+          log["chdir"] = cd
+        end
       end
 
       previous
