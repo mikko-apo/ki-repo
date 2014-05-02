@@ -119,6 +119,10 @@ module Ki
       cached_data.include?(key)
     end
 
+    def size
+      cached_data.size
+    end
+
     def delete(key)
       obj = nil
       edit_data do
