@@ -148,6 +148,17 @@ describe HashLogShell do
         should raise_error /Shell command 'echo 1; sleep 1' failed with exit code Timeout after .* seconds \(tried 5 times, waited .* seconds\)/
   end
 
+  it "should remove extra parameters from log" do
+    sh = HashLogShell.new.logger(TestLogger.new)
+    previous = sh.extra_parameters(" -foo", " -bar").spawn("echo 123 -foo -bar")
+    previous.stdout.should eq("123 -foo -bar")
+    previous.log["cmd"].should eq("echo 123")
+    previous.log["cmd_original"].should eq("echo 123 -foo -bar")
+    previous = sh.extra_parameters(" -foo").spawn("echo 123 -foo -bar")
+    previous.stdout.should eq("123 -foo -bar")
+    previous.log["cmd"].should eq("echo 123 -bar")
+  end
+
   def map_output(output)
     output.map{|time, type, log| [type, log]}
   end

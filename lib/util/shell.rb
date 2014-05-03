@@ -94,6 +94,7 @@ module Ki
     attr_chain :logger, :require
     attr_chain :detach
     attr_chain :kill_timeout, -> { 5 }
+    attr_chain :extra_parameters, -> {[]}
 
     def spawn(*arr)
       logger.log("command") do |l|
@@ -148,7 +149,7 @@ module Ki
       cmd = arr.first
 
       l["name"]=cmd.split(" ")[0]
-      l["cmd"]=cmd
+      set_log_cmd(l, cmd)
 
       output = out_store = err_store = nil
       if !detach
@@ -265,6 +266,17 @@ module Ki
         end
       end
       @previous
+    end
+
+    def set_log_cmd(l, cmd)
+      new_cmd = cmd.dup
+      Array(extra_parameters).each do |param|
+        new_cmd.gsub!(param, "")
+      end
+      l["cmd"]=new_cmd
+      if cmd != new_cmd
+        l["cmd_original"] = cmd
+      end
     end
 
     def handle_input(output, start, type, store, finalize=false)
