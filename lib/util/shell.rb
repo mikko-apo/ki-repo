@@ -343,7 +343,7 @@ module Ki
       end
 
       if try_count > 1
-        log["retry"]=try_count
+        log["try"]=try_count
       end
 
       previous

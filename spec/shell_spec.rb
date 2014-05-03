@@ -140,12 +140,14 @@ describe HashLogShell do
     sh = HashLogShell.new.logger(TestLogger.new)
     lambda{sh.retry(5,0.01).spawn("echo abc;exit 1")}.
         should raise_error /Shell command 'echo abc;exit 1' failed with exit code 1 \(tried 5 times, waited .* seconds\)/
+    sh.previous.log["try"].should eq(5)
   end
 
   it "should timeout and retry" do
     sh = HashLogShell.new.logger(TestLogger.new)
     lambda{sh.retry(5,0.001).timeout(0.01).spawn("echo 1; sleep 1")}.
         should raise_error /Shell command 'echo 1; sleep 1' failed with exit code Timeout after .* seconds \(tried 5 times, waited .* seconds\)/
+    sh.previous.log["try"].should eq(5)
   end
 
   it "should remove extra parameters from log" do
