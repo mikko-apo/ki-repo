@@ -61,8 +61,11 @@ module Ki
       rescue
       end
 
-      @buf.scrub!("?")
-      puts @buf.encoding
+      if defined? @buf.scrub!
+        @buf.scrub!("?")
+      else
+        @buf.encode!( "UTF-8", "binary", :invalid => :replace, :undef => :replace, :replace => "?")
+      end
       arr = @buf.split("\n")
       if finalize || (arr.length == 1 && @buf.end_with?("\n"))
         @buf = ''
