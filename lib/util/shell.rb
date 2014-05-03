@@ -61,6 +61,7 @@ module Ki
       rescue
       end
 
+      @buf.scrub!("?")
       arr = @buf.split("\n")
       if finalize || (arr.length == 1 && @buf.end_with?("\n"))
         @buf = ''
