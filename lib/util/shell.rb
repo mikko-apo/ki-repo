@@ -27,6 +27,8 @@ module Ki
     attr_chain :finished
     attr_chain :detached
     attr_chain :chdir
+    attr_chain :try_count
+    attr_chain :log
 
     def finished?
       finished
@@ -94,68 +96,117 @@ module Ki
     attr_chain :kill_timeout, -> { 5 }
 
     def spawn(*arr)
+      logger.log("command") do |l|
+        if @retry
+          try(@retry, @retry_timeout) do |try_count|
+            spawn_internal(l, arr, try_count)
+          end
+        else
+          spawn_internal(l, arr, 1)
+        end
+      end
+    end
+
+    def timeout(time_s, &timeout_block)
+      @timeout = time_s
+      @timeout_block = timeout_block
+      self
+    end
+
+    def system_spawn(run_env, cmd, run_options)
+      if cd = run_options[:chdir]
+        if cd.kind_of?(DirectoryBase)
+          run_options[:chdir] = cd.path
+        end
+        if !File.exist?(run_options[:chdir])
+          raise "Path '#{cd}' does not exist!"
+        end
+      end
+
+      Process.spawn(run_env, cmd, run_options)
+    end
+
+    def kill_running(signal="KILL")
+      if @previous && @previous.running
+        Process.kill(signal, @previous.pid)
+      end
+    end
+
+    def retry(times, timeout_s=1)
+      @retry = times
+      @retry_timeout = timeout_s
+      self
+    end
+
+    private
+
+    def spawn_internal(l, arr, try_count)
       @finished = false
       run_env = {}
       run_options = {}
       parse_options_env(arr, run_options, run_env)
+      cmd = arr.first
+
+      l["name"]=cmd.split(" ")[0]
+      l["cmd"]=cmd
+
       output = out_store = err_store = nil
       if !detach
-        if (!run_options[:out])
+        if !run_options[:out]
           rout, wout = IO.pipe
           run_options[:out]=wout
           out_store = IOStore.new(rout, wout)
         end
-        if (!run_options[:err])
+        if !run_options[:err]
           rerr, werr = IO.pipe
           run_options[:err]=werr
           err_store = IOStore.new(rerr, werr)
         end
       end
-      if (!run_options[:in])
+      if !run_options[:in]
         rd, wr = IO.pipe
         wr.close
         run_options[:in]=rd
       end
-      cmd = arr.first
-      logger.log(cmd.split(" ")[0]) do |l|
-        l["cmd"]=cmd
-        pid = system_spawn(run_env, cmd, run_options)
-        HashLogShell::RunningPids << pid
-        @previous = setup_previous(cmd, pid, l, run_env, run_options)
 
-        # run process and manage detach and timeout
-        if detach
-          Process.detach(pid)
-          exitstatus = 0
-          @previous.detached(true)
-        else
-          timeout_exception = status = logger = nil
-          mutex = Mutex.new
-          start = l.fetch("start")
+      pid = system_spawn(run_env, cmd, run_options)
+      HashLogShell::RunningPids << pid
+      @previous = setup_previous(cmd, pid, l, run_env, run_options, try_count)
 
-          # logger reads output from spawned process
-          if out_store || err_store
-            l["output"] = output = []
-            previous.output(output)
-            logger = Thread.new do
-              while true
-                io_objects = IO.select([rout, rerr].compact)
-                mutex.synchronize do
-                  io_objects[0].each do |io_object|
-                    if io_object == rout
-                      handle_input(output, start, nil, out_store)
-                    end
-                    if io_object == rerr
-                      handle_input(output, start, "e", err_store)
-                    end
+      # run process and manage detach and timeout
+      if detach
+        Process.detach(pid)
+        exitstatus = 0
+        @previous.detached(true)
+      else
+        timeout_exception = status = logger = nil
+        mutex = Mutex.new
+        start = l.fetch("start")
+
+        # logger reads output from spawned process
+        if out_store || err_store
+          l["output"] = output = []
+          previous.output(output)
+          logger = Thread.new do
+            while true
+              io_objects = IO.select([rout, rerr].compact)
+              mutex.synchronize do
+                io_objects[0].each do |io_object|
+                  if io_object == rout
+                    handle_input(output, start, nil, out_store)
+                  end
+                  if io_object == rerr
+                    handle_input(output, start, "e", err_store)
                   end
                 end
               end
             end
           end
+        end
 
-          # decide if we should manage timeouts or just wait for the process to finish
-          if @timeout && @timeout > 0 && ( (remaining = start + @timeout - Time.now.to_f) > 0)
+        # decide if we should manage timeouts or just wait for the process to finish
+        if @timeout && @timeout > 0
+          if (remaining = start + @timeout - Time.now.to_f) > 0
             begin
               Timeout.timeout(remaining) do
                 pid2, status = Process.waitpid2(pid)
@@ -164,54 +215,56 @@ module Ki
               status, timeout_exception = handle_timeout(pid, status)
             end
           else
-            pid2, status = Process.waitpid2(pid)
+            status, timeout_exception = handle_timeout(pid, status)
+          end
+        else
+          pid2, status = Process.waitpid2(pid)
+        end
+
+        # close logger and drain outputs
+        if logger
+          mutex.synchronize do
+            logger.exit
+          end
+          logger.join
+          if out_store
+            handle_input(output, start, nil, out_store, true)
+            out_store.close
           end
 
-          # close logger and drain outputs
-          if logger
-            mutex.synchronize do
-              logger.exit
-            end
-            logger.join
-            if out_store
-              handle_input(output, start, nil, out_store, true)
-              out_store.close
-            end
-
-            if err_store
-              handle_input(output, start, "e", err_store, true)
-              err_store.close
-            end
-          end
-
-          if timeout_exception
-            exitstatus = timeout_exception
-          else
-            exitstatus = status.exitstatus
-          end
-          @previous.exitstatus(exitstatus)
-
-          if output.empty?
-            l.delete("output")
+          if err_store
+            handle_input(output, start, "e", err_store, true)
+            err_store.close
           end
         end
 
-        if rd
-          rd.close
+        if timeout_exception
+          exitstatus = timeout_exception
+        else
+          exitstatus = status.exitstatus
         end
+        @previous.exitstatus(exitstatus)
 
-        HashLogShell::RunningPids.delete(pid)
-
-        @previous.running(false).finished(true)
-
-        if exitstatus != 0
-          l["exitstatus"] = exitstatus
-          if !ignore_error
-            raise "Shell command '#{cmd}' failed with exit code #{exitstatus}"
-          end
+        if output.empty?
+          l.delete("output")
         end
-        @previous
       end
+
+      if rd
+        rd.close
+      end
+
+      HashLogShell::RunningPids.delete(pid)
+
+      @previous.running(false).finished(true)
+
+      if exitstatus != 0
+        l["exitstatus"] = exitstatus
+        if !ignore_error
+          raise "Shell command '#{cmd}' failed with exit code #{exitstatus}"
+        end
+      end
+      @previous
     end
 
     def handle_input(output, start, type, store, finalize=false)
@@ -257,41 +310,16 @@ module Ki
       return status, timeout_exception
     end
 
-    def timeout(time_s, &timeout_block)
-      @timeout = time_s
-      @timeout_block = timeout_block
-      self
-    end
-
-    def system_spawn(run_env, cmd, run_options)
-      if cd = run_options[:chdir]
-        if cd.kind_of?(DirectoryBase)
-          run_options[:chdir] = cd.path
-        end
-        if !File.exist?(run_options[:chdir])
-          raise "Path '#{cd}' does not exist!"
-        end
-      end
-
-      Process.spawn(run_env, cmd, run_options)
-    end
-
-    def kill_running(signal="KILL")
-      if @previous && @previous.running
-        Process.kill(signal, @previous.pid)
-      end
-    end
-
-    private
-
-    def setup_previous(cmd, pid, log, run_env, run_options)
+    def setup_previous(cmd, pid, log, run_env, run_options, try_count)
       previous = ShellCommandExecution.new.
           cmd(cmd).
           pid(pid).
           env(run_env).
           options(run_options).
           running(true).
-          finished(false)
+          finished(false).
+          try_count(try_count).
+          log(log)
 
       if cd = run_options[:chdir]
         previous.chdir(cd)
@@ -300,6 +328,10 @@ module Ki
         else
           log["chdir"] = cd
         end
+      end
+
+      if try_count > 1
+        log["retry"]=try_count
       end
 
       previous

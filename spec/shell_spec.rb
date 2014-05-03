@@ -29,7 +29,7 @@ describe HashLogShell do
   end
 
   it "should catch output" do
-    map_output(HashLogShell.new.logger(TestLogger.new).spawn("echo foo").output).should eq([["foo", nil]])
+    HashLogShell.new.logger(TestLogger.new).spawn("echo foo").stdout.should eq("foo")
   end
 
   it "cleanup should remove dangling processes" do
@@ -50,11 +50,7 @@ describe HashLogShell do
     log = TestLogger.new
     sh = HashLogShell.new.logger(log)
     Thread.new do
-      begin
-        sh.timeout(0.2).spawn("sleep 10")
-      rescue Exception => e
-        puts "Exception #{e.message}: #{e.backtrace}"
-      end
+      sh.timeout(0.2).spawn("sleep 10")
     end
     sleep 0.1
     HashLogShell::RunningPids.dup.size.should eq(1)
@@ -135,10 +131,21 @@ describe HashLogShell do
   end
 
   it "should collect output with last line" do
-    log = TestLogger.new
-    sh = HashLogShell.new.logger(log)
+    sh = HashLogShell.new.logger(TestLogger.new)
     sh.spawn("echo -n abc")
-    map_output(sh.previous.output).should eq([["abc", nil]])
+    sh.previous.stdout.should eq("abc")
+  end
+
+  it "should retry" do
+    sh = HashLogShell.new.logger(TestLogger.new)
+    lambda{sh.retry(5,0.01).spawn("echo abc;exit 1")}.
+        should raise_error /Shell command 'echo abc;exit 1' failed with exit code 1 \(tried 5 times, waited .* seconds\)/
+  end
+
+  it "should timeout and retry" do
+    sh = HashLogShell.new.logger(TestLogger.new)
+    lambda{sh.retry(5,0.001).timeout(0.01).spawn("echo 1; sleep 1")}.
+        should raise_error /Shell command 'echo 1; sleep 1' failed with exit code Timeout after .* seconds \(tried 5 times, waited .* seconds\)/
   end
 
   def map_output(output)
