@@ -42,5 +42,11 @@ module Ki
         @array.empty?
       end
     end
+
+    def size
+      synchronize do
+        @array.size
+      end
+    end
   end
 end
