@@ -264,10 +264,10 @@ module Ki
 
       @previous.running(false).finished(true)
 
-      if exitstatus != 0
+      if !(exitstatus == 0 || exitstatus.nil?)
         l["exitstatus"] = exitstatus
         if !ignore_error
-          raise "Shell command '#{cmd}' failed with exit code #{exitstatus}"
+          raise "Shell command '#{cmd}' failed with exit code '#{exitstatus}'"
         end
       end
       @previous
