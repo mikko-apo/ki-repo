@@ -302,8 +302,8 @@ module Ki
             end
           end
         rescue Timeout::Error
-          timeout_exception = "Timeout after #{@timeout} seconds and user suplied block did not stop process after #{kill_timeout} seconds. Sent TERM."
-          Process.kill "TERM", pid
+          timeout_exception = "Timeout after #{@timeout} seconds and user suplied block did not stop process after #{kill_timeout} seconds. Sent INT."
+          Process.kill "INT", pid
           begin
             Timeout.timeout(kill_timeout) do
               pid2, status = Process.waitpid2(pid)
@@ -314,13 +314,13 @@ module Ki
           end
         end
       else
-        Process.kill "TERM", pid
+        Process.kill "INT", pid
         begin
           Timeout.timeout(kill_timeout) do
             pid2, status = Process.waitpid2(pid)
           end
         rescue Timeout::Error
-          timeout_exception = "Timeout after #{@timeout} seconds and TERM did not stop process after #{kill_timeout} seconds. Sent KILL."
+          timeout_exception = "Timeout after #{@timeout} seconds and INT did not stop process after #{kill_timeout} seconds. Sent KILL."
           Process.kill "KILL", pid
         end
       end
@@ -374,7 +374,7 @@ module Ki
     def self.cleanup
       try(10, 0.5) do |c|
         HashLogShell::RunningPids.dup.each do |pid|
-          Process.kill(c < 5 ? "TERM" : "KILL", pid)
+          Process.kill(c < 5 ? "INT" : "KILL", pid)
         end
         try(30, 0.1) do
           list = HashLogShell::RunningPids.dup
