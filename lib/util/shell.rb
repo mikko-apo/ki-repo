@@ -174,6 +174,9 @@ module Ki
         wr.close
         run_options[:in]=rd
       end
+      if !run_options.include?(:pgroup)
+        run_options[:pgroup] = true
+      end
 
       pid = system_spawn(run_env, cmd, run_options)
       HashLogShell::RunningPids << pid
